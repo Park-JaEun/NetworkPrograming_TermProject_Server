@@ -2,12 +2,12 @@
 #include <iostream>
 #include "protocol.h"
 #include "Global.h"
+#include <vector>
 #pragma comment(lib, "ws2_32") // ws2_32.lib 링크
 
 #define SERVERPORT 9000
 
-
-
+std::vector<std::string> ClientNickNname;		// 클라이언트의 닉네임을 저장하는 벡터
 
 
 // 소켓 함수 오류 출력 후 종료
@@ -49,7 +49,6 @@ int main(int argc, char* argv[])
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 		return 1;
 
-	
 	// 소켓 생성
 	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (listen_sock == INVALID_SOCKET) err_quit("socket()");
@@ -83,8 +82,33 @@ int main(int argc, char* argv[])
 	// 접속한 클라이언트 정보 출력
 	char addr[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
-	printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n",
-			addr, ntohs(clientaddr.sin_port));
+
+	// 클라이언트의 닉네임 크기 받기
+	int nick_name_size;
+	retval = recv(client_sock, (char*)&nick_name_size, sizeof(int), MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(client_sock);
+		return 1;
+	}
+
+	// 클라이언트의 닉네임 받기
+	char nick_name[256];
+	retval = recv(client_sock, nick_name, nick_name_size, MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(client_sock);
+		return 1;
+	}
+	nick_name[retval] = '\0';  // 수신한 닉네임을 문자열로..
+
+
+	// 클라이언트의 닉네임을 저장
+	ClientNickNname.emplace_back(nick_name);
+
+	// 접속한 클라이언트 정보와 닉네임 출력
+	printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d, 닉네임=%s\n",
+		addr, ntohs(clientaddr.sin_port), nick_name);
 
 	while (1) {
 		 ///////////////////////////////////////////////////////////////////////////
@@ -159,10 +183,18 @@ int main(int argc, char* argv[])
 				size = sizeof(p);
 				std::cout << "서버 → 클라이언트 : ID 할당 관련 패킷을 전송하였습니다" << '\n';
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
+				}
 				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
 				}
 			}
 			break;
@@ -178,10 +210,18 @@ int main(int argc, char* argv[])
 				
 				//여기서 변경해서 보내면 돼
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
+				}
 				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
 				}
 			}
 			break;
@@ -193,10 +233,18 @@ int main(int argc, char* argv[])
 				size = sizeof(p);
 				std::cout << "서버 → 클라이언트 : 초기화 요청 신호 관련 패킷을 전송하였습니다" << '\n';
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
+				}
 				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
 				}
 			}
 			break;
@@ -209,10 +257,18 @@ int main(int argc, char* argv[])
 				size = sizeof(p);
 				std::cout << "서버 → 클라이언트 : 게임 시작 신호 패킷을 전송하였습니다" << '\n';
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
+				}
 				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
 				}
 			}
 			break;
@@ -224,10 +280,18 @@ int main(int argc, char* argv[])
 				size = sizeof(p);
 				std::cout << "서버 → 클라이언트 : 게임 오버 신호 패킷을 전송하였습니다" << '\n';
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
+				}
 				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
 				}
 			}
 			break;
@@ -239,10 +303,18 @@ int main(int argc, char* argv[])
 				size = sizeof(p);
 				std::cout << "서버 → 클라이언트 : 게임 클리어 패킷을 전송하였습니다" << '\n';
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
+				}
 				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
 				}
 			}
 			break;
@@ -254,10 +326,18 @@ int main(int argc, char* argv[])
 				size = sizeof(p);
 				std::cout << "서버 → 클라이언트 : 플레이어 정보 관련 패킷을 전송하였습니다" << '\n';
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
+				}
 				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
 				}
 			}
 			break;
@@ -269,10 +349,18 @@ int main(int argc, char* argv[])
 				size = sizeof(p);
 				std::cout << "서버 → 클라이언트 : 몬스터 정보 관련 패킷을 전송하였습니다" << '\n';
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
+				}
 				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
 				}
 			}
 			break;
@@ -284,10 +372,18 @@ int main(int argc, char* argv[])
 				size = sizeof(p);
 				std::cout << "서버 → 클라이언트 : 보스 정보 관련 패킷을 전송하였습니다" << '\n';
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
+				}
 				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
 				}
 			}
 			break;
@@ -299,10 +395,18 @@ int main(int argc, char* argv[])
 				size = sizeof(p);
 				std::cout << "서버 → 클라이언트 : 투사체 정보 관련 패킷을 전송하였습니다" << '\n';
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
+				}
 				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
 				}
 			}
 			break;
@@ -314,10 +418,18 @@ int main(int argc, char* argv[])
 				size = sizeof(p);
 				std::cout << "서버 → 클라이언트 : 아이템 정보 관련 패킷을 전송하였습니다" << '\n';
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
+				}
 				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
 				}
 			}
 			break;
@@ -330,10 +442,18 @@ int main(int argc, char* argv[])
 				size = sizeof(p);
 				std::cout << "서버 → 클라이언트 : 플레이어 순위 정보 패킷을 전송하였습니다." << '\n';
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
+				}
 				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					closesocket(client_sock);
+					WSACleanup();
+					return 1;
 				}
 			}
 			break;
@@ -344,8 +464,8 @@ int main(int argc, char* argv[])
 
 	}
 		
-	printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n",
-		addr, ntohs(clientaddr.sin_port));
+	printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d, 닉네임=%s\n",
+		addr, ntohs(clientaddr.sin_port), nick_name);
 	// 소켓 닫기
 	closesocket(listen_sock);
 	// 윈속 종료
