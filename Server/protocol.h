@@ -1,4 +1,12 @@
-#include "Global.h"
+#include "define.h"
+#include "struct.h"
+#include "enum.h"
+#include "function.h"
+#include "CBoss.h"
+#include "CPlayer.h"
+#include "CMonster.h"
+#include "CBullet.h"
+//#include "CItem.h"
 
 #pragma once 
 ////////////////////////
@@ -74,10 +82,10 @@ typedef struct SC_BULLET_PACKET {
 };
 
 // 아이템 정보 수신 관련 패킷 
-typedef struct SC_ITEM_PACKET {
-	char type; // 패킷 타입
-	Citem  item; // 투사체 정보
-};
+//typedef struct SC_ITEM_PACKET {
+//	char type; // 패킷 타입
+//	Citem  item; // 투사체 정보
+//};
 
 // 게임 클리어 후, 플레이어들의 순위 정보 수신 관련 패킷 
 typedef struct SC_RANK_PACKET {

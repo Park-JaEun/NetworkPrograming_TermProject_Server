@@ -1,8 +1,7 @@
 #include <ws2tcpip.h> // 윈속2 확장 헤더
-#include <iostream>
-#include "protocol.h"
-#include "Global.h"
-#include <vector>
+
+#include "pch.h"
+
 #pragma comment(lib, "ws2_32") // ws2_32.lib 링크
 
 #define SERVERPORT 9000
