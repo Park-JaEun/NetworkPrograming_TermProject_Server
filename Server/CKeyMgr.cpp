@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "CKeyMgr.h"
-#include "CCore.h"
 
 // 내가 만든 키 값들을 윈도우 가상 키코드값으로 바꾸기
 std::array<int, (int)KEY::LAST> g_arrVK =
@@ -88,7 +87,7 @@ void CKeyMgr::init()
 void CKeyMgr::update()
 {
 	// 윈도우 포커싱 알아내기
-	HWND hMainWnd = CCore::GetInst()->GetMainHwnd();
+	//HWND hMainWnd = CCore::GetInst()->GetMainHwnd();
 	HWND hWnd = GetFocus();
 
 	// 윈도우 포커싱
@@ -137,6 +136,4 @@ void CKeyMgr::update()
 			}
 		}
 	}
-
-
 }

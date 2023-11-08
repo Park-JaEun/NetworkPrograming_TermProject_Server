@@ -1,9 +1,6 @@
 #include "pch.h"
 #include "CCollisionMgr.h"
-
-#include "CSceneMgr.h"
-#include "CScene.h"
-
+#include "CObjectMgr.h"
 #include "CObject.h"
 #include "CCollider.h"
 
@@ -31,10 +28,8 @@ void CCollisionMgr::update()
 
 void CCollisionMgr::CollisionGroupUpdate(GROUP_TYPE _eLHS, GROUP_TYPE _eRHS)
 {
-	CScene* pCurScene = CSceneMgr::GetInst()->GetCurScene();
-
-	const std::vector<CObject*>& vecLeft = pCurScene->GetGroupObject(_eLHS);
-	const std::vector<CObject*>& vecRight = pCurScene->GetGroupObject(_eRHS);
+	const std::vector<CObject*>& vecLeft = CObjectMgr::GetInst()->GetGroupObject(_eLHS);
+	const std::vector<CObject*>& vecRight = CObjectMgr::GetInst()->GetGroupObject(_eRHS);
 
 	for (CObject* pObjLeft : vecLeft) {
 		if (pObjLeft->GetCollider() == nullptr)	// 충돌체가 없을 경우 continue

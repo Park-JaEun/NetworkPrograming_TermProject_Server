@@ -1,11 +1,11 @@
 #include "pch.h"
 #include "CPlayer.h"
 #include "CBullet.h"
-
 #include "CKeyMgr.h"
 #include "CTimer.h"
-
 #include "CCollider.h"
+#include "CObjectMgr.h"
+#include "CBoss.h"
 
 CPlayer::CPlayer() : m_bDir(DIR_RIGHT), m_eState(PLAYER_STATE::IDLE), m_fSpeed(300.f), m_iHP(5), m_fDieTime(0.f)
 {
@@ -20,12 +20,12 @@ void CPlayer::update()
 {
 	Vec2 vPos = GetPos();
 	Vec2 vDummyPos{};
-	bool bIsBoss = pMainScene->GetIsBoss();
+	
+	CBoss* pBoss = (CBoss*)CObjectMgr::GetInst()->FindObject(L"Boss");
+	bool bIsBoss = pBoss->GetHaveToAppear();
+
 
 	if (m_iHP <= 0) {
-		if (m_bDir == DIR_RIGHT)
-		else if (m_bDir == DIR_LEFT)
-
 		// 1.5초뒤 아래로 추락
 		if (m_fDieTime >= 1.5f)
 			vPos.y += DT * 50.f * 3;
@@ -100,36 +100,7 @@ void CPlayer::update()
 		if (KEY_TAP(KEY::SPACE)) {
 			// 총알 발사
 			CreateBullet();
-
-			// 슈팅 이펙트 재생
 		}
-
-		// 플레이어 상태와 방향에 따라서 플레이되는 애니메이션 변경
-		if (m_bDir == DIR_RIGHT) {
-			switch (m_eState)
-			{
-			case PLAYER_STATE::IDLE:
-				break;
-			case PLAYER_STATE::RUN:
-				break;
-			case PLAYER_STATE::HIT:
-				// TODO: HIT Animation 추가
-				break;
-			}
-		}
-		else if (m_bDir == DIR_LEFT) {
-			switch (m_eState)
-			{
-			case PLAYER_STATE::IDLE:
-				break;
-			case PLAYER_STATE::RUN:
-				break;
-			case PLAYER_STATE::HIT:
-				// TODO: HIT Animation 추가
-				break;
-			}
-		}
-
 	}
 
 	SetPos(vPos);				// 위치 업데이트
@@ -143,6 +114,7 @@ void CPlayer::CreateBullet()
 
 	pBullet->SetName(L"Player Bullet");
 	pBullet->SetPos(vBulletPos);
+	pBullet->SetFirstPos(vBulletPos);
 	pBullet->SetScale(Vec2(14.f, 13.f));
 
 	if (m_bDir == DIR_RIGHT)
@@ -151,7 +123,6 @@ void CPlayer::CreateBullet()
 		pBullet->SetDir(DIR_LEFT);
 
 	pBullet->CreateCollider();
-	pBullet->CreateAnimator(GROUP_TYPE::BULLET_PLAYER);
 
 	pBullet->SetSpeed(700.f);
 	pBullet->GetCollider()->SetScale(Vec2(25.f, 25.f));

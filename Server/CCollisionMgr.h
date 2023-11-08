@@ -3,8 +3,7 @@
 class CCollider;
 
 // ID를 담을 유니온
-union COLLIDER_ID
-{
+union COLLIDER_ID {
 	struct {
 		UINT Left_id;
 		UINT Right_id;
@@ -12,8 +11,7 @@ union COLLIDER_ID
 	ULONGLONG ID;
 };
 
-class CCollisionMgr
-{
+class CCollisionMgr {
 	SINGLE(CCollisionMgr)
 private:
 	std::map<ULONGLONG, bool>					m_mapColInfo;	// 충돌체 간의 이전 프레임 충돌 정보

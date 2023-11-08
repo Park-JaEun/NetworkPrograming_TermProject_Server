@@ -2,9 +2,8 @@
 #include "CBoss.h"
 #include "CBullet.h"
 #include "CTimer.h"
-#include "CSceneMgr.h"
-#include "CScene.h"
 #include "CCollider.h"
+#include "CObjectMgr.h"
 
 CBoss::CBoss() : m_iHP(50), m_vFirstPos{}, m_fSpeed(50.f), m_fMaxDistance(15.f),
 m_bIsAppear(false), m_bHaveToAppear(false), m_fAttackTime(0.f),
@@ -21,7 +20,7 @@ void CBoss::update()
 {
 	Vec2 vCurPos = GetPos();
 
-	// HP가 0이하가 되면 죽는 애니메이션 재생후 삭제
+	// HP가 0이하가 되면 사망
 	if (m_iHP <= 0) {
 		if (m_eState != BOSS_STATE::DIE) {
 			m_eState = BOSS_STATE::DIE;
@@ -37,14 +36,7 @@ void CBoss::update()
 		vCurPos.y += DT * 50.f * 3;
 	}
 	else {
-		switch (m_eState) {
-		case BOSS_STATE::IDLE:
-			break;
-		case BOSS_STATE::ATTACK:
-			break;
-		}
-
-		// 보스 등장 애니메이션
+		// 보스 등장
 		if (m_bHaveToAppear && !m_bIsAppear) {
 			vCurPos.y -= DT * m_fSpeed * 3;
 
@@ -54,7 +46,7 @@ void CBoss::update()
 			}
 		}
 
-		// 보스 등장후 위아래로 움직이는 애니메이션
+		// 보스 등장후 위아래로 움직이는
 		if (m_bIsAppear) {
 			// 진행 방향으로 이동
 			vCurPos.y += DT * m_fSpeed * 1;
@@ -112,10 +104,10 @@ void CBoss::CreateFanBullet()
 		pBullet->SetName(L"Boss Bullet");
 		pBullet->SetSpeed(200.f);
 		pBullet->SetPos(vBulletPos);
+		pBullet->SetFirstPos(vBulletPos);
 		pBullet->SetDir(DIR_LEFT);
 		pBullet->SetDegree(59.0f + i / 10.f);
 		pBullet->CreateCollider();
-		pBullet->CreateAnimator(GROUP_TYPE::BULLET_BOSS);
 		pBullet->GetCollider()->SetScale(Vec2(8.f, 8.f));
 
 		CreateObject(pBullet, GROUP_TYPE::BULLET_BOSS);
@@ -125,8 +117,7 @@ void CBoss::CreateFanBullet()
 void CBoss::CreateMissile()
 {
 	// 보스 미사일 발사 함수
-	CScene* pScene = CSceneMgr::GetInst()->GetCurScene();
-	CObject* pTarget = pScene->FindObject(L"Player");
+	CObject* pTarget = CObjectMgr::GetInst()->FindObject(L"Player");
 	Vec2 vMissilePos;
 
 	CBullet* pMissile = new CBullet;
@@ -158,7 +149,7 @@ void CBoss::CreateMissile()
 	}
 
 	pMissile->SetPos(vMissilePos);
-	pMissile->CreateAnimator(GROUP_TYPE::MISSILE_BOSS);
+	pMissile->SetFirstPos(vMissilePos);
 
 	CreateObject(pMissile, GROUP_TYPE::MISSILE_BOSS);
 }

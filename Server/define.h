@@ -26,3 +26,4 @@
 #define BUFSIZE 512
 
 #define MAX_FRAME 60
+#define MAX_BULLET_DISTANCE 300.f

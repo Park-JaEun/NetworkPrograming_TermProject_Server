@@ -1,7 +1,6 @@
 #pragma once
 
-class CTimer
-{
+class CTimer {
 	SINGLE(CTimer)
 private:
 	LARGE_INTEGER	m_llCurCount;	// 현재 카운트

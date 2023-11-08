@@ -8,7 +8,6 @@
 
 std::vector<std::string> ClientNickNname;		// 클라이언트의 닉네임을 저장하는 벡터
 
-
 // 소켓 함수 오류 출력 후 종료
 void err_quit(const char* msg)
 {
@@ -35,9 +34,6 @@ void err_display(const char* msg)
 	printf("[%s] %s\n", msg, (char*)lpMsgBuf);
 	LocalFree(lpMsgBuf);
 }
-
-
-
 
 int main(int argc, char* argv[])
 {
@@ -409,29 +405,29 @@ int main(int argc, char* argv[])
 				}
 			}
 			break;
-			case SC_PACKET_TYPE::SC_ITEM:
-			{
-				// 패킷 정보 보내기 
-				SC_ITEM_PACKET p;
-				p.type = static_cast<char>(SC_PACKET_TYPE::SC_ITEM);
-				size = sizeof(p);
-				std::cout << "서버 → 클라이언트 : 아이템 정보 관련 패킷을 전송하였습니다" << '\n';
-				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-				if (retval == SOCKET_ERROR) {
-					err_display("send()");
-					closesocket(client_sock);
-					WSACleanup();
-					return 1;
-				}
-				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-				if (retval == SOCKET_ERROR) {
-					err_display("send()");
-					closesocket(client_sock);
-					WSACleanup();
-					return 1;
-				}
-			}
-			break;
+			//case SC_PACKET_TYPE::SC_ITEM:
+			//{
+			//	// 패킷 정보 보내기 
+			//	SC_ITEM_PACKET p;
+			//	p.type = static_cast<char>(SC_PACKET_TYPE::SC_ITEM);
+			//	size = sizeof(p);
+			//	std::cout << "서버 → 클라이언트 : 아이템 정보 관련 패킷을 전송하였습니다" << '\n';
+			//	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+			//	if (retval == SOCKET_ERROR) {
+			//		err_display("send()");
+			//		closesocket(client_sock);
+			//		WSACleanup();
+			//		return 1;
+			//	}
+			//	retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+			//	if (retval == SOCKET_ERROR) {
+			//		err_display("send()");
+			//		closesocket(client_sock);
+			//		WSACleanup();
+			//		return 1;
+			//	}
+			//}
+			//break;
 
 			case SC_PACKET_TYPE::SC_RANK:
 			{

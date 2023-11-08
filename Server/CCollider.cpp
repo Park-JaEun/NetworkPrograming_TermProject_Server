@@ -34,29 +34,6 @@ void CCollider::finalUpdate()
 	assert(m_iCol >= 0);
 }
 
-bool CCollider::PtInCollider(Vec2 vPos)
-{
-	Vec2 vFinalPos = GetFinalPos();
-	Vec2 vScale = GetScale();
-
-	POINT ptMouse;
-	ptMouse.x = (LONG)vPos.x;
-	ptMouse.y = (LONG)vPos.y;
-
-	// 충돌체의 충돌 범위
-	RECT rcCollider{
-		(int)(vFinalPos.x),
-		(int)(vFinalPos.y),
-		(int)(vFinalPos.x + vScale.x),
-		(int)(vFinalPos.y + vScale.y) };
-
-	// 충돌체의 충돌 범위 안에 있는지 확인
-	if (PtInRect(&rcCollider, ptMouse))
-		return true;
-	else
-		return false;
-}
-
 void CCollider::OnCollision(CCollider* _pOther)
 {
 	m_pObject->OnCollision(_pOther);

@@ -1,7 +1,6 @@
 #pragma once
 
-struct tEvent
-{
+struct tEvent {
 	EVENT_TYPE	eEvent;		// 이벤트
 	DWORD_PTR	lParam;		// 부가정보
 	DWORD_PTR	wParam;		// 부가정보
@@ -9,8 +8,7 @@ struct tEvent
 
 class CObject;
 
-class CEventMgr
-{
+class CEventMgr {
 	SINGLE(CEventMgr)
 private:
 	std::vector<tEvent>		m_vecEvent;		// 이벤트 보관

@@ -31,7 +31,6 @@ public:
 	void finalUpdate();
 
 public:
-	bool PtInCollider(Vec2 vPos);
 	void OnCollision(CCollider* _pOther);		// 충돌 중인 경우 호출되는 함수
 	void EnterCollision(CCollider* _pOther);	// 막 충돌이 일어난 경우 호출되는 함수
 	void ExitCollision(CCollider* _pOther);		// 막 충돌에서 벗어난 경우 호출되는 함수

@@ -4,7 +4,7 @@
 #include "CTimer.h"
 #include "CCollider.h"
 
-CBullet::CBullet() : m_fDir(1.f), m_fSpeed(200.f), m_bIsDown(false), m_fDegree(0.f)
+CBullet::CBullet() : m_fDir(1.f), m_fSpeed(0.f), m_bIsDown(false), m_fDegree(0.f)
 {
 }
 
@@ -29,8 +29,10 @@ void CBullet::update()
 
 	SetPos(vPos);
 
-	// 카메라나 게임월드 밖으로 나가면 삭제 이벤트 발생
-	if (!IsInWorld(vPos) || !IsInCamera(vPos))
+	// 총알이 게임월드 밖으로 나가거나, 최대 사거리(MAX_BULLET_DISTANCE)를 넘어가면 삭제
+	// 최대 사거리 계산
+	float fDistance = sqrt(pow(GetFirstPos().x - vPos.x, 2) + pow(GetFirstPos().y - vPos.y, 2));
+	if (!IsInWorld(vPos) || fDistance > MAX_BULLET_DISTANCE)
 		DeleteObject(this);
 }
 

@@ -45,6 +45,9 @@
     <Filter Include="소스 파일\02. Managers\EventMgr">
       <UniqueIdentifier>{bd90d718-8219-41ac-bebf-50e53c3eb0b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\02. Managers\Object">
+      <UniqueIdentifier>{c6d1d55b-42eb-4982-8cc2-39b1041192c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="protocol.h">
@@ -93,6 +96,9 @@
     <ClInclude Include="CEventMgr.h">
       <Filter>소스 파일\02. Managers\EventMgr</Filter>
     </ClInclude>
+    <ClInclude Include="CObjectMgr.h">
+      <Filter>소스 파일\02. Managers\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Server.cpp" />
@@ -128,6 +134,9 @@
     </ClCompile>
     <ClCompile Include="CEventMgr.cpp">
       <Filter>소스 파일\02. Managers\EventMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="CObjectMgr.cpp">
+      <Filter>소스 파일\02. Managers\Object</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "CMonster.h"
 #include "CBullet.h"
-
+#include "CObjectMgr.h"
 #include "CTimer.h"
 #include "CCollider.h"
 
@@ -29,9 +29,6 @@ void CMonster::update()
 		// 본인 시야에 플레이어가 있으면 공격
 		if (IsInSight(GetPos(), 300.f, L"Player")) {
 			m_eState = MONSTER_STATE::ATTACK;
-
-			if (m_bDir == DIR_RIGHT)
-			if (m_bDir == DIR_LEFT)
 		}
 		// 플레이어가 없으면 다시 움직임
 		else {
@@ -79,41 +76,6 @@ void CMonster::update()
 		}
 	}
 
-	if (m_bDir == DIR_RIGHT) {
-		switch (m_eState)
-		{
-		case MONSTER_STATE::IDLE:
-			break;
-		case MONSTER_STATE::MOVE:
-			break;
-		case MONSTER_STATE::HIT:
-			break;
-		case MONSTER_STATE::ATTACK:
-			break;
-		case MONSTER_STATE::DIE:
-			break;
-		default:
-			break;
-		}
-	}
-	else if (m_bDir == DIR_LEFT) {
-		switch (m_eState)
-		{
-		case MONSTER_STATE::IDLE:
-			break;
-		case MONSTER_STATE::MOVE:
-			break;
-		case MONSTER_STATE::HIT:
-			break;
-		case MONSTER_STATE::ATTACK:
-			break;
-		case MONSTER_STATE::DIE:
-			break;
-		default:
-			break;
-		}
-	}
-
 	SetPos(vCurPos);
 }
 
@@ -125,6 +87,7 @@ void CMonster::CreateBullet()
 
 	pBullet->SetName(L"Monster Bullet");
 	pBullet->SetPos(vBulletPos);
+	pBullet->SetFirstPos(vBulletPos);
 
 	if (m_bDir == DIR_RIGHT)
 		pBullet->SetDir(DIR_RIGHT);
@@ -132,8 +95,6 @@ void CMonster::CreateBullet()
 		pBullet->SetDir(DIR_LEFT);
 
 	pBullet->CreateCollider();
-	pBullet->CreateAnimator(GROUP_TYPE::BULLET_MONSTER);
-
 	pBullet->SetSpeed(700.f);
 	pBullet->GetCollider()->SetScale(Vec2(18.f, 18.f));
 
@@ -143,12 +104,8 @@ void CMonster::CreateBullet()
 bool CMonster::IsInSight(Vec2 _vPos, float _fDistance, const std::wstring& _strName)
 {
 	// vPos를 기준으로 _fDistance 거리 안에 _strName 태그를 가진 오브젝트가 있는지 확인
-	CScene* pCurScene = CSceneMgr::GetInst()->GetCurScene();
 
-	if (pCurScene == nullptr)
-		return false;
-
-	std::vector<CObject*> vecObject = pCurScene->GetGroupObject(GROUP_TYPE::PLAYER);
+	std::vector<CObject*> vecObject = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::PLAYER);
 
 	for (auto& pObj : vecObject) {
 		if (pObj->GetName() == _strName) {

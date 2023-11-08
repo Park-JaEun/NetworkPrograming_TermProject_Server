@@ -2,10 +2,8 @@
 
 #include "CEventMgr.h"
 
-#include "CSceneMgr.h"
-#include "CScene.h"
-
 #include "CObject.h"
+#include "CObjectMgr.h"
 
 CEventMgr::CEventMgr()
 {
@@ -48,7 +46,7 @@ void CEventMgr::Process(const tEvent& _event)
 		CObject* pNewObj = (CObject*)_event.lParam;
 		GROUP_TYPE eType = (GROUP_TYPE)_event.wParam;
 
-		CSceneMgr::GetInst()->GetCurScene()->AddObject(pNewObj, eType);
+		CObjectMgr::GetInst()->AddObject(pNewObj, eType);
 	}
 	break;
 
