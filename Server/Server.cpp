@@ -117,17 +117,20 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		recv(client_sock, reinterpret_cast<char*>(&size), sizeof(size), MSG_WAITALL);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");
-			closesocket(client_sock);
-			WSACleanup();
-			return 1;
+			break;
 		}
+		else if (retval == 0)
+			break;
+
 		retval = recv(client_sock, buf, size, MSG_WAITALL);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");
-			closesocket(client_sock);
-			WSACleanup();
-			return 1;
+			break;
 		}
+		else if (retval == 0)
+			break;
+
+
 
 		// recv() CS_PACKET_TYPE 타입에 따라 
 		switch (buf[0]) {
@@ -184,16 +187,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 		}
 		break;
@@ -211,16 +210,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 		}
 		break;
@@ -234,16 +229,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 		}
 		break;
@@ -258,16 +249,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 		}
 		break;
@@ -281,16 +268,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 		}
 		break;
@@ -304,16 +287,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 		}
 		break;
@@ -327,16 +306,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 		}
 		break;
@@ -350,16 +325,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 		}
 		break;
@@ -373,16 +344,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 		}
 		break;
@@ -396,16 +363,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 		}
 		break;
@@ -419,16 +382,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 		}
 		break;
@@ -443,16 +402,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				closesocket(client_sock);
-				WSACleanup();
-				return 1;
+				break;
 			}
 		}
 		break;
