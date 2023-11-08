@@ -84,7 +84,7 @@ typedef struct SC_RANK_PACKET {
 	char type; // 패킷 타입
 	int id[MAX_PLAYER]; // 플레이어 id
 	int score[MAX_PLAYER]; // 플레이어 score
-	char name[BUFSIZE][MAX_PLAYER];
+	char name[16][MAX_PLAYER];
 	// 플레이어 별명
 };
 
