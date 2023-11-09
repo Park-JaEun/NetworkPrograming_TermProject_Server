@@ -88,3 +88,10 @@ public:
 	Vec2(const POINT& _pt) : x((float)_pt.x), y((float)_pt.y)
 	{}
 };
+
+struct PlayerInfo {
+
+	std::string nickname;
+	int portnumber;
+	int id;
+};

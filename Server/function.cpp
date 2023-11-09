@@ -59,16 +59,29 @@ bool IsInBossRoom(const Vec2& _vPos)
 	return false;
 }
 
-// 원래는 플레이어 카메라 밖으로 나가면 사라짐, 멀티 게임으로 만들기 위해 최대 사거리에 도달하면 삭제하도록 한다.
-//bool IsInCamera(const Vec2& _vPos)
-//{
-//	Vec2 vResolution = CCore::GetInst()->GetResolution();
-//	Vec2 vCameraLookAt = CCamera::GetInst()->GetLookAt();
-//
-//	if (_vPos.y < vCameraLookAt.y + (vResolution.y / 2.f) &&
-//		_vPos.y > vCameraLookAt.y - (vResolution.y / 2.f) &&
-//		_vPos.x < vCameraLookAt.x + (vResolution.x / 2.f) &&
-//		_vPos.x > vCameraLookAt.x - (vResolution.x / 2.f))
-//		return true;
-//	return false;
-//}
+// 소켓 함수 오류 출력 후 종료
+void err_quit(const char* msg)
+{
+	LPVOID lpMsgBuf;
+	FormatMessageA(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, WSAGetLastError(),
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(char*)&lpMsgBuf, 0, NULL);
+	MessageBoxA(NULL, (const char*)lpMsgBuf, msg, MB_ICONERROR);
+	LocalFree(lpMsgBuf);
+	exit(1);
+}
+
+// 소켓 함수 오류 출력
+void err_display(const char* msg)
+{
+	LPVOID lpMsgBuf;
+	FormatMessageA(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, WSAGetLastError(),
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(char*)&lpMsgBuf, 0, NULL);
+	printf("[%s] %s\n", msg, (char*)lpMsgBuf);
+	LocalFree(lpMsgBuf);
+}

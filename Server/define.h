@@ -27,3 +27,5 @@
 
 #define MAX_FRAME 60
 #define MAX_BULLET_DISTANCE 300.f
+
+#define SERVERPORT 9000
