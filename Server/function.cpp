@@ -1,8 +1,11 @@
 #include "pch.h"
 #include "function.h"
+
 #include "CObject.h"
 #include "CMonster.h"
+
 #include "CCollider.h"
+
 #include "CEventMgr.h"
 
 void CreateObject(CObject* _pObj, GROUP_TYPE _eGroup)
