@@ -112,13 +112,9 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			break;
 		}
 
-		//데이터 전송을 천천히 보기위해 넣은 코드
-		Sleep(1000);
-
 		////////////
 		// send() //
 	    ////////////
-
 		SC_PACKET_TYPE type = SC_PACKET_TYPE(rand() % 12 + 1);
 
 		// 패킷 정보 보내기 
@@ -389,6 +385,8 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			break;
 		}
 
+		// 데이터는 1초에 60번 전송
+		Sleep(1000 / 60);	// 60fps
 	}
 
 	std::cout << "\n[TCP 서버] 클라이언트 접속 종료: IP 주소=" << addr << ", 포트 번호=" << ntohs(clientaddr.sin_port) << ", 닉네임=" << nick_name << std::endl;
