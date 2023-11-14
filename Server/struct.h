@@ -1,5 +1,6 @@
 #pragma once
 
+// 좌표값을 나타내는 구조체 Vec2
 struct Vec2
 {
 	float x;
@@ -89,8 +90,8 @@ public:
 	{}
 };
 
+// 플레이어 정보를 나타내는 구조체
 struct PlayerInfo {
-
 	std::string nickname;
 	int portnumber;
 	int id;

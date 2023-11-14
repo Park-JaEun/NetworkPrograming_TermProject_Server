@@ -31,7 +31,7 @@ void CBullet::update()
 
 	// 총알이 게임월드 밖으로 나가거나, 최대 사거리(MAX_BULLET_DISTANCE)를 넘어가면 삭제
 	// 최대 사거리 계산
-	float fDistance = sqrt(pow(GetFirstPos().x - vPos.x, 2) + pow(GetFirstPos().y - vPos.y, 2));
+	double fDistance = sqrt(pow(GetFirstPos().x - vPos.x, 2) + pow(GetFirstPos().y - vPos.y, 2));
 	if (!IsInWorld(vPos) || fDistance > MAX_BULLET_DISTANCE)
 		DeleteObject(this);
 }

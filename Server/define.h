@@ -1,8 +1,6 @@
 #pragma once
 
-// 매크로 함수
-// 함수처럼 사용하면 해당 부분을 치환해준다.
-// 반환을 하는 게 아니고, 치환한다는 것을 알고, 주의해야한다.
+// 싱글톤 매크로
 #define SINGLE(type) public: static type* GetInst() { static type mgr; return &mgr; }\
 					 private: type(); ~type();
 
