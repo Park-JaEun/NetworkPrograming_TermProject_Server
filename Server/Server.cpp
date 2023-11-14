@@ -12,8 +12,6 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	int retval;
 	struct sockaddr_in clientaddr;
 	int addrlen;
-	long long file_size;
-	char buf[BUFSIZE];
 
 	// 접속한 클라이언트 정보 출력
 	addrlen = sizeof(clientaddr);
@@ -78,7 +76,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			{
 				SELECT_CHARACTER_PACKET* p = reinterpret_cast<SELECT_CHARACTER_PACKET*>(buf);
 				// 데이터 정보 변경시 여기에 코딩하세요 
-				//p->character = CHARACTER_TYPE::HANNIE;
+				// ex) p->character = CHARACTER_TYPE::HANNIE;
 				std::cout << "[" << nick_name << "] 클라이언트 → 서버: 캐릭터 선택 완료 패킷 받음" << '\n';
 			}
 			break;
@@ -115,7 +113,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		////////////
 		// send() //
 	    ////////////
-		SC_PACKET_TYPE type = SC_PACKET_TYPE(rand() % 12 + 1);
+		SC_PACKET_TYPE type = SC_PACKET_TYPE(rand() % 11 + 1);
 
 		// 패킷 정보 보내기 
 		switch (type) {

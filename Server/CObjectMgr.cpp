@@ -2,6 +2,15 @@
 #include "CObjectMgr.h"
 #include "CObject.h"
 
+CObjectMgr::CObjectMgr()
+{
+}
+
+CObjectMgr::~CObjectMgr()
+{
+	DeleteAll();
+}
+
 void CObjectMgr::update()
 {
 	for (std::vector<CObject*>& _vecObj : m_arrVecObj) {
