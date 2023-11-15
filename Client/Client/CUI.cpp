@@ -85,6 +85,44 @@ void CUI::render(HDC _dc)
 						346,
 						RGB(255, 0, 255));
 	}
+	else if (GetName() == L"IPInput") {
+		Vec2 vPos = GetPos();
+		Vec2 vScale = GetScale();
+
+		CAnimation* pAnimation = GetAnimator()->FindAnimation(L"IPInput");
+		CTexture* pTexture = pAnimation->GetTexture();
+
+		TransparentBlt(_dc,
+						(int)vPos.x,
+						(int)vPos.y,
+						(int)GetScale().x,
+						(int)GetScale().y,
+						pTexture->GetDC(),
+						0,
+						0,
+						2637,
+						370,
+						RGB(255, 0, 255));
+	}
+	else if (GetName() == L"NicknameInput") {
+		Vec2 vPos = GetPos();
+		Vec2 vScale = GetScale();
+
+		CAnimation* pAnimation = GetAnimator()->FindAnimation(L"NicknameInput");
+		CTexture* pTexture = pAnimation->GetTexture();
+
+		TransparentBlt(_dc,
+						(int)vPos.x,
+						(int)vPos.y,
+						(int)GetScale().x,
+						(int)GetScale().y,
+						pTexture->GetDC(),
+						0,
+						0,
+						2637,
+						368,
+						RGB(255, 0, 255));
+	}
 }
 
 void CUI::CreateAnimator()
@@ -187,6 +225,48 @@ void CUI::CreateAnimator()
 			pTexture,				// Texture Pointer
 			Vec2(0.f, 692.f),			// Texture Left Top
 			Vec2(1060.f, 346.f),		// Frame Size
+			Vec2(0.f, 0.f),			// Step
+			0.0f,					// Duration
+			Vec2(0.f, 0.f),			// Offset
+			1);						// Frame Count
+
+		SetAnimator(pAnimator);
+	}
+	else if (GetName() == L"IPInput") {
+		// Texture 로딩하기
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"IPInput", L"texture\\ui\\IP.bmp");
+
+		// Animator 만들기
+		CAnimator* pAnimator = new CAnimator;
+
+		pAnimator->SetObj(this);
+
+		pAnimator->CreateAnimation(
+			L"IPInput",			// Animation Name
+			pTexture,				// Texture Pointer
+			Vec2(0.f, 0.f),			// Texture Left Top
+			Vec2(2637.f, 370.f),		// Frame Size
+			Vec2(0.f, 0.f),			// Step
+			0.0f,					// Duration
+			Vec2(0.f, 0.f),			// Offset
+			1);						// Frame Count
+
+		SetAnimator(pAnimator);
+	}
+	else if (GetName() == L"NicknameInput") {
+		// Texture 로딩하기
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"NicknameInput", L"texture\\ui\\Nickname.bmp");
+
+		// Animator 만들기
+		CAnimator* pAnimator = new CAnimator;
+
+		pAnimator->SetObj(this);
+
+		pAnimator->CreateAnimation(
+			L"NicknameInput",			// Animation Name
+			pTexture,				// Texture Pointer
+			Vec2(0.f, 0.f),			// Texture Left Top
+			Vec2(2637.f, 368.f),		// Frame Size
 			Vec2(0.f, 0.f),			// Step
 			0.0f,					// Duration
 			Vec2(0.f, 0.f),			// Offset
