@@ -26,7 +26,16 @@ void CSceneMgr::ChangeScene(SCENE_TYPE _eNextScene)
 	m_pCurScene->Exit();
 
 	// Scene 변경
-	m_pCurScene = m_arrScene[(UINT)_eNextScene];
+	// 만약 현재씬이 Select라면 선택한 캐릭터를 Main 씬으로 넘겨준다.
+	if (m_pCurScene->GetName() == L"Select Scene") {
+		CHARACTER_TYPE eCharacterType = ((CScene_Select*)m_pCurScene)->GetSelectedCharacter();
+		m_pCurScene = m_arrScene[(UINT)_eNextScene];
+		((CScene_Main*)m_pCurScene)->SetSelectedCharacter(eCharacterType);
+	}
+	else {
+		m_pCurScene = m_arrScene[(UINT)_eNextScene];
+	}
+	
 
 	// 새로운 Scene의 Enter 함수 호출
 	m_pCurScene->Enter();
