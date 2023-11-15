@@ -18,8 +18,6 @@ CScene_Start::~CScene_Start()
 
 void CScene_Start::Enter()
 {
-	HINSTANCE hInst{};
-	HWND hWnd = CCore::GetInst()->GetMainHwnd();
 	Vec2 vResolution = CCore::GetInst()->GetResolution();
 
 	///////////////////////
@@ -49,8 +47,8 @@ void CScene_Start::Enter()
 
 	CUI* pStartButtonUI = new CUI;
 	pStartButtonUI->SetName(L"StartButton");
-	pStartButtonUI->SetScale(Vec2(100.f, 30.f));
-	pStartButtonUI->SetPos(Vec2(205.f, 352.f));
+	pStartButtonUI->SetScale(Vec2(90.f, 30.f));
+	pStartButtonUI->SetPos(Vec2(210.f, 352.f));
 	pStartButtonUI->CreateAnimator();
 	pStartButtonUI->CreateCollider();
 	pStartButtonUI->GetCollider()->SetScale(Vec2(90.f, 30.f));
@@ -58,42 +56,13 @@ void CScene_Start::Enter()
 
 	CUI* pExitButtonUI = new CUI;
 	pExitButtonUI->SetName(L"ExitButton");
-	pExitButtonUI->SetScale(Vec2(100.f, 30.f));
-	pExitButtonUI->SetPos(Vec2(335.f, 352.f));
+	pExitButtonUI->SetScale(Vec2(90.f, 30.f));
+	pExitButtonUI->SetPos(Vec2(340.f, 352.f));
 	pExitButtonUI->CreateAnimator();
 	pExitButtonUI->CreateCollider();
 	pExitButtonUI->GetCollider()->SetScale(Vec2(90.f, 30.f));
 	AddObject(pExitButtonUI, GROUP_TYPE::UI);
 
-	CUI* pIPInputUI = new CUI;
-	pIPInputUI->SetName(L"IPInput");
-	pIPInputUI->SetScale(Vec2(260.f, 35.f));
-	pIPInputUI->SetPos(Vec2(190.f, 305.f));
-	pIPInputUI->CreateAnimator();
-	pIPInputUI->CreateCollider();
-	pIPInputUI->GetCollider()->SetScale(Vec2(90.f, 30.f));
-	AddObject(pIPInputUI, GROUP_TYPE::UI);
-
-	CUI* pNicknameInputUI = new CUI;
-	pNicknameInputUI->SetName(L"NicknameInput");
-	pNicknameInputUI->SetScale(Vec2(260.f, 35.f));
-	pNicknameInputUI->SetPos(Vec2(190.f, 265.f));
-	pNicknameInputUI->CreateAnimator();
-	pNicknameInputUI->CreateCollider();
-	pNicknameInputUI->GetCollider()->SetScale(Vec2(90.f, 30.f));
-	AddObject(pNicknameInputUI, GROUP_TYPE::UI);
-
-	// 닉네임 입력을 위한 Edit 컨트롤
-	hEditNickname = CreateWindow(L"EDIT", L"",
-		WS_CHILD | WS_VISIBLE | WS_BORDER,
-		299, 271, 140, 35, // x, y, width, height
-		hWnd, (HMENU)100, hInst, NULL);
-
-	// IP 입력을 위한 Edit 컨트롤
-	hEditIP = CreateWindow(L"EDIT", L"",
-		WS_CHILD | WS_VISIBLE | WS_BORDER,
-		299, 311, 140, 35, // x, y, width, height
-		hWnd, (HMENU)101, hInst, NULL);
 	///////////////
 
 
@@ -104,46 +73,12 @@ void CScene_Start::Exit()
 	DeleteAll();
 }
 
-void CScene_Start::render(HDC _dc)
-{
-	CScene::render(_dc);
-
-	HINSTANCE hInst{};
-	HWND hWnd = CCore::GetInst()->GetMainHwnd();
-	
-	// EditBox 그리기
-	EditBoxRender(_dc);
-}
-
-void CScene_Start::EditBoxRender(HDC _dc)
-{
-	Rectangle(_dc, 299, 271, 299 + 140, 271 + 22);
-	Rectangle(_dc, 299, 311, 299 + 140, 311 + 22);
-
-	// Edit 컨트롤의 텍스트를 가져온다.
-	int iLenNickname = GetWindowTextLength(hEditNickname);
-	int iLenIP = GetWindowTextLength(hEditIP);
-
-	// Edit 컨트롤의 텍스트를 저장할 버퍼를 할당한다.
-	TCHAR* pStrNickname = new TCHAR[iLenNickname + 1];
-	TCHAR* pStrIP = new TCHAR[iLenIP + 1];
-
-	// Edit 컨트롤의 텍스트를 버퍼에 저장한다.
-	GetWindowText(hEditNickname, pStrNickname, iLenNickname + 1);
-	GetWindowText(hEditIP, pStrIP, iLenIP + 1);
-
-	// Edit 컨트롤의 텍스트를 출력한다.
-	TextOut(_dc, 300, 273, pStrNickname, iLenNickname);
-	TextOut(_dc, 300, 313, pStrIP, iLenIP);
-
-	// 버퍼를 해제한다.
-	delete[] pStrNickname;
-	delete[] pStrIP;
-}
-
 void CScene_Start::update()
 {
 	CScene::update();
+
+	
+
 
 	if (KEY_TAP(KEY::LBOTTON)) {
 		
