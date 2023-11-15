@@ -6,7 +6,19 @@
 #include "KeyTestClient.h"
 #include "CKeyMgr.h"
 
+// 서버 통신을 위한 추가 헤더와 라이브러리 //*
+#include <ws2tcpip.h>
+#include <iostream>
+#pragma comment(lib, "ws2_32") // Winsock 라이브러리 링크
+
+
 #define MAX_LOADSTRING 100
+
+// 서버 연결을 위한 전역 변수들 //*
+char* SERVERIP = (char*)"127.0.0.1";
+char* NICKNAME = (char*)"key";
+#define SERVERPORT 9000
+#define BUFSIZE 512
 
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
@@ -18,6 +30,33 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+// 서버 통신 오류 함수
+void err_quit(const char* msg)
+{
+    LPVOID lpMsgBuf;
+    FormatMessageA(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+        NULL, WSAGetLastError(),
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (char*)&lpMsgBuf, 0, NULL);
+    MessageBoxA(NULL, (const char*)lpMsgBuf, msg, MB_ICONERROR);
+    LocalFree(lpMsgBuf);
+    exit(1);
+}
+
+// 소켓 함수 오류 출력
+void err_display(const char* msg)
+{
+    LPVOID lpMsgBuf;
+    FormatMessageA(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+        NULL, WSAGetLastError(),
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (char*)&lpMsgBuf, 0, NULL);
+    printf("[%s] %s\n", msg, (char*)lpMsgBuf);
+    LocalFree(lpMsgBuf);
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -49,6 +88,42 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Key Manager 초기화
     CKeyMgr::GetInst()->init();
 
+    // 서버 연결 및 데이터 통신 코드
+    int retval;
+
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+        return 1;
+
+    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == INVALID_SOCKET) err_quit("socket()");
+
+    struct sockaddr_in serveraddr;
+    memset(&serveraddr, 0, sizeof(serveraddr));
+    serveraddr.sin_family = AF_INET;
+    inet_pton(AF_INET, SERVERIP, &serveraddr.sin_addr);
+    serveraddr.sin_port = htons(SERVERPORT);
+    if (connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr)) == SOCKET_ERROR)
+        err_quit("connect()");
+
+    // 닉네임 전송
+    int nickSize = strlen(NICKNAME);
+    retval = send(sock, reinterpret_cast<char*>(&nickSize), sizeof(nickSize), 0);
+    if (retval == SOCKET_ERROR) {
+        err_display("send()");
+        closesocket(sock);
+        WSACleanup();
+        return 1;
+    }
+
+    retval = send(sock, NICKNAME, nickSize, 0);
+    if (retval == SOCKET_ERROR) {
+        err_display("send()");
+        closesocket(sock);
+        WSACleanup();
+        return 1;
+    }
+
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_KEYTESTCLIENT));
 
     MSG msg;
@@ -64,8 +139,39 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
         else {
             CKeyMgr::GetInst()->update();
+            for (int i = 0; i < (int)KEY::LAST; ++i) {
+                if (inputkey[i]->key_state == KEY_STATE::TAP) {              // key의 상태가 눌림이면
+                    cout << (int)inputkey[i]->key << endl;                   // key의 정보를 출력
+
+                    // send
+                    CS_KEYBOARD_INPUT_PACKET p;
+                    p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
+                    p.key = inputkey[i]->key;                               // key 정보 저장
+                    p.key_state = inputkey[i]->key_state;                   // key의 상태 저장(눌림)
+
+                    int size = sizeof(p);
+                    std::cout << "send() - 키보드 입력 정보 패킷을 전송하였습니다" << '\n';
+
+                    retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+                    if (retval == SOCKET_ERROR) {
+                        err_display("send()");
+                        break;
+                    }
+                    retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+                    if (retval == SOCKET_ERROR) {
+                        err_display("send()");
+                        break;
+                    }
+
+
+                }
+            }
         }
     }
+
+    // 소켓 닫기 및 윈속 종료
+    closesocket(sock);
+    WSACleanup();
 
     return (int) msg.wParam;
 }
