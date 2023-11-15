@@ -170,7 +170,7 @@ void CScene_Start::update()
 
 			// TODO: 서버 IP로 연결을 요청하고, 닉네임도 전송해야함!
 
-			ChangeScene(SCENE_TYPE::MAIN);
+			ChangeScene(SCENE_TYPE::SELECT);
 		}
 		
 	}

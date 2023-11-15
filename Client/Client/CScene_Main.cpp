@@ -72,9 +72,10 @@ void CScene_Main::Enter()
 
 	pPlayerObj->SetName(L"Player");
 	pPlayerObj->SetPos(Vec2(0.f, 0.f));
+
 	//((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::MINJI);
-	//((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::DANIELLE);
-	((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::HAERIN);
+	((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::DANIELLE);
+	//((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::HAERIN);
 	//((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::HANNIE);
 	//((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::HYEIN);
 
