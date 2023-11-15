@@ -146,6 +146,7 @@ void CPlayer::CreateBullet()
 
 	pBullet->SetName(L"Player Bullet");
 	pBullet->SetPos(vBulletPos);
+	pBullet->SetFirstPos(vBulletPos);
 	pBullet->SetScale(Vec2(14.f, 13.f));
 	
 	if (m_bDir == DIR_RIGHT)

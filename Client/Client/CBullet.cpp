@@ -11,7 +11,7 @@
 #include "CAnimator.h"
 #include "CResourceMgr.h"
 
-CBullet::CBullet() : m_fDir(1.f), m_fSpeed(200.f), m_bIsDown(false), m_fDegree(0.f)
+CBullet::CBullet() : m_fDir(1.f), m_fSpeed(200.f), m_bIsDown(false), m_fDegree(0.f), m_vFirstPos(Vec2(0.f, 0.f))
 {
 }
 
@@ -37,8 +37,10 @@ void CBullet::update()
 	SetPos(vPos);
 	GetAnimator()->update();
 
-	// 카메라나 게임월드 밖으로 나가면 삭제 이벤트 발생
-	if (!IsInWorld(vPos) || !IsInCamera(vPos))
+	// 총알이 게임월드 밖으로 나가거나, 최대 사거리(MAX_BULLET_DISTANCE)를 넘어가면 삭제
+	// 최대 사거리 계산
+	double fDistance = sqrt(pow(GetFirstPos().x - vPos.x, 2) + pow(GetFirstPos().y - vPos.y, 2));
+	if (!IsInWorld(vPos) || fDistance > MAX_BULLET_DISTANCE)
 		DeleteObject(this);
 }
 
@@ -63,7 +65,7 @@ void CBullet::CreateMinjiBullet()
 		Vec2(14.f, 0.f),			// Step
 		0.07f,						// Duration
 		Vec2(0.f, 0.f),				// Offset
-		Vec2(2.f, 2.f),				// Scale
+		Vec2(2.f, 2.f),				// Scalez
 		4);							// Frame Count
 
 	pAnimator->Play(L"Minji_Bullet", true);	// 현재 애니메이션 지정
