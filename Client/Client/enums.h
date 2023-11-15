@@ -100,6 +100,7 @@ enum class GROUP_TYPE
 enum class SCENE_TYPE
 {
 	START,
+	SELECT,
 	MAIN,
 
 	END,

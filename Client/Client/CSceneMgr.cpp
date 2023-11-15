@@ -2,6 +2,7 @@
 #include "CSceneMgr.h"
 
 #include "CScene_Main.h"
+#include "CScene_Select.h"
 #include "CScene_Start.h"
 
 CSceneMgr::CSceneMgr() : m_arrScene{}, m_pCurScene(nullptr)
@@ -38,6 +39,10 @@ void CSceneMgr::init()
 	// Start Scene
 	m_arrScene[(UINT)SCENE_TYPE::START] = new CScene_Start;
 	m_arrScene[(UINT)SCENE_TYPE::START]->SetName(L"Start Scene");
+
+	// Select Scene
+	m_arrScene[(UINT)SCENE_TYPE::SELECT] = new CScene_Select;
+	m_arrScene[(UINT)SCENE_TYPE::SELECT]->SetName(L"Select Scene");
 	
 	// ∏ﬁ¿Œ Stage Scene
 	m_arrScene[(UINT)SCENE_TYPE::MAIN] = new CScene_Main;

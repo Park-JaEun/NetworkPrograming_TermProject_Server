@@ -71,6 +71,22 @@ void CBackground::render(HDC _dc)
 			(int)pTexture->GetHeight(),
 			RGB(255, 0, 255));
 	}
+	else if (GetName() == L"Select Background") {
+		CAnimation* pAnimation = GetAnimator()->FindAnimation(L"Select Background");
+		CTexture* pTexture = pAnimation->GetTexture();
+
+		TransparentBlt(_dc,
+						0,
+						0,
+						(int)GetScale().x,
+						(int)GetScale().y,
+						pTexture->GetDC(),
+						0,
+						0,
+						1600,
+						900,
+						RGB(255, 0, 255));
+	}
 	
 }
 
@@ -122,4 +138,28 @@ void CBackground::CreateAnimator()
 
 		SetAnimator(pAnimator);
 	}
+	else if (GetName() == L"Select Background") {
+		// Texture 로딩하기
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Select Background Texture", L"texture\\background\\select.bmp");
+
+		// Animator 만들기
+		CAnimator* pAnimator = new CAnimator;
+
+		pAnimator->SetObj(this);
+
+		pAnimator->CreateAnimation(
+			L"Select Background",			// Animation Name
+			pTexture,				// Texture Pointer
+			Vec2(0.f, 0.f),			// Texture Left Top
+			Vec2(1600.f, 900.f),		// Frame Size
+			Vec2(0.f, 0.f),			// Step
+			0.0f,					// Duration
+			Vec2(0.f, 0.f),			// Offset
+			1);						// Frame Count
+
+		pAnimator->Play(L"Select Background", true);	// 현재 애니메이션 지정
+
+		SetAnimator(pAnimator);
+	}
 }
+
