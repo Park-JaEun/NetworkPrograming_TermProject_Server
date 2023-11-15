@@ -20,3 +20,5 @@
 #define DIR_RIGHT 0
 #define DIR_LEFT  1
 #define DIR_DOWN  2
+
+#define MAX_BULLET_DISTANCE 500.f

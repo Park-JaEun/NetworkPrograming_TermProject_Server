@@ -207,6 +207,7 @@ void CBoss::CreateFanBullet()
 		pBullet->SetName(L"Boss Bullet");
 		pBullet->SetSpeed(200.f);
 		pBullet->SetPos(vBulletPos);
+		pBullet->SetFirstPos(vBulletPos);
 		pBullet->SetDir(DIR_LEFT);
 		pBullet->SetDegree(59.0f + i / 10.f);
 		pBullet->CreateCollider();
@@ -253,6 +254,7 @@ void CBoss::CreateMissile()
 	}
 
 	pMissile->SetPos(vMissilePos);
+	pMissile->SetFirstPos(vMissilePos);
 	pMissile->CreateAnimator(GROUP_TYPE::MISSILE_BOSS);
 
 	CreateObject(pMissile, GROUP_TYPE::MISSILE_BOSS);

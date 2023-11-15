@@ -24,6 +24,6 @@
 #define BUFSIZE 512
 
 #define MAX_FRAME 60
-#define MAX_BULLET_DISTANCE 300.f
+#define MAX_BULLET_DISTANCE 500.f
 
 #define SERVERPORT 9000

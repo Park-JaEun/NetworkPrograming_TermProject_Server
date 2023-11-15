@@ -255,6 +255,7 @@ void CMonster::CreateBullet()
 
 	pBullet->SetName(L"Monster Bullet");
 	pBullet->SetPos(vBulletPos);
+	pBullet->SetFirstPos(vBulletPos);
 
 	if (m_bDir == DIR_RIGHT)
 		pBullet->SetDir(DIR_RIGHT);
