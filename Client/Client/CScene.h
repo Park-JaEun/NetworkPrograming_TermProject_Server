@@ -23,7 +23,7 @@ public:
 
 	virtual void update();
 	void finalUpdate();		// 최종 업데이트 (확정짓는 역할, 작업의 마무리)
-	virtual void render(HDC _dc);
+	void render(HDC _dc);
 
 	// 앞으로 CScene에서 파생되는 모든 클래스들은 이 함수를 구현해야함. (순수 가상 함수, 인터페이스화)
 	// 순수 가상 함수는 함수 선언의 끝에 = 0으로 표시. 순수 가상 함수는 구현을 가지지 않으며, 

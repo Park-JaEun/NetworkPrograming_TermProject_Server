@@ -92,6 +92,10 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			{
 				CS_KEYBOARD_INPUT_PACKET* p = reinterpret_cast<CS_KEYBOARD_INPUT_PACKET*>(buf);
 				std::cout << "[" << nick_name << "] 클라이언트 → 서버: 키보드 입력 정보 패킷 받음" << '\n';
+				
+				// 수신한 키보드 정보와 상태 출력
+				std::cout << (int)p->key << std::endl;
+				std::cout << (int)p->key_state << std::endl;
 			}
 			break;
 
@@ -113,278 +117,278 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		////////////
 		// send() //
 	    ////////////
-		SC_PACKET_TYPE type = SC_PACKET_TYPE(rand() % 11 + 1);
+	//	SC_PACKET_TYPE type = SC_PACKET_TYPE(rand() % 11 + 1);
 
-		// 패킷 정보 보내기 
-		switch (type) {
-		case SC_PACKET_TYPE::SC_MAKE_ID:
-		{
-			SC_MAKE_ID_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_MAKE_ID);
-			size = sizeof(p);
-			
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-			
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//	// 패킷 정보 보내기 
+	//	switch (type) {
+	//	case SC_PACKET_TYPE::SC_MAKE_ID:
+	//	{
+	//		SC_MAKE_ID_PACKET p;
+	//		p.type = static_cast<char>(SC_PACKET_TYPE::SC_MAKE_ID);
+	//		size = sizeof(p);
+	//		
+	//		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
+	//		
+	//		retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: ID 할당 관련 패킷 전송" << size << '\n';
-		}
-		break;
+	//		std::cout << "[" << nick_name << "] 서버 → 클라이언트: ID 할당 관련 패킷 전송" << size << '\n';
+	//	}
+	//	break;
 
-		case SC_PACKET_TYPE::SELECT_CHARACTER:
-		{
-			SELECT_CHARACTER_PACKET p;
+	//	case SC_PACKET_TYPE::SELECT_CHARACTER:
+	//	{
+	//		SELECT_CHARACTER_PACKET p;
 
-			p.type = static_cast<char>(SC_PACKET_TYPE::SELECT_CHARACTER);
-			size = sizeof(p);
+	//		p.type = static_cast<char>(SC_PACKET_TYPE::SELECT_CHARACTER);
+	//		size = sizeof(p);
 
-			//여기서 변경해서 보내면 돼
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-			
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		//여기서 변경해서 보내면 돼
+	//		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
+	//		
+	//		retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 캐릭터 선택 관련 패킷 전송" <<size<< '\n';
-		}
-		break;
+	//		std::cout << "[" << nick_name << "] 서버 → 클라이언트: 캐릭터 선택 관련 패킷 전송" <<size<< '\n';
+	//	}
+	//	break;
 
-		case SC_PACKET_TYPE::SC_INIT:
-		{
-			SC_INIT_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_INIT);
-			size = sizeof(p);
-			
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-			
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//	case SC_PACKET_TYPE::SC_INIT:
+	//	{
+	//		SC_INIT_PACKET p;
+	//		p.type = static_cast<char>(SC_PACKET_TYPE::SC_INIT);
+	//		size = sizeof(p);
+	//		
+	//		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
+	//		
+	//		retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 초기화 요청 신호 관련 패킷 전송" << size << '\n';
-		}
-		break;
+	//		std::cout << "[" << nick_name << "] 서버 → 클라이언트: 초기화 요청 신호 관련 패킷 전송" << size << '\n';
+	//	}
+	//	break;
 
-		case SC_PACKET_TYPE::SC_GAME_START:
-		{
-			SC_GAME_START_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_START);
-			size = sizeof(p);
+	//	case SC_PACKET_TYPE::SC_GAME_START:
+	//	{
+	//		SC_GAME_START_PACKET p;
+	//		p.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_START);
+	//		size = sizeof(p);
 
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 게임 시작 신호 패킷 전송" << size << '\n';
-		}
-		break;
+	//		std::cout << "[" << nick_name << "] 서버 → 클라이언트: 게임 시작 신호 패킷 전송" << size << '\n';
+	//	}
+	//	break;
 
-		case SC_PACKET_TYPE::SC_GAME_OVER:
-		{
-			SC_GAME_OVER_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_OVER);
-			size = sizeof(p);
+	//	case SC_PACKET_TYPE::SC_GAME_OVER:
+	//	{
+	//		SC_GAME_OVER_PACKET p;
+	//		p.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_OVER);
+	//		size = sizeof(p);
 
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 게임 오버 신호 패킷 전송" << size << '\n';
-		}
-		break;
+	//		std::cout << "[" << nick_name << "] 서버 → 클라이언트: 게임 오버 신호 패킷 전송" << size << '\n';
+	//	}
+	//	break;
 
-		case SC_PACKET_TYPE::SC_GAME_CLEAR:
-		{
-			SC_GAME_CLEAR_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_CLEAR);
-			size = sizeof(p);
+	//	case SC_PACKET_TYPE::SC_GAME_CLEAR:
+	//	{
+	//		SC_GAME_CLEAR_PACKET p;
+	//		p.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_CLEAR);
+	//		size = sizeof(p);
 
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 게임 클리어 패킷 전송" << size << '\n';
-		}
-		break;
+	//		std::cout << "[" << nick_name << "] 서버 → 클라이언트: 게임 클리어 패킷 전송" << size << '\n';
+	//	}
+	//	break;
 
-		case SC_PACKET_TYPE::SC_PLAYER:
-		{
-			SC_PLAYER_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
-			size = sizeof(p);
+	//	case SC_PACKET_TYPE::SC_PLAYER:
+	//	{
+	//		SC_PLAYER_PACKET p;
+	//		p.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
+	//		size = sizeof(p);
 
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 플레이어 정보 관련 패킷 전송" << size << '\n';
-		}
-		break;
+	//		std::cout << "[" << nick_name << "] 서버 → 클라이언트: 플레이어 정보 관련 패킷 전송" << size << '\n';
+	//	}
+	//	break;
 
-		case SC_PACKET_TYPE::SC_MONSTER:
-		{
-			SC_MONSTER_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_MONSTER);
-			size = sizeof(p);
+	//	case SC_PACKET_TYPE::SC_MONSTER:
+	//	{
+	//		SC_MONSTER_PACKET p;
+	//		p.type = static_cast<char>(SC_PACKET_TYPE::SC_MONSTER);
+	//		size = sizeof(p);
 
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 몬스터 정보 관련 패킷 전송" << size << '\n';
-		}
-		break;
+	//		std::cout << "[" << nick_name << "] 서버 → 클라이언트: 몬스터 정보 관련 패킷 전송" << size << '\n';
+	//	}
+	//	break;
 
-		case SC_PACKET_TYPE::SC_BOSS:
-		{
-			SC_BOSS_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_BOSS);
-			size = sizeof(p);
+	//	case SC_PACKET_TYPE::SC_BOSS:
+	//	{
+	//		SC_BOSS_PACKET p;
+	//		p.type = static_cast<char>(SC_PACKET_TYPE::SC_BOSS);
+	//		size = sizeof(p);
 
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 보스 정보 관련 패킷 전송" << size << '\n';
-		}
-		break;
+	//		std::cout << "[" << nick_name << "] 서버 → 클라이언트: 보스 정보 관련 패킷 전송" << size << '\n';
+	//	}
+	//	break;
 
-		case SC_PACKET_TYPE::SC_BULLET:
-		{
-			SC_BULLET_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
-			size = sizeof(p);
+	//	case SC_PACKET_TYPE::SC_BULLET:
+	//	{
+	//		SC_BULLET_PACKET p;
+	//		p.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
+	//		size = sizeof(p);
 
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 투사체 정보 관련 패킷 전송" << size << '\n';
-		}
-		break;
+	//		std::cout << "[" << nick_name << "] 서버 → 클라이언트: 투사체 정보 관련 패킷 전송" << size << '\n';
+	//	}
+	//	break;
 
-		//case SC_PACKET_TYPE::SC_ITEM:
-		//{
-		//	SC_ITEM_PACKET p;
-		//	p.type = static_cast<char>(SC_PACKET_TYPE::SC_ITEM);
-		//	size = sizeof(p);
-		//	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		//	if (retval == SOCKET_ERROR) {
-		//		err_display("send()");
-		//		break;
-		//	}
-		//	retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-		//	if (retval == SOCKET_ERROR) {
-		//		err_display("send()");
-		//		break;
-		//	}
-		// 
-		//	std::cout << "[" << nick_name << "] 서버 → 클라이언트: 아이템 정보 관련 패킷을 전송하였습니다" << size << '\n';
-		//}
-		//break;
+	//	//case SC_PACKET_TYPE::SC_ITEM:
+	//	//{
+	//	//	SC_ITEM_PACKET p;
+	//	//	p.type = static_cast<char>(SC_PACKET_TYPE::SC_ITEM);
+	//	//	size = sizeof(p);
+	//	//	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//	//	if (retval == SOCKET_ERROR) {
+	//	//		err_display("send()");
+	//	//		break;
+	//	//	}
+	//	//	retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+	//	//	if (retval == SOCKET_ERROR) {
+	//	//		err_display("send()");
+	//	//		break;
+	//	//	}
+	//	// 
+	//	//	std::cout << "[" << nick_name << "] 서버 → 클라이언트: 아이템 정보 관련 패킷을 전송하였습니다" << size << '\n';
+	//	//}
+	//	//break;
 
-		case SC_PACKET_TYPE::SC_RANK:
-		{
-			SC_RANK_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_RANK);
-			size = sizeof(p);
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+	//	case SC_PACKET_TYPE::SC_RANK:
+	//	{
+	//		SC_RANK_PACKET p;
+	//		p.type = static_cast<char>(SC_PACKET_TYPE::SC_RANK);
+	//		size = sizeof(p);
+	//		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
+	//		retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
 
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 플레이어 순위 정보 패킷 전송" << size << '\n';
-		}
-		break;
+	//		std::cout << "[" << nick_name << "] 서버 → 클라이언트: 플레이어 순위 정보 패킷 전송" << size << '\n';
+	//	}
+	//	break;
 
-		default:
-			break;
-		}
+	//	default:
+	//		break;
+	//	}
 
-		// 데이터는 1초에 60번 전송
-		Sleep(1000 / 60);	// 60fps
+	//	// 데이터는 1초에 60번 전송
+	//	Sleep(1000 / 60);	// 60fps
 	}
 
 	std::cout << "\n[TCP 서버] 클라이언트 접속 종료: IP 주소=" << addr << ", 포트 번호=" << ntohs(clientaddr.sin_port) << ", 닉네임=" << nick_name << std::endl;

@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "CKeyMgr.h"
 
+CS_KEYBOARD_INPUT_PACKET inputkey[(int)KEY::LAST][2] = {};
+
 // 내가 만든 키 값들을 윈도우 가상 키코드값으로 바꾸기
 std::array<int, (int)KEY::LAST> g_arrVK =
 {
@@ -9,63 +11,21 @@ std::array<int, (int)KEY::LAST> g_arrVK =
 	VK_UP,
 	VK_DOWN,
 
-	'Q',
-	'W',
-	'E',
-	'R',
-	'T',
-	'Y',
-	'U',
-	'I',
-	'O',
-	'P',
-	'A',
-	'S',
-	'D',
-	'F',
-	'G',
-	'H',
-	'J',
-	'K',
-	'L',
-	'Z',
-	'X',
-	'C',
-	'V',
-	'B',
-	'N',
-	'M',
-
-	VK_F1,
-	VK_F2,
-	VK_F3,
-	VK_F4,
-	VK_F5,
-	VK_F6,
-	VK_F7,
-	VK_F8,
-	VK_F9,
-	VK_F10,
-	VK_F11,
-	VK_F12,
-
-	VK_ESCAPE,
-	VK_TAB,
-	VK_LSHIFT,
-	VK_RSHIFT,
-	VK_LCONTROL,
-	VK_RCONTROL,
-	VK_LMENU,
-	VK_RMENU,
-	VK_RETURN,
-	VK_INSERT,
-	VK_HOME,
-	VK_PRIOR,
-	VK_NEXT,
-	VK_END,
-	VK_DELETE,
 	VK_SPACE,
+
 	VK_LBUTTON,
+
+	VK_NUMPAD0,
+	VK_NUMPAD1,
+	VK_NUMPAD2,
+	VK_NUMPAD3,
+	VK_NUMPAD4,
+	VK_NUMPAD5,
+	VK_NUMPAD6,
+	VK_NUMPAD7,
+	VK_NUMPAD8,
+	VK_NUMPAD9,
+
 };
 
 CKeyMgr::CKeyMgr()
@@ -97,15 +57,70 @@ void CKeyMgr::update()
 				if (m_vecKey[i].bPrevPush) {
 					// 이전에 눌려있었다면 KEY_STATE::HOLD
 					m_vecKey[i].eState = KEY_STATE::HOLD;
+
 				}
 				else {
 					// 눌려있지 않았다면 KEY_STATE::TAP
 					m_vecKey[i].eState = KEY_STATE::TAP;
-					cout << g_arrVK[i] << "눌림" << endl;
+
+					switch (g_arrVK[i])
+					{
+					case VK_LEFT:
+						inputkey[i]->key = KEY::LEFT;
+						break;
+					case VK_RIGHT:
+						inputkey[i]->key = KEY::RIGHT;
+						break;
+					case VK_UP:
+						inputkey[i]->key = KEY::UP;
+						break;
+					case VK_DOWN:
+						inputkey[i]->key = KEY::DOWN;
+						break;
+					case VK_SPACE:
+						inputkey[i]->key = KEY::SPACE;
+						break;
+					case VK_LBUTTON:
+						inputkey[i]->key = KEY::LBUTTON;
+						break;
+					case VK_NUMPAD0:
+						inputkey[i]->key = KEY::NUMPAD0;
+						break;
+					case VK_NUMPAD1:
+						inputkey[i]->key = KEY::NUMPAD1;
+						break;
+					case VK_NUMPAD2:
+						inputkey[i]->key = KEY::NUMPAD2;
+						break;
+					case VK_NUMPAD3:
+						inputkey[i]->key = KEY::NUMPAD3;
+						break;
+					case VK_NUMPAD4:
+						inputkey[i]->key = KEY::NUMPAD4;
+						break;
+					case VK_NUMPAD5:
+						inputkey[i]->key = KEY::NUMPAD5;
+						break;
+					case VK_NUMPAD6:
+						inputkey[i]->key = KEY::NUMPAD6;
+						break;
+					case VK_NUMPAD7:
+						inputkey[i]->key = KEY::NUMPAD7;
+						break;
+					case VK_NUMPAD8:
+						inputkey[i]->key = KEY::NUMPAD8;
+						break;
+					case VK_NUMPAD9:
+						inputkey[i]->key = KEY::NUMPAD9;
+						break;
+					}
+
+					inputkey[i]->key_state = KEY_STATE::TAP;
 				}
 
 				// 상태 갱신
 				m_vecKey[i].bPrevPush = true;
+
 			}
 			// 키가 안눌려있다.
 			else {
@@ -116,10 +131,12 @@ void CKeyMgr::update()
 				else {
 					// 눌려있지 않았다면 KEY_STATE::NONE
 					m_vecKey[i].eState = KEY_STATE::NONE;
+
 				}
 
 				// 상태 갱신
 				m_vecKey[i].bPrevPush = false;
+				inputkey[i]->key_state = KEY_STATE::NONE;
 			}
 		}
 	}

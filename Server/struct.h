@@ -29,13 +29,13 @@ public:
 
 	Vec2 operator/ (const Vec2& _vOther)
 	{
-		assert(!(0.f == _vOther.x || 0.f == _vOther.y));
+		//assert(!(0.f == _vOther.x || 0.f == _vOther.y));
 		return Vec2(x / _vOther.x, y / _vOther.y);
 	}
 
 	Vec2 operator/ (float _fOther)
 	{
-		assert(!(0.f == _fOther));
+		//assert(!(0.f == _fOther));
 		return Vec2(x / _fOther, y / _fOther);
 	}
 
@@ -61,7 +61,7 @@ public:
 
 	Vec2 operator/ (const Vec2& _vOther) const
 	{
-		assert(!(0.f == _vOther.x || 0.f == _vOther.y));
+		//assert(!(0.f == _vOther.x || 0.f == _vOther.y));
 		return Vec2(x / _vOther.x, y / _vOther.y);
 	}
 
