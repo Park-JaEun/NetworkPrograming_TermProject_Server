@@ -102,6 +102,10 @@ void CScene_Start::Enter()
 void CScene_Start::Exit()
 {
 	DeleteAll();
+
+	// Edit 컨트롤을 삭제한다.
+	DestroyWindow(hEditNickname);
+	DestroyWindow(hEditIP);
 }
 
 void CScene_Start::render(HDC _dc)
@@ -153,12 +157,21 @@ void CScene_Start::update()
 		// 마우스가 StartButton 위에 있는지 확인한다.
 		CUI* pStartButton = (CUI*)FindObject(L"StartButton");
 
-		if (pStartButton->GetCollider()->PtInCollider(vMousePos))
+		if (pStartButton->GetCollider()->PtInCollider(vMousePos)) {
+			int iLenNickname = GetWindowTextLength(hEditNickname);
+			int iLenIP = GetWindowTextLength(hEditIP);
+
+			TCHAR* pStrNickname = new TCHAR[iLenNickname + 1];
+			TCHAR* pStrIP = new TCHAR[iLenIP + 1];
+
+			// 서버의 IP와 나의 닉네임을 가져온다.
+			GetWindowText(hEditNickname, pStrNickname, iLenNickname + 1);
+			GetWindowText(hEditIP, pStrIP, iLenIP + 1);
+
+			// TODO: 서버 IP로 연결을 요청하고, 닉네임도 전송해야함!
+
 			ChangeScene(SCENE_TYPE::MAIN);
-			//pStartButton->SetOnMouse(true);
-		//else
-			//pStartButton->SetOnMouse(false);
-		
+		}
 		
 	}
 }
