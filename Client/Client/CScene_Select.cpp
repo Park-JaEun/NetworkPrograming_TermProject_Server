@@ -54,8 +54,6 @@ void CScene_Select::Exit()
 	DeleteAll();
 }
 
-
-
 void CScene_Select::update()
 {
 	CScene::update();

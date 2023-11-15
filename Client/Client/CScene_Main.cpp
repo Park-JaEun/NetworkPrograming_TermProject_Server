@@ -73,11 +73,26 @@ void CScene_Main::Enter()
 	pPlayerObj->SetName(L"Player");
 	pPlayerObj->SetPos(Vec2(0.f, 0.f));
 
-	//((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::MINJI);
-	((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::DANIELLE);
-	//((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::HAERIN);
-	//((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::HANNIE);
-	//((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::HYEIN);
+	switch (m_eSelectedCharacter)
+	{
+	case CHARACTER_TYPE::MINJI:
+		((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::MINJI);
+		break;
+	case CHARACTER_TYPE::HANNIE:
+		((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::HANNIE);
+		break;
+	case CHARACTER_TYPE::DANIELLE:
+		((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::DANIELLE);
+		break;
+	case CHARACTER_TYPE::HAERIN:
+		((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::HAERIN);
+		break;
+	case CHARACTER_TYPE::HYEIN:
+		((CPlayer*)pPlayerObj)->SetType(CHARACTER_TYPE::HYEIN);
+		break;
+	default:
+		break;
+	}
 
 	// 충돌체, 애니메이터 생성
 	pPlayerObj->CreateCollider();
