@@ -1,10 +1,12 @@
 #include "pch.h"
 #include "CBullet.h"
-
+#include "CPlayer.h"
 #include "CTimer.h"
 #include "CCollider.h"
 
 #include "CTexture.h"
+#include "CSceneMgr.h"
+#include "CScene.h"
 
 #include "CAnimator.h"
 #include "CResourceMgr.h"
@@ -45,31 +47,154 @@ void CBullet::render(HDC _dc)
 	componentRender(_dc);
 }
 
+void CBullet::CreateMinjiBullet()
+{
+	CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Minji", L"texture\\characters\\minji\\minji.bmp");
+
+	CAnimator* pAnimator = new CAnimator;
+
+	pAnimator->SetObj(this);
+
+	pAnimator->CreateAnimation(
+		L"Minji_Bullet",		// Animation Name
+		pTexture,			// Texture Pointer
+		Vec2(0.f, 229.f),				// Texture Left Top
+		Vec2(14.f, 13.f),			// Frame Size
+		Vec2(14.f, 0.f),			// Step
+		0.07f,						// Duration
+		Vec2(0.f, 0.f),				// Offset
+		Vec2(2.f, 2.f),				// Scale
+		4);							// Frame Count
+
+	pAnimator->Play(L"Minji_Bullet", true);	// 현재 애니메이션 지정
+
+	SetAnimator(pAnimator);
+}
+
+void CBullet::CreateDanielleBullet()
+{
+	CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Danielle", L"texture\\characters\\danielle\\danielle.bmp");
+
+	CAnimator* pAnimator = new CAnimator;
+
+	pAnimator->SetObj(this);
+
+	pAnimator->CreateAnimation(
+		L"Danielle_Bullet",		// Animation Name
+		pTexture,			// Texture Pointer
+		Vec2(0.f, 229.f),				// Texture Left Top
+		Vec2(14.f, 13.f),			// Frame Size
+		Vec2(14.f, 0.f),			// Step
+		0.07f,						// Duration
+		Vec2(0.f, 0.f),				// Offset
+		Vec2(2.f, 2.f),				// Scale
+		4);							// Frame Count
+
+	pAnimator->Play(L"Danielle_Bullet", true);	// 현재 애니메이션 지정
+
+	SetAnimator(pAnimator);
+}
+
+void CBullet::CreateHaerinBullet()
+{
+	CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Haerin", L"texture\\characters\\haerin\\hearin.bmp");
+
+	CAnimator* pAnimator = new CAnimator;
+
+	pAnimator->SetObj(this);
+
+	pAnimator->CreateAnimation(
+		L"Haerin_Bullet",		// Animation Name
+		pTexture,			// Texture Pointer
+		Vec2(0.f, 217.f),				// Texture Left Top
+		Vec2(14.f, 13.f),			// Frame Size
+		Vec2(14.f, 0.f),			// Step
+		0.07f,						// Duration
+		Vec2(0.f, 0.f),				// Offset
+		Vec2(2.f, 2.f),				// Scale
+		4);							// Frame Count
+
+	pAnimator->Play(L"Haerin_Bullet", true);	// 현재 애니메이션 지정
+
+	SetAnimator(pAnimator);
+}
+
+void CBullet::CreateHannieBullet()
+{
+	CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Hannie", L"texture\\characters\\hannie\\hannie.bmp");
+
+	CAnimator* pAnimator = new CAnimator;
+
+	pAnimator->SetObj(this);
+
+	pAnimator->CreateAnimation(
+		L"Hannie_Bullet",		// Animation Name
+		pTexture,			// Texture Pointer
+		Vec2(0.f, 235.f),				// Texture Left Top
+		Vec2(14.f, 13.f),			// Frame Size
+		Vec2(14.f, 0.f),			// Step
+		0.07f,						// Duration
+		Vec2(0.f, 0.f),				// Offset
+		Vec2(2.f, 2.f),				// Scale
+		4);							// Frame Count
+
+	pAnimator->Play(L"Hannie_Bullet", true);	// 현재 애니메이션 지정
+
+	SetAnimator(pAnimator);
+}
+
+void CBullet::CreateHyeinBullet()
+{
+	CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Hyein", L"texture\\characters\\hyein\\hyein.bmp");
+
+	CAnimator* pAnimator = new CAnimator;
+
+	pAnimator->SetObj(this);
+
+	pAnimator->CreateAnimation(
+		L"Hyein_Bullet",		// Animation Name
+		pTexture,			// Texture Pointer
+		Vec2(0.f, 223.f),				// Texture Left Top
+		Vec2(14.f, 13.f),			// Frame Size
+		Vec2(14.f, 0.f),			// Step
+		0.07f,						// Duration
+		Vec2(0.f, 0.f),				// Offset
+		Vec2(2.f, 2.f),				// Scale
+		4);							// Frame Count
+
+	pAnimator->Play(L"Hyein_Bullet", true);	// 현재 애니메이션 지정
+
+	SetAnimator(pAnimator);
+}
+
 void CBullet::CreateAnimator(GROUP_TYPE _eType)
 {
 	switch (_eType) 
 	{
 	case GROUP_TYPE::BULLET_PLAYER: {
-		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Haerin", L"texture\\characters\\haerin\\hearin.bmp");
+		CPlayer* pPlayer = (CPlayer*)CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Player");
 
-		CAnimator* pAnimator = new CAnimator;
+		switch (pPlayer->GetType())
+		{
+		case CHARACTER_TYPE::MINJI:
+			CreateMinjiBullet();
+			break;
+		case CHARACTER_TYPE::HANNIE:
+			CreateHannieBullet();
+			break;
+		case CHARACTER_TYPE::DANIELLE:
+			CreateDanielleBullet();
+			break;
+		case CHARACTER_TYPE::HAERIN:
+			CreateHaerinBullet();
+			break;
+		case CHARACTER_TYPE::HYEIN:
+			CreateHyeinBullet();
+			break;
 
-		pAnimator->SetObj(this);
-
-		pAnimator->CreateAnimation(
-			L"Player_Bullet",		// Animation Name
-			pTexture,			// Texture Pointer
-			Vec2(0.f, 217.f),				// Texture Left Top
-			Vec2(14.f, 13.f),			// Frame Size
-			Vec2(14.f, 0.f),			// Step
-			0.07f,						// Duration
-			Vec2(0.f, 0.f),				// Offset
-			Vec2(2.f, 2.f),				// Scale
-			4);							// Frame Count
-
-		pAnimator->Play(L"Player_Bullet", true);	// 현재 애니메이션 지정
-
-		SetAnimator(pAnimator);
+		default:
+			break;
+		}
 	}
 		break;
 
@@ -159,8 +284,6 @@ void CBullet::CreateAnimator(GROUP_TYPE _eType)
 		}
 		break;
 	}
-
-	
 }
 
 void CBullet::SetDir(int _iDir)

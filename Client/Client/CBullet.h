@@ -27,6 +27,12 @@ public:
     void update() override;
     void render(HDC _dc) override;
 
+    void CreateMinjiBullet();
+    void CreateDanielleBullet();
+    void CreateHaerinBullet();
+    void CreateHannieBullet();
+    void CreateHyeinBullet();
+
 public:
     void CreateAnimator(GROUP_TYPE _eType);
 
