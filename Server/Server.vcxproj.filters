@@ -5,26 +5,138 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="소스 파일\01. Headers">
+      <UniqueIdentifier>{369b0c37-e4b3-4f54-ae45-dc6e8c58a9cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\02. Managers">
+      <UniqueIdentifier>{21f53ead-4b93-4128-ad73-76bee4676d54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\02. Managers\CollisionMgr">
+      <UniqueIdentifier>{e770ce71-cbb8-4d45-96d7-77776c4da4be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\02. Managers\KeyMgr">
+      <UniqueIdentifier>{daa790eb-5975-4dd8-92a8-20b962ab2b85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\02. Managers\Timer">
+      <UniqueIdentifier>{ab4a7c42-30ac-4568-9282-c9729d49fe7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\03. Object">
+      <UniqueIdentifier>{10a375e2-0b12-43b1-8c54-ec3c6b4b075e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\03. Object\Player">
+      <UniqueIdentifier>{afa8ad19-f634-4bbd-b8c2-ec1f42544974}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\03. Object\Monster">
+      <UniqueIdentifier>{b05d3847-f9bd-426d-aef0-ac05682a7f01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\03. Object\Bullet">
+      <UniqueIdentifier>{181f18cb-b317-4777-ad61-e1e05d55d3cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\03. Object\Boss">
+      <UniqueIdentifier>{35b850c9-e989-4074-aa9a-7efc5b041373}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\04. Collider">
+      <UniqueIdentifier>{a1a5ee2b-d25d-4ea6-b265-ee492db93b21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\02. Managers\EventMgr">
+      <UniqueIdentifier>{bd90d718-8219-41ac-bebf-50e53c3eb0b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\02. Managers\Object">
+      <UniqueIdentifier>{c6d1d55b-42eb-4982-8cc2-39b1041192c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Global.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="protocol.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>소스 파일\01. Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="define.h">
+      <Filter>소스 파일\01. Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="struct.h">
+      <Filter>소스 파일\01. Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="enum.h">
+      <Filter>소스 파일\01. Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="function.h">
+      <Filter>소스 파일\01. Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="CCollider.h">
+      <Filter>소스 파일\04. Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="CCollisionMgr.h">
+      <Filter>소스 파일\02. Managers\CollisionMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="CKeyMgr.h">
+      <Filter>소스 파일\02. Managers\KeyMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="CTimer.h">
+      <Filter>소스 파일\02. Managers\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="CObject.h">
+      <Filter>소스 파일\03. Object</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlayer.h">
+      <Filter>소스 파일\03. Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="CMonster.h">
+      <Filter>소스 파일\03. Object\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="CBullet.h">
+      <Filter>소스 파일\03. Object\Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="CBoss.h">
+      <Filter>소스 파일\03. Object\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="CEventMgr.h">
+      <Filter>소스 파일\02. Managers\EventMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="CObjectMgr.h">
+      <Filter>소스 파일\02. Managers\Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Server.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Server.cpp" />
+    <ClCompile Include="function.cpp">
+      <Filter>소스 파일\01. Headers</Filter>
+    </ClCompile>
+    <ClCompile Include="CCollider.cpp">
+      <Filter>소스 파일\04. Collider</Filter>
+    </ClCompile>
+    <ClCompile Include="CCollisionMgr.cpp">
+      <Filter>소스 파일\02. Managers\CollisionMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="CKeyMgr.cpp">
+      <Filter>소스 파일\02. Managers\KeyMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="CTimer.cpp">
+      <Filter>소스 파일\02. Managers\Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="CObject.cpp">
+      <Filter>소스 파일\03. Object</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlayer.cpp">
+      <Filter>소스 파일\03. Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="CMonster.cpp">
+      <Filter>소스 파일\03. Object\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="CBullet.cpp">
+      <Filter>소스 파일\03. Object\Bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="CBoss.cpp">
+      <Filter>소스 파일\03. Object\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="CEventMgr.cpp">
+      <Filter>소스 파일\02. Managers\EventMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="CObjectMgr.cpp">
+      <Filter>소스 파일\02. Managers\Object</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
