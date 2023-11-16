@@ -21,3 +21,9 @@ bool IsInBossRoom(const Vec2& _vPos);
 
 // 오브젝트가 카메라 내부에 존재하는지 확인
 bool IsInCamera(const Vec2& _vPos);
+
+// 서버 통신 오류 함수
+void err_quit(const char* msg);
+
+// 소켓 함수 오류 출력
+void err_display(const char* msg);

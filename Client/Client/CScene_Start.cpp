@@ -160,6 +160,7 @@ void CScene_Start::update()
 		if (pStartButton->GetCollider()->PtInCollider(vMousePos)) {
 			int iLenNickname = GetWindowTextLength(hEditNickname);
 			int iLenIP = GetWindowTextLength(hEditIP);
+			int retval{};
 
 			TCHAR* pStrNickname = new TCHAR[iLenNickname + 1];
 			TCHAR* pStrIP = new TCHAR[iLenIP + 1];
@@ -168,7 +169,53 @@ void CScene_Start::update()
 			GetWindowText(hEditNickname, pStrNickname, iLenNickname + 1);
 			GetWindowText(hEditIP, pStrIP, iLenIP + 1);
 
-			// TODO: 서버 IP로 연결을 요청하고, 닉네임도 전송해야함!
+			// TCHAR -> char
+			char* pStrIPChar = new char[iLenIP + 1];
+			char* pStrNicknameChar = new char[iLenNickname + 1];
+
+			for (int i = 0; i < iLenIP + 1; ++i) {
+				pStrIPChar[i] = pStrIP[i];
+			}
+
+			for (int i = 0; i < iLenNickname + 1; ++i) {
+				pStrNicknameChar[i] = pStrNickname[i];
+			}
+
+			// 서버에 접속한다.
+			SOCKET sock = CCore::GetInst()->GetSocket();
+			sock = socket(AF_INET, SOCK_STREAM, 0);
+			if (sock == INVALID_SOCKET) err_quit("socket()");
+
+			// 서버 주소 설정
+			struct sockaddr_in serveraddr;
+			memset(&serveraddr, 0, sizeof(serveraddr));
+			serveraddr.sin_family = AF_INET;
+			inet_pton(AF_INET, pStrIPChar, &serveraddr.sin_addr);
+			serveraddr.sin_port = htons(SERVERPORT);
+			if (connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr)) == SOCKET_ERROR)
+				err_quit("connect()");
+
+			// 닉네임 전송
+			retval = send(sock, reinterpret_cast<char*>(&iLenNickname), sizeof(int), 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				closesocket(sock);
+				WSACleanup();
+				return;
+			}
+
+			retval = send(sock, (char*)pStrNicknameChar, iLenNickname, 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				closesocket(sock);
+				WSACleanup();
+				return;
+			}
+
+			delete pStrNickname;
+			delete pStrIP;
+			delete pStrIPChar;
+			delete pStrNicknameChar;
 
 			ChangeScene(SCENE_TYPE::SELECT);
 		}

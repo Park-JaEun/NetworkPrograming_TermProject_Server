@@ -10,7 +10,9 @@
 #include "CEventMgr.h"
 #include "CCamera.h"
 
-CCore::CCore() : m_hWnd(nullptr), m_ptResolution{}, m_hDC(nullptr), m_hBit(nullptr), m_memDC(nullptr), m_arrBrush{}, m_arrPen{}
+CCore::CCore() : 
+	m_hWnd(nullptr), m_ptResolution{}, m_hDC(nullptr), 
+	m_hBit(nullptr), m_memDC(nullptr), m_arrBrush{}, m_arrPen{}, m_sock{INVALID_SOCKET}
 {
 }
 
@@ -59,6 +61,11 @@ int CCore::init(HWND _hWnd, POINT _ptResolution)
 	CKeyMgr::GetInst()->init();
 	CSceneMgr::GetInst()->init();
 
+	// 윈속 초기화
+	WSADATA wsa;
+	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+		return S_FALSE;
+
 	return S_OK;
 }
 
@@ -77,8 +84,232 @@ void CCore::CreateBrushPen()
 	m_arrPen[(UINT)PEN_TYPE::BLUE] = CreatePen(PS_SOLID, 1, RGB(0, 0, 255));
 }
 
+void CCore::CommunicationToServer()
+{
+	////////////
+	// send() //
+	////////////
+
+	char buf[BUFSIZE];
+	int size;
+	int retval;
+	SOCKET sock = m_sock;
+	CS_PACKET_TYPE type = CS_PACKET_TYPE(rand() % 5 + 1); // send()타입 선택 
+
+	switch (type)
+	{
+	case CS_PACKET_TYPE::SELECT_CHARACTER:
+	{
+		SELECT_CHARACTER_PACKET p;
+		p.type = static_cast<char>(CS_PACKET_TYPE::SELECT_CHARACTER);
+		size = sizeof(p);
+		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+	}
+	break;
+	case CS_PACKET_TYPE::CS_INIT_FINISH:
+	{
+		CS_INIT_FINISH_PACKET p;
+		p.type = static_cast<char>(CS_PACKET_TYPE::CS_INIT_FINISH);
+		size = sizeof(p);
+		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+	}
+	break;
+	case CS_PACKET_TYPE::CS_KEYBOARD_INPUT:
+	{
+		CS_KEYBOARD_INPUT_PACKET p;
+		p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
+		size = sizeof(p);
+		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+	}
+	break;
+	case CS_PACKET_TYPE::CS_SELECT_LOBBY:
+	{
+		CS_SELECT_LOBBY_PACKET p;
+		p.type = static_cast<char>(CS_PACKET_TYPE::CS_SELECT_LOBBY);
+		size = sizeof(p);
+		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+	}
+	break;
+	case CS_PACKET_TYPE::CS_SELECT_EXIT:
+	{
+		CS_SELECT_EXIT_PACKET p;
+		p.type = static_cast<char>(CS_PACKET_TYPE::CS_SELECT_EXIT);
+		size = sizeof(p);
+		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+	}
+	break;
+	default:
+		break;
+	}
+
+	////////////
+	// recv() //
+	////////////
+	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv(1)");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
+	retval = recv(sock, buf, size, MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv(2)");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
+
+
+	switch (buf[0]) {
+		case int(SC_PACKET_TYPE::SC_MAKE_ID) :
+		{
+			SC_MAKE_ID_PACKET* p = reinterpret_cast<SC_MAKE_ID_PACKET*>(buf);
+		}
+		break;
+
+		case int(SC_PACKET_TYPE::SELECT_CHARACTER) :
+		{
+			SELECT_CHARACTER_PACKET* p = reinterpret_cast<SELECT_CHARACTER_PACKET*>(buf);
+		}
+		break;
+
+		case int(SC_PACKET_TYPE::SC_INIT) :
+		{
+			SC_INIT_PACKET* p = reinterpret_cast<SC_INIT_PACKET*>(buf);
+		}
+		break;
+
+		case int(SC_PACKET_TYPE::SC_GAME_START) :
+		{
+			SC_GAME_START_PACKET* p = reinterpret_cast<SC_GAME_START_PACKET*>(buf);
+		}
+		break;
+
+		case int(SC_PACKET_TYPE::SC_GAME_OVER) :
+		{
+			SC_GAME_OVER_PACKET* p = reinterpret_cast<SC_GAME_OVER_PACKET*>(buf);
+		}
+		break;
+
+		case int(SC_PACKET_TYPE::SC_GAME_CLEAR) :
+		{
+			SC_GAME_CLEAR_PACKET* p = reinterpret_cast<SC_GAME_CLEAR_PACKET*>(buf);
+		}
+		break;
+
+		case int(SC_PACKET_TYPE::SC_PLAYER) :
+		{
+			SC_PLAYER_PACKET* p = reinterpret_cast<SC_PLAYER_PACKET*>(buf);
+		}
+		break;
+
+		case int(SC_PACKET_TYPE::SC_MONSTER) :
+		{
+			SC_MONSTER_PACKET* p = reinterpret_cast<SC_MONSTER_PACKET*>(buf);
+		}
+		break;
+
+		case int(SC_PACKET_TYPE::SC_BOSS) :
+		{
+			SC_BOSS_PACKET* p = reinterpret_cast<SC_BOSS_PACKET*>(buf);
+		}
+		break;
+
+		case int(SC_PACKET_TYPE::SC_BULLET) :
+		{
+			SC_BULLET_PACKET* p = reinterpret_cast<SC_BULLET_PACKET*>(buf);
+		}
+		break;
+
+		/*case int(SC_PACKET_TYPE::SC_ITEM) :
+		{
+			SC_ITEM_PACKET* p = reinterpret_cast<SC_ITEM_PACKET*>(buf);
+		}
+		break;*/
+
+		case int(SC_PACKET_TYPE::SC_RANK) :
+		{
+			SC_RANK_PACKET* p = reinterpret_cast<SC_RANK_PACKET*>(buf);
+		}
+		break;
+
+		default:
+			break;
+	}
+}
+
 void CCore::progress()
 {
+	// 소켓이 연결되어 있으면 통신
+	if(m_sock != INVALID_SOCKET)
+		CommunicationToServer();
+
 	// Managers Update
 	CTimer::GetInst()->update();
 	CKeyMgr::GetInst()->update();

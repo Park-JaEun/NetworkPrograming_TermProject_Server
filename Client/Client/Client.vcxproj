@@ -170,6 +170,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="functions.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="protocol.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SelectGDI.h" />
     <ClInclude Include="structs.h" />
