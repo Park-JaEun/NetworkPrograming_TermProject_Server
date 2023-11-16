@@ -44,7 +44,7 @@ void CScene_Select::Enter()
 
 	pSelectedCharacterUI->CreateAnimator();
 	CreateObject(pSelectedCharacterUI, GROUP_TYPE::UI);
-	///////////////
+	////////////////
 
 
 }
