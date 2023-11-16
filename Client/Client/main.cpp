@@ -94,7 +94,7 @@ int APIENTRY wWinMain(_In_      HINSTANCE hInstance,        // 현재 프로그�
         {
             // 메세지가 없는 동안 호출: Game 코드 수행
             // 기본 디자인 패턴(설계 유형): 싱글톤 패턴
-            CCore::GetInst()->progress();
+            CCore::GetInst()->progress();       // 한 프레임
         }
     }
 
