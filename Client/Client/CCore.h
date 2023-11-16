@@ -59,6 +59,7 @@ private:
 
 	HBITMAP		m_hBit;			// 후면	버퍼 비트맵 핸들
 	HDC			m_memDC;		// 후면 버퍼 Device Context (memory DC)
+	SOCKET		m_sock;			// 서버와 연결할 소켓
 
 	std::array<HBRUSH, (UINT)BRUSH_TYPE::END>	m_arrBrush;		// 자주 사용할 브러쉬의 배열
 	std::array<HPEN, (UINT)PEN_TYPE::END>		m_arrPen;		// 자주 사용할 펜의 배열
@@ -66,6 +67,7 @@ private:
 public:
 	int init(HWND _hWnd, POINT _ptResolution);
 	void CreateBrushPen();
+	void CommunicationToServer();
 	void progress();
 
 public:
@@ -74,4 +76,5 @@ public:
 	POINT GetResolution()				{ return m_ptResolution; }
 	HBRUSH GetBrush(BRUSH_TYPE _eType)	{ return m_arrBrush[(UINT)_eType]; }
 	HPEN GetPen(PEN_TYPE _eType)		{ return m_arrPen[(UINT)_eType]; }
+	SOCKET GetSocket()					{ return m_sock; }
 };

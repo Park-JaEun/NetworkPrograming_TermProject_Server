@@ -215,6 +215,9 @@
     <ClInclude Include="CScene_Select.h">
       <Filter>Engine\05. Scene\Scene_Select</Filter>
     </ClInclude>
+    <ClInclude Include="protocol.h">
+      <Filter>Engine\01. Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">

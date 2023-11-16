@@ -182,11 +182,8 @@ void CScene_Start::update()
 			}
 
 			// 서버에 접속한다.
-			WSADATA wsa;
-			if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
-				return;
-
-			SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
+			SOCKET sock = CCore::GetInst()->GetSocket();
+			sock = socket(AF_INET, SOCK_STREAM, 0);
 			if (sock == INVALID_SOCKET) err_quit("socket()");
 
 			// 서버 주소 설정
