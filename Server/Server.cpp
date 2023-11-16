@@ -62,7 +62,14 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		char buf[BUFSIZE];
 		int size;
 
-		recv(client_sock, reinterpret_cast<char*>(&size), sizeof(size), MSG_WAITALL);
+		retval= recv(client_sock, reinterpret_cast<char*>(&size), sizeof(size), MSG_WAITALL);
+		if (retval == SOCKET_ERROR) {
+			err_display("recv()");
+			break;
+		}
+		else if (retval == 0)
+			break;
+
 		retval = recv(client_sock, buf, size, MSG_WAITALL);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");
@@ -76,8 +83,28 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			{
 				SELECT_CHARACTER_PACKET* p = reinterpret_cast<SELECT_CHARACTER_PACKET*>(buf);
 				// 데이터 정보 변경시 여기에 코딩하세요 
-				// ex) p->character = CHARACTER_TYPE::HANNIE;
-				std::cout << "[" << nick_name << "] 클라이언트 → 서버: 캐릭터 선택 완료 패킷 받음" << '\n';
+				std::cout << "[" << nick_name << "] " << p->id << "P :";
+
+				switch (p->character)
+				{
+				case CHARACTER_TYPE::MINJI:
+					std::cout << "민지" << '\n';
+					break;
+				case CHARACTER_TYPE::HANNIE:
+					std::cout << "하니" << '\n';
+					break;
+				case CHARACTER_TYPE::DANIELLE:
+					std::cout << "다니엘" << '\n';
+					break;
+				case CHARACTER_TYPE::HEARIN:
+					std::cout << "혜린" << '\n';
+					break;
+				case CHARACTER_TYPE::HYEIN:
+					std::cout << "혜인" << '\n';
+					break;
+				default:
+					break;
+				}
 			}
 			break;
 

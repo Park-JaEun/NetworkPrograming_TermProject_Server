@@ -39,6 +39,11 @@ int APIENTRY wWinMain(_In_      HINSTANCE hInstance,        // 현재 프로그�
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
+    AllocConsole(); // 콘솔 창을 연다
+    freopen("CONIN$", "r", stdin); // 표준 입력을 콘솔로 리디렉션한다
+    freopen("CONOUT$", "w", stdout); // 표준 출력을 콘솔로 리디렉션한다
+    freopen("CONOUT$", "w", stderr); // 표준 에러를 콘솔로 리디렉션한다
+
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_CLIENT, szWindowClass, MAX_LOADSTRING);

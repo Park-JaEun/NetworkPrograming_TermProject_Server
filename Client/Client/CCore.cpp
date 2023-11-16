@@ -237,8 +237,8 @@ void CCore::CommunicationToServer()
 void CCore::progress()
 {
 	// 소켓이 연결되어 있으면 통신
-	if(m_sock != INVALID_SOCKET)
-		CommunicationToServer();
+	/*if(m_sock != INVALID_SOCKET)
+		CommunicationToServer();*/
 
 	// Managers Update
 	CTimer::GetInst()->update();

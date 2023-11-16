@@ -183,8 +183,14 @@ void CScene_Start::update()
 
 			// 서버에 접속한다.
 			SOCKET sock = CCore::GetInst()->GetSocket();
+
+			// 소켓 생성
 			sock = socket(AF_INET, SOCK_STREAM, 0);
-			if (sock == INVALID_SOCKET) err_quit("socket()");
+			if (sock == INVALID_SOCKET) 
+				err_quit("socket()");
+
+			// 소켓 할당
+			CCore::GetInst()->SetSocket(sock);
 
 			// 서버 주소 설정
 			struct sockaddr_in serveraddr;
@@ -211,6 +217,9 @@ void CScene_Start::update()
 				WSACleanup();
 				return;
 			}
+
+			// 플레이어 닉네임 저장
+			CCore::GetInst()->SetNickName(pStrNickname);
 
 			delete pStrNickname;
 			delete pStrIP;

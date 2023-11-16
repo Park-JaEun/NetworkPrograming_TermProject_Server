@@ -45,8 +45,6 @@ void CScene_Select::Enter()
 	pSelectedCharacterUI->CreateAnimator();
 	CreateObject(pSelectedCharacterUI, GROUP_TYPE::UI);
 	////////////////
-
-
 }
 
 void CScene_Select::Exit()
@@ -59,6 +57,31 @@ void CScene_Select::update()
 	CScene::update();
 
 	if (KEY_TAP(KEY::SPACE)) {
+		SELECT_CHARACTER_PACKET p;
+		SOCKET sock = CCore::GetInst()->GetSocket();
+		
+		int retval{};
+		int size = sizeof(p);
+
+		p.type = static_cast<char>(CS_PACKET_TYPE::SELECT_CHARACTER);
+		p.character = m_eSelectedCharacter;
+		p.id = 1;
+
+		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+
 		ChangeScene(SCENE_TYPE::MAIN);
 	}
 
