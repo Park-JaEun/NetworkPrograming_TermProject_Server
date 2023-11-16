@@ -89,212 +89,142 @@ void CCore::CommunicationToServer()
 	////////////
 	// send() //
 	////////////
-
-	char buf[BUFSIZE];
 	int size;
 	int retval;
+	char buf[BUFSIZE];
+
 	SOCKET sock = m_sock;
 	CS_PACKET_TYPE type = CS_PACKET_TYPE(rand() % 5 + 1); // send()타입 선택 
 
-	switch (type)
-	{
-	case CS_PACKET_TYPE::SELECT_CHARACTER:
-	{
+	switch (type) {
+	case CS_PACKET_TYPE::SELECT_CHARACTER: {
 		SELECT_CHARACTER_PACKET p;
 		p.type = static_cast<char>(CS_PACKET_TYPE::SELECT_CHARACTER);
 		size = sizeof(p);
 		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			closesocket(sock);
-			WSACleanup();
-			return;
-		}
 		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			closesocket(sock);
-			WSACleanup();
-			return;
-		}
 	}
 	break;
-	case CS_PACKET_TYPE::CS_INIT_FINISH:
-	{
+
+	case CS_PACKET_TYPE::CS_INIT_FINISH: {
 		CS_INIT_FINISH_PACKET p;
 		p.type = static_cast<char>(CS_PACKET_TYPE::CS_INIT_FINISH);
 		size = sizeof(p);
 		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			closesocket(sock);
-			WSACleanup();
-			return;
-		}
 		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			closesocket(sock);
-			WSACleanup();
-			return;
-		}
 	}
 	break;
-	case CS_PACKET_TYPE::CS_KEYBOARD_INPUT:
-	{
+
+	case CS_PACKET_TYPE::CS_KEYBOARD_INPUT: {
 		CS_KEYBOARD_INPUT_PACKET p;
 		p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
 		size = sizeof(p);
 		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			closesocket(sock);
-			WSACleanup();
-			return;
-		}
 		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			closesocket(sock);
-			WSACleanup();
-			return;
-		}
 	}
 	break;
-	case CS_PACKET_TYPE::CS_SELECT_LOBBY:
-	{
+
+	case CS_PACKET_TYPE::CS_SELECT_LOBBY: {
 		CS_SELECT_LOBBY_PACKET p;
 		p.type = static_cast<char>(CS_PACKET_TYPE::CS_SELECT_LOBBY);
 		size = sizeof(p);
 		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			closesocket(sock);
-			WSACleanup();
-			return;
-		}
 		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			closesocket(sock);
-			WSACleanup();
-			return;
-		}
 	}
 	break;
-	case CS_PACKET_TYPE::CS_SELECT_EXIT:
-	{
+
+	case CS_PACKET_TYPE::CS_SELECT_EXIT: {
 		CS_SELECT_EXIT_PACKET p;
 		p.type = static_cast<char>(CS_PACKET_TYPE::CS_SELECT_EXIT);
 		size = sizeof(p);
 		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			closesocket(sock);
-			WSACleanup();
-			return;
-		}
 		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			closesocket(sock);
-			WSACleanup();
-			return;
-		}
 	}
 	break;
+
 	default:
 		break;
+	}
+
+	// 오류 처리
+	if (retval == SOCKET_ERROR) {
+		err_display("send()");
+		closesocket(sock);
+		WSACleanup();
+		return;
 	}
 
 	////////////
 	// recv() //
 	////////////
 	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
-	if (retval == SOCKET_ERROR) {
-		err_display("recv(1)");
-		closesocket(sock);
-		WSACleanup();
-		return;
-	}
 	retval = recv(sock, buf, size, MSG_WAITALL);
+
+	// 오류 처리
 	if (retval == SOCKET_ERROR) {
-		err_display("recv(2)");
+		err_display("recv()");
 		closesocket(sock);
 		WSACleanup();
 		return;
 	}
-
 
 	switch (buf[0]) {
-		case int(SC_PACKET_TYPE::SC_MAKE_ID) :
-		{
+		case int(SC_PACKET_TYPE::SC_MAKE_ID): {
 			SC_MAKE_ID_PACKET* p = reinterpret_cast<SC_MAKE_ID_PACKET*>(buf);
 		}
 		break;
 
-		case int(SC_PACKET_TYPE::SELECT_CHARACTER) :
-		{
+		case int(SC_PACKET_TYPE::SELECT_CHARACTER): {
 			SELECT_CHARACTER_PACKET* p = reinterpret_cast<SELECT_CHARACTER_PACKET*>(buf);
 		}
 		break;
 
-		case int(SC_PACKET_TYPE::SC_INIT) :
-		{
+		case int(SC_PACKET_TYPE::SC_INIT): {
 			SC_INIT_PACKET* p = reinterpret_cast<SC_INIT_PACKET*>(buf);
 		}
 		break;
 
-		case int(SC_PACKET_TYPE::SC_GAME_START) :
-		{
+		case int(SC_PACKET_TYPE::SC_GAME_START): {
 			SC_GAME_START_PACKET* p = reinterpret_cast<SC_GAME_START_PACKET*>(buf);
 		}
 		break;
 
-		case int(SC_PACKET_TYPE::SC_GAME_OVER) :
-		{
+		case int(SC_PACKET_TYPE::SC_GAME_OVER): {
 			SC_GAME_OVER_PACKET* p = reinterpret_cast<SC_GAME_OVER_PACKET*>(buf);
 		}
 		break;
 
-		case int(SC_PACKET_TYPE::SC_GAME_CLEAR) :
-		{
+		case int(SC_PACKET_TYPE::SC_GAME_CLEAR): {
 			SC_GAME_CLEAR_PACKET* p = reinterpret_cast<SC_GAME_CLEAR_PACKET*>(buf);
 		}
 		break;
 
-		case int(SC_PACKET_TYPE::SC_PLAYER) :
-		{
+		case int(SC_PACKET_TYPE::SC_PLAYER): {
 			SC_PLAYER_PACKET* p = reinterpret_cast<SC_PLAYER_PACKET*>(buf);
 		}
 		break;
 
-		case int(SC_PACKET_TYPE::SC_MONSTER) :
-		{
+		case int(SC_PACKET_TYPE::SC_MONSTER): {
 			SC_MONSTER_PACKET* p = reinterpret_cast<SC_MONSTER_PACKET*>(buf);
 		}
 		break;
 
-		case int(SC_PACKET_TYPE::SC_BOSS) :
-		{
+		case int(SC_PACKET_TYPE::SC_BOSS): {
 			SC_BOSS_PACKET* p = reinterpret_cast<SC_BOSS_PACKET*>(buf);
 		}
 		break;
 
-		case int(SC_PACKET_TYPE::SC_BULLET) :
-		{
+		case int(SC_PACKET_TYPE::SC_BULLET): {
 			SC_BULLET_PACKET* p = reinterpret_cast<SC_BULLET_PACKET*>(buf);
 		}
 		break;
 
-		/*case int(SC_PACKET_TYPE::SC_ITEM) :
-		{
+		/*case int(SC_PACKET_TYPE::SC_ITEM): {
 			SC_ITEM_PACKET* p = reinterpret_cast<SC_ITEM_PACKET*>(buf);
 		}
 		break;*/
 
-		case int(SC_PACKET_TYPE::SC_RANK) :
-		{
+		case int(SC_PACKET_TYPE::SC_RANK): {
 			SC_RANK_PACKET* p = reinterpret_cast<SC_RANK_PACKET*>(buf);
 		}
 		break;
