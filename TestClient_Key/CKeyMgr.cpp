@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "CKeyMgr.h"
 
-CS_KEYBOARD_INPUT_PACKET inputkey[(int)KEY::LAST][2] = {};
+CS_KEYBOARD_INPUT_PACKET inputkey[(int)KEY::LAST] = {};
 
 // 내가 만든 키 값들을 윈도우 가상 키코드값으로 바꾸기
 std::array<int, (int)KEY::LAST> g_arrVK =
@@ -66,56 +66,56 @@ void CKeyMgr::update()
 					switch (g_arrVK[i])
 					{
 					case VK_LEFT:
-						inputkey[i]->key = KEY::LEFT;
+						inputkey[i].key = KEY::LEFT;
 						break;
 					case VK_RIGHT:
-						inputkey[i]->key = KEY::RIGHT;
+						inputkey[i].key = KEY::RIGHT;
 						break;
 					case VK_UP:
-						inputkey[i]->key = KEY::UP;
+						inputkey[i].key = KEY::UP;
 						break;
 					case VK_DOWN:
-						inputkey[i]->key = KEY::DOWN;
+						inputkey[i].key = KEY::DOWN;
 						break;
 					case VK_SPACE:
-						inputkey[i]->key = KEY::SPACE;
+						inputkey[i].key = KEY::SPACE;
 						break;
 					case VK_LBUTTON:
-						inputkey[i]->key = KEY::LBUTTON;
+						inputkey[i].key = KEY::LBUTTON;
 						break;
 					case VK_NUMPAD0:
-						inputkey[i]->key = KEY::NUMPAD0;
+						inputkey[i].key = KEY::NUMPAD0;
 						break;
 					case VK_NUMPAD1:
-						inputkey[i]->key = KEY::NUMPAD1;
+						inputkey[i].key = KEY::NUMPAD1;
 						break;
 					case VK_NUMPAD2:
-						inputkey[i]->key = KEY::NUMPAD2;
+						inputkey[i].key = KEY::NUMPAD2;
 						break;
 					case VK_NUMPAD3:
-						inputkey[i]->key = KEY::NUMPAD3;
+						inputkey[i].key = KEY::NUMPAD3;
 						break;
 					case VK_NUMPAD4:
-						inputkey[i]->key = KEY::NUMPAD4;
+						inputkey[i].key = KEY::NUMPAD4;
 						break;
 					case VK_NUMPAD5:
-						inputkey[i]->key = KEY::NUMPAD5;
+						inputkey[i].key = KEY::NUMPAD5;
 						break;
 					case VK_NUMPAD6:
-						inputkey[i]->key = KEY::NUMPAD6;
+						inputkey[i].key = KEY::NUMPAD6;
 						break;
 					case VK_NUMPAD7:
-						inputkey[i]->key = KEY::NUMPAD7;
+						inputkey[i].key = KEY::NUMPAD7;
 						break;
 					case VK_NUMPAD8:
-						inputkey[i]->key = KEY::NUMPAD8;
+						inputkey[i].key = KEY::NUMPAD8;
 						break;
 					case VK_NUMPAD9:
-						inputkey[i]->key = KEY::NUMPAD9;
+						inputkey[i].key = KEY::NUMPAD9;
 						break;
 					}
 
-					inputkey[i]->key_state = KEY_STATE::TAP;
+					inputkey[i].key_state = KEY_STATE::TAP;
 				}
 
 				// 상태 갱신
@@ -136,7 +136,7 @@ void CKeyMgr::update()
 
 				// 상태 갱신
 				m_vecKey[i].bPrevPush = false;
-				inputkey[i]->key_state = KEY_STATE::NONE;
+				inputkey[i].key_state = KEY_STATE::NONE;
 			}
 		}
 	}

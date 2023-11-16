@@ -140,14 +140,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         else {
             CKeyMgr::GetInst()->update();
             for (int i = 0; i < (int)KEY::LAST; ++i) {
-                if (inputkey[i]->key_state == KEY_STATE::TAP) {              // key의 상태가 눌림이면
-                    cout << (int)inputkey[i]->key << endl;                   // key의 정보를 출력
+                if (inputkey[i].key_state == KEY_STATE::TAP) {              // key의 상태가 눌림이면
+                    cout << (int)inputkey[i].key << endl;                   // key의 정보를 출력
 
                     // send
                     CS_KEYBOARD_INPUT_PACKET p;
                     p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
-                    p.key = inputkey[i]->key;                               // key 정보 저장
-                    p.key_state = inputkey[i]->key_state;                   // key의 상태 저장(눌림)
+                    p.key = inputkey[i].key;                               // key 정보 저장
+                    p.key_state = inputkey[i].key_state;                   // key의 상태 저장(눌림)
 
                     int size = sizeof(p);
                     std::cout << "send() - 키보드 입력 정보 패킷을 전송하였습니다" << '\n';
