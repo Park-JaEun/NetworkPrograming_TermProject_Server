@@ -2,16 +2,19 @@
 
 int clientId = 0;  // 클라이언트 id 초기값 0
 
-std::vector<std::string> ClientNickNname;	// 클라이언트의 닉네임을 저장하는 벡터
 std::vector<PlayerInfo> ClientInfo;
 
 // 함수를 사용하여 클라이언트 처리
 DWORD WINAPI ProcessClient(LPVOID arg)
 {
-	SOCKET client_sock = (SOCKET)arg;
-	int retval;
-	struct sockaddr_in clientaddr;
-	int addrlen;
+	SOCKET client_sock = (SOCKET)arg;	// 클라이언트 소켓
+	struct sockaddr_in clientaddr;		// 클라이언트 주소
+	char nick_name[256];				// 클라이언트 닉네임
+	char buf[BUFSIZE];					// 패킷 데이터 버퍼
+	int retval;							// 리턴값
+	int addrlen;						// 주소 길이
+	int size;							// 패킷 사이즈
+	bool isAllReady{ false };			// 모든 클라이언트가 준비 상태인지 확인
 
 	// 접속한 클라이언트 정보 출력
 	addrlen = sizeof(clientaddr);
@@ -19,20 +22,9 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	char addr[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
 
-	// 클라이언트의 닉네임 크기 받기
-	int nick_name_size;
-	retval = recv(client_sock, (char*)&nick_name_size, sizeof(int), MSG_WAITALL);
-	if (retval == SOCKET_ERROR) {
-		err_display("recv(): Client Nickname Size");
-		closesocket(client_sock);
-		return 0;
-	}
-	else if (retval == 0)
-		return 0;
-
-	// 클라이언트의 닉네임 받기
-	char nick_name[256];
-	retval = recv(client_sock, nick_name, nick_name_size, MSG_WAITALL);
+	// 클라이언트의 닉네임 수신
+	retval = recv(client_sock, (char*)&size, sizeof(int), MSG_WAITALL);
+	retval = recv(client_sock, nick_name, size, MSG_WAITALL);
 	if (retval == SOCKET_ERROR) {
 		err_display("recv(): Client Nickname");
 		closesocket(client_sock);
@@ -45,31 +37,127 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	// PlayerInfo 인스턴스를 생성하여 ClientInfo 벡터에 추가
 	PlayerInfo player;
 	player.nickname = nick_name;						// 클라이언트 닉네임 저장
-	player.portnumber = ntohs(clientaddr.sin_port);		// 네트워크 바이트 순서에서 호스트 바이트 순서로 변환 필요
+	player.portnumber = ntohs(clientaddr.sin_port);		// 네트워크 바이트 순서에서 호스트 바이트 순서로 변환
 	player.id = clientId;								// 클라이언트 닉네임 저장
+	player.isReady = false;								// 클라이언트 준비 상태 false로 초기화
+	player.isInit = false;								// 클라이언트 초기화 상태 false로 초기화
 
 	// 클라이언트의 정보를 벡터에 저장(닉네임, 포트번호, 아이디)
 	ClientInfo.emplace_back(player);
 
 	// 접속한 클라이언트 정보와 닉네임 출력
-	std::cout << "\n[TCP 서버] 클라이언트 접속: IP 주소=" << addr << ", 포트 번호=" << ntohs(clientaddr.sin_port) << ", 닉네임=" << nick_name << std::endl;
+	std::cout << "\nPlayer " << clientId << " 접속: IP 주소 = " << addr << ", 포트 번호 = " << ntohs(clientaddr.sin_port) << ", 닉네임 = " << nick_name << std::endl;
+
+	// 클라이언트 정보 송신
+	SC_MAKE_ID_PACKET idPacket;
+	size = sizeof(SC_MAKE_ID_PACKET);
+	idPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_MAKE_ID);
+	idPacket.id = clientId;
+
+	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	retval = send(client_sock, reinterpret_cast<char*>(&idPacket), size, 0);
+	if (retval == SOCKET_ERROR) {
+		err_display("send()");
+		return 0;
+	}
+
+	std::cout << "[Player" << clientId << "] ID 할당 패킷 전송" << std::endl;
+
+	// 클라이언트 캐릭터 선택 정보 수신
+	retval = recv(client_sock, reinterpret_cast<char*>(&size), sizeof(size), MSG_WAITALL);
+	retval = recv(client_sock, buf, size, MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		return 0;
+	}
+	else if (retval == 0)
+		return 0;
+
+	SELECT_CHARACTER_PACKET* selectPacket = reinterpret_cast<SELECT_CHARACTER_PACKET*>(buf);
+	std::cout << "[Player" << clientId << "] ";
+	ClientInfo[clientId].isReady = true;	// 클라이언트 준비 상태 true로 변경
+
+	switch (selectPacket->character) {
+	case CHARACTER_TYPE::MINJI:
+		std::cout << "민지 선택" << '\n';
+		break;
+
+	case CHARACTER_TYPE::HANNIE:
+		std::cout << "하니 선택" << '\n';
+		break;
+
+	case CHARACTER_TYPE::DANIELLE:
+		std::cout << "다니엘 선택" << '\n';
+		break;
+
+	case CHARACTER_TYPE::HEARIN:
+		std::cout << "혜린 선택" << '\n';
+		break;
+
+	case CHARACTER_TYPE::HYEIN:
+		std::cout << "혜인 선택" << '\n';
+		break;
+
+	default:
+		break;
+	}
+
+	// 모든 클라이언트가 준비 상태인지 확인
+	while (1) {
+		isAllReady = true;
+
+		for (const PlayerInfo& info : ClientInfo) {
+			if (!info.isReady) {
+				isAllReady = false;
+				break;
+			}
+		}
+
+		if (isAllReady)
+			break;
+	}
+
+	// 모든 클라이언트가 준비 상태일 경우 플레이어들에게 초기화 신호 패킷 전송
+	if (isAllReady) {
+		SC_INIT_PACKET initPacket;
+		size = sizeof(SC_INIT_PACKET);
+		initPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_INIT);
+
+		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		retval = send(client_sock, reinterpret_cast<char*>(&initPacket), size, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			return 0;
+		}
+
+		std::cout << "모든 플레이어 준비 완료" << std::endl;
+		std::cout << "플레이어들에게 초기화 신호 패킷 전송" << std::endl;
+	}
+
+	// 초기화 완료 신호 패킷 수신
+	retval = recv(client_sock, reinterpret_cast<char*>(&size), sizeof(size), MSG_WAITALL);
+	retval = recv(client_sock, buf, size, MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		return 0;
+	}
+	else if (retval == 0)
+		return 0;
+
+	CS_INIT_FINISH_PACKET* initFinishPacket = reinterpret_cast<CS_INIT_FINISH_PACKET*>(buf);
+	std::cout << "[Player" << clientId << "] 스테이지 초기화 완료" << std::endl;
+	ClientInfo[clientId].isInit = true;	// 클라이언트 초기화 상태 true로 변경
 
 	while (1) {
 		////////////
 		// recv() //
 		////////////
+		
+		// 버퍼 비우기
+		memset(buf, 0, BUFSIZE);
 
-		char buf[BUFSIZE];
-		int size;
-
-		retval= recv(client_sock, reinterpret_cast<char*>(&size), sizeof(size), MSG_WAITALL);
-		if (retval == SOCKET_ERROR) {
-			err_display("recv()");
-			break;
-		}
-		else if (retval == 0)
-			break;
-
+		// 데이터 받기
+		retval = recv(client_sock, reinterpret_cast<char*>(&size), sizeof(size), MSG_WAITALL);
 		retval = recv(client_sock, buf, size, MSG_WAITALL);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");
@@ -79,42 +167,6 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			break;
 
 		switch (buf[0]) {
-			case int(CS_PACKET_TYPE::SELECT_CHARACTER):
-			{
-				SELECT_CHARACTER_PACKET* p = reinterpret_cast<SELECT_CHARACTER_PACKET*>(buf);
-				// 데이터 정보 변경시 여기에 코딩하세요 
-				std::cout << "[" << nick_name << "] " << p->id << "P :";
-
-				switch (p->character)
-				{
-				case CHARACTER_TYPE::MINJI:
-					std::cout << "민지" << '\n';
-					break;
-				case CHARACTER_TYPE::HANNIE:
-					std::cout << "하니" << '\n';
-					break;
-				case CHARACTER_TYPE::DANIELLE:
-					std::cout << "다니엘" << '\n';
-					break;
-				case CHARACTER_TYPE::HEARIN:
-					std::cout << "혜린" << '\n';
-					break;
-				case CHARACTER_TYPE::HYEIN:
-					std::cout << "혜인" << '\n';
-					break;
-				default:
-					break;
-				}
-			}
-			break;
-
-			case int(CS_PACKET_TYPE::CS_INIT_FINISH):
-			{
-				CS_INIT_FINISH_PACKET* p = reinterpret_cast<CS_INIT_FINISH_PACKET*>(buf);
-				std::cout << "[" << nick_name << "] 클라이언트 → 서버: 초기화 완료 신호 패킷 받음" << '\n';
-			}
-			break;
-
 			case int(CS_PACKET_TYPE::CS_KEYBOARD_INPUT):
 			{
 				CS_KEYBOARD_INPUT_PACKET* p = reinterpret_cast<CS_KEYBOARD_INPUT_PACKET*>(buf);
@@ -470,7 +522,7 @@ int main(int argc, char* argv[])
 			break;
 		}
 
-		clientId++;	// 클라이언트 id 설정
+		++clientId;	// 클라이언트 id 설정
 
 		// 클라이언트를 별도의 스레드에서 처리
 		HANDLE hThread = CreateThread(NULL, 0, ProcessClient, (LPVOID)client_sock, 0, NULL);

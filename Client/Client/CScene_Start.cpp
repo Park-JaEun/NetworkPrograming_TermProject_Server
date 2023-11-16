@@ -160,7 +160,10 @@ void CScene_Start::update()
 		if (pStartButton->GetCollider()->PtInCollider(vMousePos)) {
 			int iLenNickname = GetWindowTextLength(hEditNickname);
 			int iLenIP = GetWindowTextLength(hEditIP);
-			int retval{};
+			int iPlayerID{};	// 플레이어 ID
+			int retval{};		// 리턴값
+			int size{};			// 수신할 데이터 크기
+			char buf[BUFSIZE];	// 수신 버퍼
 
 			TCHAR* pStrNickname = new TCHAR[iLenNickname + 1];
 			TCHAR* pStrIP = new TCHAR[iLenIP + 1];
@@ -181,15 +184,13 @@ void CScene_Start::update()
 				pStrNicknameChar[i] = pStrNickname[i];
 			}
 
-			// 서버에 접속한다.
+			// 서버에 접속
 			SOCKET sock = CCore::GetInst()->GetSocket();
 
-			// 소켓 생성
+			// 소켓 생성 및 할당
 			sock = socket(AF_INET, SOCK_STREAM, 0);
 			if (sock == INVALID_SOCKET) 
 				err_quit("socket()");
-
-			// 소켓 할당
 			CCore::GetInst()->SetSocket(sock);
 
 			// 서버 주소 설정
@@ -201,15 +202,8 @@ void CScene_Start::update()
 			if (connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr)) == SOCKET_ERROR)
 				err_quit("connect()");
 
-			// 닉네임 전송
+			// 닉네임 송신
 			retval = send(sock, reinterpret_cast<char*>(&iLenNickname), sizeof(int), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				closesocket(sock);
-				WSACleanup();
-				return;
-			}
-
 			retval = send(sock, (char*)pStrNicknameChar, iLenNickname, 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
@@ -218,13 +212,29 @@ void CScene_Start::update()
 				return;
 			}
 
+			// 플레이어 ID 수신
+			retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+			retval = recv(sock, buf, size, MSG_WAITALL);
+			if (retval == SOCKET_ERROR) {
+				err_display("recv()");
+				closesocket(sock);
+				WSACleanup();
+				return;
+			}
+
+			SC_MAKE_ID_PACKET* IDPacket = reinterpret_cast<SC_MAKE_ID_PACKET*>(buf);
+			std::cout << "Player" << IDPacket->id <<" 연결 성공" << std::endl;
+
+			// 플레이어 ID 저장
+			CCore::GetInst()->SetID(IDPacket->id);
+
 			// 플레이어 닉네임 저장
 			CCore::GetInst()->SetNickName(pStrNickname);
 
-			delete pStrNickname;
-			delete pStrIP;
-			delete pStrIPChar;
-			delete pStrNicknameChar;
+			delete[] pStrNickname;
+			delete[] pStrIP;
+			delete[] pStrIPChar;
+			delete[] pStrNicknameChar;
 
 			ChangeScene(SCENE_TYPE::SELECT);
 		}

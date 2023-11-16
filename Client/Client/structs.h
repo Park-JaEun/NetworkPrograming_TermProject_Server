@@ -92,6 +92,8 @@ public:
 // 플레이어 정보를 나타내는 구조체
 struct PlayerInfo {
 	std::string nickname;
+	bool isReady;
+	bool isInit;
 	int portnumber;
 	int id;
 };

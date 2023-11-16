@@ -169,11 +169,6 @@ void CCore::CommunicationToServer()
 	}
 
 	switch (buf[0]) {
-		case int(SC_PACKET_TYPE::SC_MAKE_ID): {
-			SC_MAKE_ID_PACKET* p = reinterpret_cast<SC_MAKE_ID_PACKET*>(buf);
-		}
-		break;
-
 		case int(SC_PACKET_TYPE::SELECT_CHARACTER): {
 			SELECT_CHARACTER_PACKET* p = reinterpret_cast<SELECT_CHARACTER_PACKET*>(buf);
 		}

@@ -177,6 +177,24 @@ void CScene_Main::Enter()
 	// Camera Look 지정
 	//CCamera::GetInst()->SetLookAt(Vec2(5060.f, 0.f));
 	CCamera::GetInst()->SetTarget(pPlayerObj);	// Camera가 Player를 따라다니도록 지정
+
+	// 서버에게 초기화 완료 패킷 송신
+	CS_INIT_FINISH_PACKET initFinishPacket;
+	SOCKET sock = CCore::GetInst()->GetSocket();
+	int retval{};
+	int size = sizeof(CS_INIT_FINISH_PACKET);
+
+	initFinishPacket.type = static_cast<char>(CS_PACKET_TYPE::CS_INIT_FINISH);
+	initFinishPacket.id = CCore::GetInst()->GetID();
+
+	retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	retval = send(sock, reinterpret_cast<char*>(&initFinishPacket), size, 0);
+	if (retval == SOCKET_ERROR) {
+		err_display("send()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
 }
 
 void CScene_Main::Exit()
