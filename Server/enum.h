@@ -54,29 +54,6 @@ enum class GROUP_TYPE
 	END = 32,
 };
 
-enum class SCENE_TYPE
-{
-	START,
-	MAIN,
-
-	END,
-};
-
-enum class BRUSH_TYPE
-{
-	HOLLOW,
-	END,
-};
-
-enum class PEN_TYPE
-{
-	RED,
-	GREEN,
-	BLUE,
-
-	END,
-};
-
 enum class EVENT_TYPE
 {
 	CREATE_OBJECT,

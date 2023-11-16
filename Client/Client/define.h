@@ -23,5 +23,6 @@
 
 #define MAX_BULLET_DISTANCE 500.f
 
+#define MAX_PLAYER 3
 #define BUFSIZE 512
 #define SERVERPORT 9000

@@ -23,3 +23,4 @@
 #include "structs.h"
 #include "enums.h"
 #include "functions.h"
+#include "protocol.h"
