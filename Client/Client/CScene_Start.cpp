@@ -149,7 +149,7 @@ void CScene_Start::update()
 {
 	CScene::update();
 
-	if (KEY_TAP(KEY::LBOTTON)) {
+	if (KEY_TAP(KEY::LBUTTON)) {
 		
 		// 마우스 좌표를 받아온다.
 		Vec2 vMousePos = CKeyMgr::GetInst()->GetMousePos();
