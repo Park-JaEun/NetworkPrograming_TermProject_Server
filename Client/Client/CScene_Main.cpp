@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CSceneMgr.h"
 #include "CScene_Main.h"
+#include "CObject.h"
 #include "CPlayer.h"
 #include "CMonster.h"
 #include "CBoss.h"
@@ -116,27 +117,11 @@ void CScene_Main::Enter()
 	pHPUI->CreateAnimator();
 	AddObject(pHPUI, GROUP_TYPE::UI);
 
-	// HP Bar UI
-	for (int i = 0; i < 3; ++i) {
-		CUI* pHPBarUI = new CUI;
-		pHPBarUI->SetName(L"HP Bar");
-		pHPBarUI->SetPos(Vec2(24.f + (18.f * i), 382.f));
-		AddObject(pHPBarUI, GROUP_TYPE::UI);
-	}
-
 	// Life Text UI
 	CUI* pLifeTextUI = new CUI;
 	pLifeTextUI->SetName(L"Life Text");
 	pLifeTextUI->CreateAnimator();
 	AddObject(pLifeTextUI, GROUP_TYPE::UI);
-
-	// Life UI
-	for (int i = 0; i < 3; ++i) {
-		CUI* pLifeUI = new CUI;
-		pLifeUI->SetName(L"Life");
-		pLifeUI->SetPos(Vec2(26.f * i, 20.f));
-		AddObject(pLifeUI, GROUP_TYPE::UI);
-	}
 
 	//////////////
 	
@@ -260,6 +245,9 @@ void CScene_Main::update()
 		SetIsBoss(true);
 		pBoss->SetHaveToAppear(true);
 	}
+
+	// TODO: Player Life가 0이 되면, GameOver
+
 
 	// + @
 
