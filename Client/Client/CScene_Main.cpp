@@ -1,26 +1,21 @@
 #include "pch.h"
 #include "CSceneMgr.h"
 #include "CScene_Main.h"
-
 #include "CPlayer.h"
 #include "CMonster.h"
 #include "CBoss.h"
 #include "CBackground.h"
 #include "CFloor.h"
-
 #include "CCore.h"
-
 #include "CPathMgr.h"
 #include "CTexture.h"
-
 #include "CCollider.h"
 #include "CCollisionMgr.h"
-
 #include "CKeyMgr.h"
 #include "CAnimator.h"
 #include "CAnimation.h"
-
 #include "CCamera.h"
+#include "CUI.h"
 
 CScene_Main::CScene_Main() : m_bIsBoss(false)
 {
@@ -48,6 +43,7 @@ void CScene_Main::Enter()
 	CreateObject(pBGObj, GROUP_TYPE::BACKGROUND);
 	///////////////////////
 
+
 	/////////////////
 	// Boss Object //
 	/////////////////
@@ -64,6 +60,7 @@ void CScene_Main::Enter()
 
 	CreateObject(pBossObj, GROUP_TYPE::BOSS);
 	/////////////////
+
 
 	///////////////////
 	// Player Object //
@@ -103,6 +100,45 @@ void CScene_Main::Enter()
 	CreateObject(pPlayerObj, GROUP_TYPE::PLAYER);
 	///////////////////
 	
+	///////////////
+	// UI Object //
+	///////////////
+
+	// Profile UI
+	CUI* pProfileUI = new CUI;
+	pProfileUI->SetName(L"Profile");
+	pProfileUI->CreateAnimator();
+	AddObject(pProfileUI, GROUP_TYPE::UI);
+
+	// HP UI
+	CUI* pHPUI = new CUI;
+	pHPUI->SetName(L"HP");
+	pHPUI->CreateAnimator();
+	AddObject(pHPUI, GROUP_TYPE::UI);
+
+	// HP Bar UI
+	for (int i = 0; i < 3; ++i) {
+		CUI* pHPBarUI = new CUI;
+		pHPBarUI->SetName(L"HP Bar");
+		pHPBarUI->SetPos(Vec2(24.f + (18.f * i), 382.f));
+		AddObject(pHPBarUI, GROUP_TYPE::UI);
+	}
+
+	// Life Text UI
+	CUI* pLifeTextUI = new CUI;
+	pLifeTextUI->SetName(L"Life Text");
+	pLifeTextUI->CreateAnimator();
+	AddObject(pLifeTextUI, GROUP_TYPE::UI);
+
+	// Life UI
+	for (int i = 0; i < 3; ++i) {
+		CUI* pLifeUI = new CUI;
+		pLifeUI->SetName(L"Life");
+		pLifeUI->SetPos(Vec2(26.f * i, 20.f));
+		AddObject(pLifeUI, GROUP_TYPE::UI);
+	}
+
+	//////////////
 	
 	//////////////////
 	// Floor Object //

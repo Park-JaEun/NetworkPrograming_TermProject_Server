@@ -8,6 +8,7 @@ class CPlayer :
 {
 private:
     int             m_iHP;              // 플레이어 체력
+    int             m_iLife;            // 플레이어 생명
     float           m_fSpeed;           // 플레이어 속도
     float           m_fDieTime;         // 플레이어 최대 이동 거리
     bool            m_bDir;             // 플레이어 방향

@@ -173,7 +173,8 @@ void CBullet::CreateAnimator(GROUP_TYPE _eType)
 {
 	switch (_eType) 
 	{
-	case GROUP_TYPE::BULLET_PLAYER: {
+	case GROUP_TYPE::BULLET_PLAYER: 
+	{
 		CPlayer* pPlayer = (CPlayer*)CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Player");
 
 		switch (pPlayer->GetType())
