@@ -11,6 +11,7 @@
 #include <Windows.h>
 #pragma comment(lib, "Msimg32.lib")
 
+#include <iostream>
 #include <vector>
 #include <array>
 #include <string>

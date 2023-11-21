@@ -57,24 +57,18 @@ void CScene_Select::update()
 	CScene::update();
 
 	if (KEY_TAP(KEY::SPACE)) {
-		SELECT_CHARACTER_PACKET p;
+		SELECT_CHARACTER_PACKET selectPacket;
 		SOCKET sock = CCore::GetInst()->GetSocket();
-		
+		char buf[BUFSIZE]{};
 		int retval{};
-		int size = sizeof(p);
+		int size = sizeof(SELECT_CHARACTER_PACKET);
 
-		p.type = static_cast<char>(CS_PACKET_TYPE::SELECT_CHARACTER);
-		p.character = m_eSelectedCharacter;
-		p.id = 1;
+		selectPacket.type = static_cast<char>(CS_PACKET_TYPE::SELECT_CHARACTER);
+		selectPacket.character = m_eSelectedCharacter;
+		selectPacket.id = CCore::GetInst()->GetID();
 
 		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			closesocket(sock);
-			WSACleanup();
-			return;
-		}
-		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+		retval = send(sock, reinterpret_cast<char*>(&selectPacket), size, 0);
 		if (retval == SOCKET_ERROR) {
 			err_display("send()");
 			closesocket(sock);
@@ -82,7 +76,20 @@ void CScene_Select::update()
 			return;
 		}
 
-		ChangeScene(SCENE_TYPE::MAIN);
+		// 선택이 완료되면, 다른 클라이언트들이 선택을 완료할 때 까지 대기
+		// 이후, 모든 클라이언트가 선택을 완료하면, 서버로부터 초기화 신호를 받음
+		retval = recv(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		retval = recv(sock, buf, size, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("recv()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+
+		SC_INIT_PACKET* initPacket = reinterpret_cast<SC_INIT_PACKET*>(buf);
+		if (initPacket->type == static_cast<char>(SC_PACKET_TYPE::SC_INIT))
+			ChangeScene(SCENE_TYPE::MAIN);	// ENTER()에서 초기화 동작을 한다.
 	}
 
 	if (KEY_TAP(KEY::LEFT) || KEY_TAP(KEY::DOWN)) {

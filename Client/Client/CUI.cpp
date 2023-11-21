@@ -127,28 +127,26 @@ void CUI::render(HDC _dc)
 						RGB(255, 0, 255));
 	}
 	else if (GetName() == L"Selected Character") {
-		CAnimation* pAnimation{};
 		CTexture* pTexture{};
 
-		switch (((CScene_Select*)CSceneMgr::GetInst()->GetCurScene())->GetSelectedCharacter()) {
+		switch (((CScene_Select*)CSceneMgr::GetInst()->GetCurScene())->GetSelectedCharacter()) 
+		{
 		case CHARACTER_TYPE::MINJI:
-			pAnimation = GetAnimator()->FindAnimation(L"Minji Selected");
+			pTexture = CResourceMgr::GetInst()->LoadTexture(L"Minji Selected", L"texture\\ui\\minji.bmp");
 			break;
 		case CHARACTER_TYPE::DANIELLE:
-			pAnimation = GetAnimator()->FindAnimation(L"Danielle Selected");
+			pTexture = CResourceMgr::GetInst()->LoadTexture(L"Danielle Selected", L"texture\\ui\\danielle.bmp");
 			break;
 		case CHARACTER_TYPE::HAERIN:
-			pAnimation = GetAnimator()->FindAnimation(L"Haerin Selected");
+			pTexture = CResourceMgr::GetInst()->LoadTexture(L"Haerin Selected", L"texture\\ui\\haerin.bmp");
 			break;
 		case CHARACTER_TYPE::HANNIE:
-			pAnimation = GetAnimator()->FindAnimation(L"Hannie Selected");
+			pTexture = CResourceMgr::GetInst()->LoadTexture(L"Hannie Selected", L"texture\\ui\\hannie.bmp");
 			break;
 		case CHARACTER_TYPE::HYEIN:
-			pAnimation = GetAnimator()->FindAnimation(L"Hyein Selected");
+			pTexture = CResourceMgr::GetInst()->LoadTexture(L"Hyein Selected", L"texture\\ui\\hyein.bmp");
 			break;
 		}
-
-		pTexture = pAnimation->GetTexture();
 
 		TransparentBlt(_dc,
 						0,
@@ -161,6 +159,150 @@ void CUI::render(HDC _dc)
 						1600,
 						900,
 						RGB(255, 0, 255));
+	}
+	else if (GetName() == L"Profile") {
+		CTexture* pTexture{};
+
+		switch (((CScene_Select*)CSceneMgr::GetInst()->GetCurScene())->GetSelectedCharacter())
+		{
+		case CHARACTER_TYPE::MINJI:
+		{
+			pTexture = CResourceMgr::GetInst()->LoadTexture(L"Minji", L"texture\\characters\\minji\\minji.bmp");
+
+			TransparentBlt(_dc,
+				3,
+				312,
+				70,
+				70,
+				pTexture->GetDC(),
+				185,
+				66,
+				70,
+				70,
+				RGB(255, 0, 255));
+		}
+			break;
+		case CHARACTER_TYPE::DANIELLE:
+		{
+			pTexture = CResourceMgr::GetInst()->LoadTexture(L"Danielle", L"texture\\characters\\danielle\\danielle.bmp");
+			TransparentBlt(_dc,
+				10,
+				314,
+				70,
+				70,
+				pTexture->GetDC(),
+				187,
+				66,
+				70,
+				70,
+				RGB(255, 0, 255));
+		}
+			break;
+		case CHARACTER_TYPE::HAERIN:
+		{
+			pTexture = CResourceMgr::GetInst()->LoadTexture(L"Haerin", L"texture\\characters\\haerin\\haerin.bmp");
+			TransparentBlt(_dc,
+				3,
+				312,
+				70,
+				70,
+				pTexture->GetDC(),
+				187,
+				62,
+				70,
+				70,
+				RGB(255, 0, 255));
+		}
+			break;
+		case CHARACTER_TYPE::HANNIE:
+		{
+			pTexture = CResourceMgr::GetInst()->LoadTexture(L"Hannie", L"texture\\characters\\hannie\\hannie.bmp");
+			TransparentBlt(_dc,
+				3,
+				316,
+				70,
+				70,
+				pTexture->GetDC(),
+				218,
+				68,
+				70,
+				70,
+				RGB(255, 0, 255));
+		}
+			break;
+		case CHARACTER_TYPE::HYEIN:
+		{
+			pTexture = CResourceMgr::GetInst()->LoadTexture(L"Hyein", L"texture\\characters\\hyein\\hyein.bmp");
+			TransparentBlt(_dc,
+				3,
+				312,
+				70,
+				70,
+				pTexture->GetDC(),
+				210,
+				64,
+				70,
+				70,
+				RGB(255, 0, 255));
+		}
+			break;
+		}
+	}
+	else if (GetName() == L"HP") {
+		CTexture*  pTexture = CResourceMgr::GetInst()->LoadTexture(L"HP", L"texture\\ui\\hp.bmp");
+		TransparentBlt(_dc,
+			0,
+			382,
+			24,
+			18,
+			pTexture->GetDC(),
+			0,
+			0,
+			12,
+			9,
+			RGB(255, 0, 255));
+	}
+	else if (GetName() == L"HP Bar") {
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"HP", L"texture\\ui\\hp.bmp");
+		TransparentBlt(_dc,
+			(int)GetPos().x,
+			(int)GetPos().y,
+			18,
+			18,
+			pTexture->GetDC(),
+			0,
+			9,
+			12,
+			9,
+			RGB(255, 0, 255));
+	}
+	else if (GetName() == L"Life Text") {
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Life", L"texture\\ui\\life.bmp");
+		TransparentBlt(_dc,
+			0,
+			0,
+			68,
+			20,
+			pTexture->GetDC(),
+			0,
+			0,
+			34,
+			10,
+			RGB(255, 0, 255));
+	}
+	else if (GetName() == L"Life") {
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Life", L"texture\\ui\\life.bmp");
+		TransparentBlt(_dc,
+			(int)GetPos().x,
+			(int)GetPos().y,
+			26,
+			20,
+			pTexture->GetDC(),
+			0,
+			10,
+			13,
+			10,
+			RGB(255, 0, 255));
 	}
 }
 
@@ -320,62 +462,11 @@ void CUI::CreateAnimator()
 		CTexture* pTextureHaerin	= CResourceMgr::GetInst()->LoadTexture(L"Haerin Selected", L"texture\\ui\\haerin.bmp");
 		CTexture* pTextureHannie	= CResourceMgr::GetInst()->LoadTexture(L"Hannie Selected", L"texture\\ui\\hannie.bmp");
 		CTexture* pTextureHyein		= CResourceMgr::GetInst()->LoadTexture(L"Hyein Selected", L"texture\\ui\\hyein.bmp");
-
-		// Animator ¸¸µé±â
-		CAnimator* pAnimator = new CAnimator;
-
-		pAnimator->SetObj(this);
-
-		pAnimator->CreateAnimation(
-			L"Minji Selected",			// Animation Name
-			pTextureMinji,				// Texture Pointer
-			Vec2(0.f, 0.f),			// Texture Left Top
-			Vec2(1600.f, 900.f),		// Frame Size
-			Vec2(0.f, 0.f),			// Step
-			0.0f,					// Duration
-			Vec2(0.f, 0.f),			// Offset
-			1);						// Frame Count
-
-		pAnimator->CreateAnimation(
-			L"Danielle Selected",			// Animation Name
-			pTextureDanielle,				// Texture Pointer
-			Vec2(0.f, 0.f),			// Texture Left Top
-			Vec2(1600.f, 900.f),		// Frame Size
-			Vec2(0.f, 0.f),			// Step
-			0.0f,					// Duration
-			Vec2(0.f, 0.f),			// Offset
-			1);						// Frame Count
-
-		pAnimator->CreateAnimation(
-			L"Haerin Selected",			// Animation Name
-			pTextureHaerin,				// Texture Pointer
-			Vec2(0.f, 0.f),			// Texture Left Top
-			Vec2(1600.f, 900.f),		// Frame Size
-			Vec2(0.f, 0.f),			// Step
-			0.0f,					// Duration
-			Vec2(0.f, 0.f),			// Offset
-			1);						// Frame Count
-
-		pAnimator->CreateAnimation(
-			L"Hannie Selected",			// Animation Name
-			pTextureHannie,				// Texture Pointer
-			Vec2(0.f, 0.f),			// Texture Left Top
-			Vec2(1600.f, 900.f),		// Frame Size
-			Vec2(0.f, 0.f),			// Step
-			0.0f,					// Duration
-			Vec2(0.f, 0.f),			// Offset
-			1);						// Frame Count
-
-		pAnimator->CreateAnimation(
-			L"Hyein Selected",			// Animation Name
-			pTextureHyein,				// Texture Pointer
-			Vec2(0.f, 0.f),			// Texture Left Top
-			Vec2(1600.f, 900.f),		// Frame Size
-			Vec2(0.f, 0.f),			// Step
-			0.0f,					// Duration
-			Vec2(0.f, 0.f),			// Offset
-			1);						// Frame Count
-
-		SetAnimator(pAnimator);
+	}
+	else if (GetName() == L"HP") {
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"HP", L"texture\\ui\\hp.bmp");
+	}
+	else if (GetName() == L"Life Text") {
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Life", L"texture\\ui\\life.bmp");
 	}
 }

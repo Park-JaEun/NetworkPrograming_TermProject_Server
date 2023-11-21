@@ -18,7 +18,7 @@
 #include "CAnimation.h"
 
 CPlayer::CPlayer() : m_bDir(DIR_RIGHT), m_eState(PLAYER_STATE::IDLE), 
-					 m_EffectAnimator(nullptr), m_fSpeed(300.f), m_iHP(5),
+					 m_EffectAnimator(nullptr), m_fSpeed(300.f), m_iHP(3),
 					 m_fDieTime(0.f)
 {
 }
@@ -647,7 +647,8 @@ void CPlayer::PlayAnimation()
 {
 	switch (m_eType)
 	{
-	case CHARACTER_TYPE::MINJI: {
+	case CHARACTER_TYPE::MINJI: 
+	{
 		if (m_bDir == DIR_RIGHT) {
 			switch (m_eState)
 			{
@@ -665,7 +666,8 @@ void CPlayer::PlayAnimation()
 				break;
 			}
 		}
-		else if (m_bDir == DIR_LEFT) {
+		else if (m_bDir == DIR_LEFT) 
+		{
 			switch (m_eState)
 			{
 			case PLAYER_STATE::IDLE:
@@ -684,7 +686,8 @@ void CPlayer::PlayAnimation()
 		}
 	}
 		break;
-	case CHARACTER_TYPE::HANNIE: {
+	case CHARACTER_TYPE::HANNIE: 
+	{
 		if (m_bDir == DIR_RIGHT) {
 			switch (m_eState)
 			{
@@ -702,7 +705,8 @@ void CPlayer::PlayAnimation()
 				break;
 			}
 		}
-		else if (m_bDir == DIR_LEFT) {
+		else if (m_bDir == DIR_LEFT) 
+		{
 			switch (m_eState)
 			{
 			case PLAYER_STATE::IDLE:
@@ -721,7 +725,8 @@ void CPlayer::PlayAnimation()
 		}
 	}
 		break;
-	case CHARACTER_TYPE::DANIELLE: {
+	case CHARACTER_TYPE::DANIELLE: 
+	{
 		if (m_bDir == DIR_RIGHT) {
 			switch (m_eState)
 			{
@@ -758,7 +763,8 @@ void CPlayer::PlayAnimation()
 		}
 	}
 		break;
-	case CHARACTER_TYPE::HAERIN: {
+	case CHARACTER_TYPE::HAERIN: 
+	{
 		if (m_bDir == DIR_RIGHT) {
 			switch (m_eState)
 			{
@@ -795,7 +801,8 @@ void CPlayer::PlayAnimation()
 		}
 	}
 		break;
-	case CHARACTER_TYPE::HYEIN: {
+	case CHARACTER_TYPE::HYEIN: 
+	{
 		if (m_bDir == DIR_RIGHT) {
 			switch (m_eState)
 			{
