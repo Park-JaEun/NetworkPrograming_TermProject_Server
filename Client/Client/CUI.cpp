@@ -9,14 +9,13 @@
 #include "CScene.h"
 #include "CScene_Select.h"
 
-CUI::CUI() : m_bOnMouse(false), m_bMousePush(false)
+CUI::CUI() : m_bOnMouse{false}, m_bMousePush{ false }
 {
 }
 
 CUI::~CUI()
 {
 }
-
 
 void CUI::update()
 {
@@ -263,7 +262,7 @@ void CUI::render(HDC _dc)
 			RGB(255, 0, 255));
 	}
 	else if (GetName() == L"HP Bar") {
-		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"HP", L"texture\\ui\\hp.bmp");
+		/*CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"HP", L"texture\\ui\\hp.bmp");
 		TransparentBlt(_dc,
 			(int)GetPos().x,
 			(int)GetPos().y,
@@ -274,7 +273,7 @@ void CUI::render(HDC _dc)
 			9,
 			12,
 			9,
-			RGB(255, 0, 255));
+			RGB(255, 0, 255));*/
 	}
 	else if (GetName() == L"Life Text") {
 		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Life", L"texture\\ui\\life.bmp");
@@ -291,7 +290,7 @@ void CUI::render(HDC _dc)
 			RGB(255, 0, 255));
 	}
 	else if (GetName() == L"Life") {
-		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Life", L"texture\\ui\\life.bmp");
+		/*CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Life", L"texture\\ui\\life.bmp");
 		TransparentBlt(_dc,
 			(int)GetPos().x,
 			(int)GetPos().y,
@@ -302,7 +301,7 @@ void CUI::render(HDC _dc)
 			10,
 			13,
 			10,
-			RGB(255, 0, 255));
+			RGB(255, 0, 255));*/
 	}
 }
 
