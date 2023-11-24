@@ -10,9 +10,10 @@
 #include "CEventMgr.h"
 #include "CCamera.h"
 
-CCore::CCore() : 
-	m_hWnd(nullptr), m_ptResolution{}, m_hDC(nullptr), 
-	m_hBit(nullptr), m_memDC(nullptr), m_arrBrush{}, m_arrPen{}, m_sock{INVALID_SOCKET}
+CCore::CCore() :
+	m_hWnd(nullptr), m_ptResolution{}, m_hDC(nullptr),
+	m_hBit(nullptr), m_memDC(nullptr), m_arrBrush{}, m_arrPen{}, m_sock{ INVALID_SOCKET },
+	m_bIsStart{ false }
 {
 }
 
@@ -98,26 +99,6 @@ void CCore::CommunicationToServer()
 
 	switch (type) 
 	{
-	case CS_PACKET_TYPE::SELECT_CHARACTER: 
-	{
-		SELECT_CHARACTER_PACKET p;
-		p.type = static_cast<char>(CS_PACKET_TYPE::SELECT_CHARACTER);
-		size = sizeof(p);
-		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
-	}
-	break;
-
-	case CS_PACKET_TYPE::CS_INIT_FINISH: 
-	{
-		CS_INIT_FINISH_PACKET p;
-		p.type = static_cast<char>(CS_PACKET_TYPE::CS_INIT_FINISH);
-		size = sizeof(p);
-		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
-	}
-	break;
-
 	case CS_PACKET_TYPE::CS_KEYBOARD_INPUT: 
 	{
 		CS_KEYBOARD_INPUT_PACKET p;
@@ -128,7 +109,7 @@ void CCore::CommunicationToServer()
 	}
 	break;
 
-	case CS_PACKET_TYPE::CS_SELECT_LOBBY: 
+	/*case CS_PACKET_TYPE::CS_SELECT_LOBBY: 
 	{
 		CS_SELECT_LOBBY_PACKET p;
 		p.type = static_cast<char>(CS_PACKET_TYPE::CS_SELECT_LOBBY);
@@ -146,8 +127,7 @@ void CCore::CommunicationToServer()
 		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
 	}
-	break;
-
+	break;*/
 	default:
 		break;
 	}
@@ -179,12 +159,6 @@ void CCore::CommunicationToServer()
 		case int(SC_PACKET_TYPE::SELECT_CHARACTER): 
 		{
 			SELECT_CHARACTER_PACKET* p = reinterpret_cast<SELECT_CHARACTER_PACKET*>(buf);
-		}
-		break;
-
-		case int(SC_PACKET_TYPE::SC_INIT): 
-		{
-			SC_INIT_PACKET* p = reinterpret_cast<SC_INIT_PACKET*>(buf);
 		}
 		break;
 
@@ -247,11 +221,41 @@ void CCore::CommunicationToServer()
 	}
 }
 
+void CCore::TestSendKeyInput()
+{
+	//for (int i = 0; i < (int)KEY::LAST; ++i) {
+	//	if (inputkey[i].key_state == KEY_STATE::TAP) {              // key의 상태가 눌림이면
+	//		cout << (int)inputkey[i].key << endl;                   // key의 정보를 출력
+
+	//		// send
+	//		CS_KEYBOARD_INPUT_PACKET p;
+	//		p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
+	//		p.key = inputkey[i].key;                               // key 정보 저장
+	//		p.key_state = inputkey[i].key_state;                   // key의 상태 저장(눌림)
+
+	//		int size = sizeof(p);
+	//		std::cout << "send() - 키보드 입력 정보 패킷을 전송하였습니다" << '\n';
+
+	//		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
+	//		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//			break;
+	//		}
+	//	}
+	//}
+}
+
 void CCore::progress()
 {
 	// 소켓이 연결되어 있으면 통신
-	/*if(m_sock != INVALID_SOCKET)
-		CommunicationToServer();*/
+	if (m_sock != INVALID_SOCKET)
+		TestSendKeyInput();
+		//CommunicationToServer();
 
 	// Managers Update
 	CTimer::GetInst()->update();

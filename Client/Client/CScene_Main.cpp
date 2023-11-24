@@ -216,6 +216,31 @@ void CScene_Main::Enter()
 		WSACleanup();
 		return;
 	}
+	std::cout << "초기화 완료 패킷 송신" << std::endl;
+
+	std::cout << "게임 시작 패킷 수신 대기중" << std::endl;
+	// 게임 시작 신호 수신
+	char buf[BUFSIZE]{};
+
+	retval = recv(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	retval = recv(sock, buf, size, 0);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
+	SC_GAME_START_PACKET* initPacket = reinterpret_cast<SC_GAME_START_PACKET*>(buf);
+
+	if(initPacket->type == static_cast<char>(SC_PACKET_TYPE::SC_GAME_START))
+		std::cout << "게임 시작 패킷 수신" << std::endl;
+	else {
+		std::cout << "게임 시작 패킷 수신 오류: Packet Type이" << initPacket->type << "입니다." << std::endl;
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
+
 }
 
 void CScene_Main::Exit()

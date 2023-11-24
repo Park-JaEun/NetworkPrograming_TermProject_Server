@@ -211,6 +211,7 @@ void CScene_Start::update()
 				WSACleanup();
 				return;
 			}
+			std::cout << "닉네임 송신" << std::endl;
 
 			// 플레이어 ID 수신
 			retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);

@@ -75,6 +75,7 @@ void CScene_Select::update()
 			WSACleanup();
 			return;
 		}
+		std::cout << "캐릭터 선택 패킷 송신" << std::endl;
 
 		// 선택이 완료되면, 다른 클라이언트들이 선택을 완료할 때 까지 대기
 		// 이후, 모든 클라이언트가 선택을 완료하면, 서버로부터 초기화 신호를 받음
@@ -86,6 +87,7 @@ void CScene_Select::update()
 			WSACleanup();
 			return;
 		}
+		std::cout << "스테이지 초기화 패킷 수신" << std::endl;
 
 		SC_INIT_PACKET* initPacket = reinterpret_cast<SC_INIT_PACKET*>(buf);
 		if (initPacket->type == static_cast<char>(SC_PACKET_TYPE::SC_INIT))
