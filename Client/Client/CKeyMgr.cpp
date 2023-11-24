@@ -48,8 +48,6 @@ void CKeyMgr::init()
 
 	for (int i = 0; i < (int)KEY::LAST; ++i)
 		m_vecKey.push_back(tKeyInfo{ KEY_STATE::NONE, false });
-
-	m_vecKey[(int)KEY::LEFT].eState;
 }
 
 void CKeyMgr::update()
@@ -61,11 +59,63 @@ void CKeyMgr::update()
 	// 윈도우 포커싱
 	if (hWnd != nullptr){ 
 		for (int i = 0; i < (int)KEY::LAST; ++i){
-			// 키가 눌려있다.
+			// g_arrVK[i]가 눌렸다.
 			if (GetAsyncKeyState(g_arrVK[i]) & 0x8000) {
 				if (m_vecKey[i].bPrevPush) {
 					// 이전에 눌려있었다면 KEY_STATE::HOLD
 					m_vecKey[i].eState = KEY_STATE::HOLD;
+
+					switch (g_arrVK[i])
+					{
+					case VK_LEFT:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_RIGHT:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_UP:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_DOWN:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_SPACE:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_LBUTTON:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_NUMPAD0:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_NUMPAD1:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_NUMPAD2:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_NUMPAD3:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_NUMPAD4:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_NUMPAD5:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_NUMPAD6:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_NUMPAD7:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_NUMPAD8:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					case VK_NUMPAD9:
+						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
+						break;
+					}
 				}
 				else {
 					// 눌려있지 않았다면 KEY_STATE::TAP
@@ -74,52 +124,52 @@ void CKeyMgr::update()
 					switch (g_arrVK[i])
 					{
 					case VK_LEFT:
-						CCore::GetInst()->SetKey(i, KEY::LEFT, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_RIGHT:
-						CCore::GetInst()->SetKey(i, KEY::RIGHT, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_UP:
-						CCore::GetInst()->SetKey(i, KEY::UP, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_DOWN:
-						CCore::GetInst()->SetKey(i,KEY::DOWN, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_SPACE:
-						CCore::GetInst()->SetKey(i,KEY::SPACE, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_LBUTTON:
-						CCore::GetInst()->SetKey(i,KEY::LBUTTON, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_NUMPAD0:
-						CCore::GetInst()->SetKey(i,KEY::NUMPAD0, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_NUMPAD1:
-						CCore::GetInst()->SetKey(i,KEY::NUMPAD1, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_NUMPAD2:
-						CCore::GetInst()->SetKey(i,KEY::NUMPAD2, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_NUMPAD3:
-						CCore::GetInst()->SetKey(i,KEY::NUMPAD3, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_NUMPAD4:
-						CCore::GetInst()->SetKey(i,KEY::NUMPAD4, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_NUMPAD5:
-						CCore::GetInst()->SetKey(i,KEY::NUMPAD5, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_NUMPAD6:
-						CCore::GetInst()->SetKey(i,KEY::NUMPAD6, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_NUMPAD7:
-						CCore::GetInst()->SetKey(i,KEY::NUMPAD7, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_NUMPAD8:
-						CCore::GetInst()->SetKey(i,KEY::NUMPAD8, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					case VK_NUMPAD9:
-						CCore::GetInst()->SetKey(i,KEY::NUMPAD9, KEY_STATE::TAP);
+						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 						break;
 					}
 
@@ -133,17 +183,16 @@ void CKeyMgr::update()
 				if (m_vecKey[i].bPrevPush) {
 					// 이전에 눌려있었다면 KEY_STATE::AWAY
 					m_vecKey[i].eState = KEY_STATE::AWAY;
-					CCore::GetInst()->SetKey(i, KEY::NUMPAD9, KEY_STATE::AWAY);
+					CCore::GetInst()->SetKey(i, KEY_STATE::AWAY);
 				}
 				else {
 					// 눌려있지 않았다면 KEY_STATE::NONE
 					m_vecKey[i].eState = KEY_STATE::NONE;
-					CCore::GetInst()->SetKey(i, KEY::NUMPAD9, KEY_STATE::NONE);
+					CCore::GetInst()->SetKey(i, KEY_STATE::NONE);
 				}
 
 				// 상태 갱신
 				m_vecKey[i].bPrevPush = false;
-				
 			}
 		}
 	}
@@ -154,12 +203,12 @@ void CKeyMgr::update()
 			
 			if (m_vecKey[i].eState == KEY_STATE::TAP || m_vecKey[i].eState == KEY_STATE::HOLD) {
 				m_vecKey[i].eState = KEY_STATE::AWAY;
-				CCore::GetInst()->SetKey(i, KEY::NUMPAD9, KEY_STATE::AWAY);
+				CCore::GetInst()->SetKey(i, KEY_STATE::AWAY);
 
 			}
 			else if (m_vecKey[i].eState == KEY_STATE::AWAY) {
 				m_vecKey[i].eState = KEY_STATE::NONE;
-				CCore::GetInst()->SetKey(i, KEY::NUMPAD9, KEY_STATE::NONE);
+				CCore::GetInst()->SetKey(i, KEY_STATE::NONE);
 
 			}
 		}

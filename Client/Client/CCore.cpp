@@ -16,6 +16,11 @@ CCore::CCore() :
 	m_hBit(nullptr), m_memDC(nullptr), m_arrBrush{}, m_arrPen{}, m_sock{ INVALID_SOCKET },
 	m_bIsStart{ false }
 {
+	// 키 정보 초기화
+	for (int i = 0; i < (int)KEY::LAST; ++i) {
+		m_inputkey[i].key = KEY(i);
+		m_inputkey[i].key_state = KEY_STATE::NONE;
+	}
 }
 
 CCore::~CCore()
@@ -234,19 +239,23 @@ void CCore::CommunicationToServer()
 void CCore::TestSendKeyInput()
 {
 	int retval;
+	int size;
+	bool bAllKeyNone = true;
 	SOCKET sock = m_sock;
 
 	for (int i = 0; i < (int)KEY::LAST; ++i) {
-		if (m_inputkey[i].key_state == KEY_STATE::TAP) {              // key의 상태가 눌림이면
-			std::cout << (int)m_inputkey[i].key << std::endl;                   // key의 정보를 출력
+		if (m_inputkey[i].key_state != KEY_STATE::NONE) {              // key의 상태가 눌림이면
+			if(bAllKeyNone)
+				bAllKeyNone = false;               // 모든키가 안눌려있지 않다.
+
+			std::cout << (int)m_inputkey[i].key << std::endl; // key의 정보를 출력
 
 			// send
 			CS_KEYBOARD_INPUT_PACKET p;
 			p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
 			p.key = m_inputkey[i].key;                               // key 정보 저장
 			p.key_state = m_inputkey[i].key_state;                   // key의 상태 저장(눌림)
-
-			int size = sizeof(p);
+			size = sizeof(p);
 
 			retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 			if (retval == SOCKET_ERROR) {
@@ -259,15 +268,36 @@ void CCore::TestSendKeyInput()
 				break;
 			}
 			std::cout << "send() - 키보드 입력 정보 패킷을 전송하였습니다" << '\n';
-
 		}
+	}
+
+	if (bAllKeyNone) {	// 모든 키가 안눌렸다.
+		CS_KEYBOARD_INPUT_PACKET p;
+		p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
+		p.key = KEY::LAST;                         // key 정보 저장
+		p.key_state = KEY_STATE::NONE;                   // key의 상태 저장(눌림)
+		size = sizeof(p);
+
+		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			return;
+		}
+		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			return;
+		}
+
+		bAllKeyNone = true;
+		std::cout << "send() - 아무 키도 안눌림" << '\n';
 	}
 
 
 	////////////
 	// recv() //
 	////////////
-	int size;
+	
 	//int retval;
 	char buf[BUFSIZE];
 

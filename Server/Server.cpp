@@ -79,7 +79,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 	SELECT_CHARACTER_PACKET* selectPacket = reinterpret_cast<SELECT_CHARACTER_PACKET*>(buf);
 	std::cout << "[Player" << clientId << "] ";
-	ClientInfo[clientId].isReady = true;	// 클라이언트 준비 상태 true로 변경
+	ClientInfo[clientId - 1].isReady = true;	// 클라이언트 준비 상태 true로 변경
 
 	switch (selectPacket->character) {
 	case CHARACTER_TYPE::MINJI:
@@ -150,7 +150,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 	CS_INIT_FINISH_PACKET* initFinishPacket = reinterpret_cast<CS_INIT_FINISH_PACKET*>(buf);
 	std::cout << "[Player" << clientId << "] 스테이지 초기화 완료" << std::endl;
-	ClientInfo[clientId].isInit = true;	// 클라이언트 초기화 상태 true로 변경
+	ClientInfo[clientId - 1].isInit = true;	// 클라이언트 초기화 상태 true로 변경
 
 	// 모든 클라이언트가 초기화를 완료하면 플레이어들에게 게임 시작 신호 패킷 전송
 	while (1) {
@@ -168,7 +168,6 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	}
 
 	if (isAllInit) {
-		Sleep(3000);	// 3초 대기
 		SC_GAME_START_PACKET startPacket;
 		size = sizeof(SC_GAME_START_PACKET);
 		startPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_START);
@@ -211,7 +210,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			case int(CS_PACKET_TYPE::CS_KEYBOARD_INPUT):
 			{
 				CS_KEYBOARD_INPUT_PACKET* p = reinterpret_cast<CS_KEYBOARD_INPUT_PACKET*>(buf);
-				std::cout << "[" << nick_name << "] 클라이언트 → 서버: 키보드 입력 정보 패킷 받음" << '\n';
+
+				// 아무 키도 눌리지 않은 상태
+				if (p->key == KEY::LAST && p->key_state == KEY_STATE::NONE)
+					std::cout << "[" << nick_name << "] 아무 키도 안누름" << '\n';
+				else
+					std::cout << "[" << nick_name << "] 클라이언트 → 서버: 키보드 입력 정보 패킷 받음" << '\n';
 				
 				// 수신한 키보드 정보와 상태 출력
 				std::cout << (int)p->key << std::endl;
@@ -221,8 +225,8 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				// 캐릭터 충돌 처리, 캐릭터랑 총알, 캐릭터랑 아이템
 				// 몬스터랑 충돌처리
 				// 각 플레이어의 위치 업데이트는 각 클라이언트의 스레드에서 배열에 동시접근해서 각자 바꿈
-				Vec2 vCurPos = PlayerArray[clientId].GetPos();
-				float speed = PlayerArray[clientId].GetSpeed();
+				Vec2 vCurPos = PlayerArray[clientId - 1].GetPos();
+				float speed = PlayerArray[clientId - 1].GetSpeed();
 
 				// 상
 				if (p->key == KEY::UP && p->key_state == KEY_STATE::HOLD) {
@@ -238,10 +242,10 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					else if (IsInBossRoom(vCurPos) )
 						vCurPos.y -= speed * DT;
 
-					PlayerArray[clientId].SetState(PLAYER_STATE::RUN);
+					PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
 				}
 				if (p->key == KEY::UP && p->key_state == KEY_STATE::AWAY) {
-					PlayerArray[clientId].SetState(PLAYER_STATE::IDLE);
+					PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
 				}
 
 				// 하
@@ -259,10 +263,10 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					else if (IsInBossRoom(vCurPos))
 						vCurPos.y += speed * DT;
 
-					PlayerArray[clientId].SetState(PLAYER_STATE::RUN);
+					PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
 				}
 				if (p->key == KEY::DOWN && p->key_state == KEY_STATE::AWAY) {
-					PlayerArray[clientId].SetState(PLAYER_STATE::IDLE);
+					PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
 				}
 
 				// 좌
@@ -283,12 +287,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					else if (IsInBossRoom(vCurPos))
 						vCurPos.x -= speed * DT;
 
-					PlayerArray[clientId].SetState(PLAYER_STATE::RUN);
-					if (PlayerArray[clientId].GetDir() != DIR_LEFT)
-						PlayerArray[clientId].SetDir(DIR_LEFT);
+					PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
+					if (PlayerArray[clientId - 1].GetDir() != DIR_LEFT)
+						PlayerArray[clientId - 1].SetDir(DIR_LEFT);
 				}
 				if (p->key == KEY::LEFT && p->key_state == KEY_STATE::AWAY) {
-					PlayerArray[clientId].SetState(PLAYER_STATE::IDLE);
+					PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
 				}
 
 				// 우
@@ -309,12 +313,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					else if (IsInBossRoom(vCurPos))
 						vCurPos.x += speed * DT;
 
-					PlayerArray[clientId].SetState(PLAYER_STATE::RUN);
-					if (PlayerArray[clientId].GetDir() != DIR_RIGHT)
-						PlayerArray[clientId].SetDir(DIR_RIGHT);
+					PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
+					if (PlayerArray[clientId - 1].GetDir() != DIR_RIGHT)
+						PlayerArray[clientId - 1].SetDir(DIR_RIGHT);
 				}
 				if (p->key == KEY::RIGHT && p->key_state == KEY_STATE::AWAY) {
-					PlayerArray[clientId].SetState(PLAYER_STATE::IDLE);
+					PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
 				}
 
 				if (p->key == KEY::SPACE && p->key_state == KEY_STATE::TAP) {
@@ -326,15 +330,15 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					//m_EffectAnimator->FindAnimation(L"Shooting")->SetFrame(0);
 				}
 		
-				PlayerArray[clientId].SetPos(vCurPos);
+				PlayerArray[clientId - 1].SetPos(vCurPos);
 
 				// 바로 send 플레이어 인포
 				// 플레이어 인포 3개짜리 배열을 보냄
 				SC_PLAYER_PACKET pp;
 				pp.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
-				pp.playerPos = PlayerArray[clientId].GetPos();
-				pp.playerState = PlayerArray[clientId].GetState();
-				pp.playerDir = PlayerArray[clientId].GetDir();
+				pp.playerPos = PlayerArray[clientId - 1].GetPos();
+				pp.playerState = PlayerArray[clientId - 1].GetState();
+				pp.playerDir = PlayerArray[clientId - 1].GetDir();
 				size = sizeof(pp);
 
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
@@ -348,6 +352,8 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					err_display("send()");
 					break;
 				}
+				
+				// 데이터 전송량이 너무 많아서 캐릭터가 빠르게 움직인다.
 
 				std::cout << "[" << nick_name << "] 서버 → 클라이언트: 플레이어 정보 관련 패킷 전송" << size << '\n';
 			}
@@ -371,236 +377,167 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		////////////
 		// send() //
 	    ////////////
-		SC_PACKET_TYPE type = SC_PACKET_TYPE(rand() % 11 + 1);
+		//SC_PACKET_TYPE type = SC_PACKET_TYPE(rand() % 11 + 1);
 
-		// 패킷 정보 보내기 
-		switch (type) {
-		case SC_PACKET_TYPE::SC_MAKE_ID:
-		{
-			SC_MAKE_ID_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_MAKE_ID);
-			size = sizeof(p);
-			
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-			
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
+		//// 패킷 정보 보내기 
+		//switch (type) {
 
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: ID 할당 관련 패킷 전송" << size << '\n';
-		}
-		break;
-
-		case SC_PACKET_TYPE::SELECT_CHARACTER:
-		{
-			SELECT_CHARACTER_PACKET p;
-
-			p.type = static_cast<char>(SC_PACKET_TYPE::SELECT_CHARACTER);
-			size = sizeof(p);
-
-			//여기서 변경해서 보내면 돼
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-			
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 캐릭터 선택 관련 패킷 전송" <<size<< '\n';
-		}
-		break;
-
-		case SC_PACKET_TYPE::SC_INIT:
-		{
-			SC_INIT_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_INIT);
-			size = sizeof(p);
-			
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-			
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 초기화 요청 신호 관련 패킷 전송" << size << '\n';
-		}
-		break;
-
-		case SC_PACKET_TYPE::SC_GAME_START:
-		{
-			SC_GAME_START_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_START);
-			size = sizeof(p);
-
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 게임 시작 신호 패킷 전송" << size << '\n';
-		}
-		break;
-
-		case SC_PACKET_TYPE::SC_GAME_OVER:
-		{
-			SC_GAME_OVER_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_OVER);
-			size = sizeof(p);
-
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 게임 오버 신호 패킷 전송" << size << '\n';
-		}
-		break;
-
-		case SC_PACKET_TYPE::SC_GAME_CLEAR:
-		{
-			SC_GAME_CLEAR_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_CLEAR);
-			size = sizeof(p);
-
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 게임 클리어 패킷 전송" << size << '\n';
-		}
-		break;
-
-		case SC_PACKET_TYPE::SC_PLAYER:
-		{
-			SC_PLAYER_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
-			size = sizeof(p);
-
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 플레이어 정보 관련 패킷 전송" << size << '\n';
-		}
-		break;
-
-		case SC_PACKET_TYPE::SC_MONSTER:
-		{
-			SC_MONSTER_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_MONSTER);
-			size = sizeof(p);
-
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 몬스터 정보 관련 패킷 전송" << size << '\n';
-		}
-		break;
-
-		case SC_PACKET_TYPE::SC_BOSS:
-		{
-			SC_BOSS_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_BOSS);
-			size = sizeof(p);
-
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 보스 정보 관련 패킷 전송" << size << '\n';
-		}
-		break;
-
-		case SC_PACKET_TYPE::SC_BULLET:
-		{
-			SC_BULLET_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
-			size = sizeof(p);
-
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 투사체 정보 관련 패킷 전송" << size << '\n';
-		}
-		break;
-
-		//case SC_PACKET_TYPE::SC_ITEM:
+		//case SC_PACKET_TYPE::SC_GAME_OVER:
 		//{
-		//	SC_ITEM_PACKET p;
-		//	p.type = static_cast<char>(SC_PACKET_TYPE::SC_ITEM);
+		//	SC_GAME_OVER_PACKET p;
+		//	p.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_OVER);
+		//	size = sizeof(p);
+
+		//	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		//	if (retval == SOCKET_ERROR) {
+		//		err_display("send()");
+		//		break;
+		//	}
+
+		//	retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+		//	if (retval == SOCKET_ERROR) {
+		//		err_display("send()");
+		//		break;
+		//	}
+
+		//	std::cout << "[" << nick_name << "] 서버 → 클라이언트: 게임 오버 신호 패킷 전송" << size << '\n';
+		//}
+		//break;
+
+		//case SC_PACKET_TYPE::SC_GAME_CLEAR:
+		//{
+		//	SC_GAME_CLEAR_PACKET p;
+		//	p.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_CLEAR);
+		//	size = sizeof(p);
+
+		//	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		//	if (retval == SOCKET_ERROR) {
+		//		err_display("send()");
+		//		break;
+		//	}
+
+		//	retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+		//	if (retval == SOCKET_ERROR) {
+		//		err_display("send()");
+		//		break;
+		//	}
+
+		//	std::cout << "[" << nick_name << "] 서버 → 클라이언트: 게임 클리어 패킷 전송" << size << '\n';
+		//}
+		//break;
+
+		//case SC_PACKET_TYPE::SC_PLAYER:
+		//{
+		//	SC_PLAYER_PACKET p;
+		//	p.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
+		//	size = sizeof(p);
+
+		//	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		//	if (retval == SOCKET_ERROR) {
+		//		err_display("send()");
+		//		break;
+		//	}
+
+		//	retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+		//	if (retval == SOCKET_ERROR) {
+		//		err_display("send()");
+		//		break;
+		//	}
+
+		//	std::cout << "[" << nick_name << "] 서버 → 클라이언트: 플레이어 정보 관련 패킷 전송" << size << '\n';
+		//}
+		//break;
+
+		//case SC_PACKET_TYPE::SC_MONSTER:
+		//{
+		//	SC_MONSTER_PACKET p;
+		//	p.type = static_cast<char>(SC_PACKET_TYPE::SC_MONSTER);
+		//	size = sizeof(p);
+
+		//	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		//	if (retval == SOCKET_ERROR) {
+		//		err_display("send()");
+		//		break;
+		//	}
+
+		//	retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+		//	if (retval == SOCKET_ERROR) {
+		//		err_display("send()");
+		//		break;
+		//	}
+
+		//	std::cout << "[" << nick_name << "] 서버 → 클라이언트: 몬스터 정보 관련 패킷 전송" << size << '\n';
+		//}
+		//break;
+
+		//case SC_PACKET_TYPE::SC_BOSS:
+		//{
+		//	SC_BOSS_PACKET p;
+		//	p.type = static_cast<char>(SC_PACKET_TYPE::SC_BOSS);
+		//	size = sizeof(p);
+
+		//	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		//	if (retval == SOCKET_ERROR) {
+		//		err_display("send()");
+		//		break;
+		//	}
+
+		//	retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+		//	if (retval == SOCKET_ERROR) {
+		//		err_display("send()");
+		//		break;
+		//	}
+
+		//	std::cout << "[" << nick_name << "] 서버 → 클라이언트: 보스 정보 관련 패킷 전송" << size << '\n';
+		//}
+		//break;
+
+		//case SC_PACKET_TYPE::SC_BULLET:
+		//{
+		//	SC_BULLET_PACKET p;
+		//	p.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
+		//	size = sizeof(p);
+
+		//	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		//	if (retval == SOCKET_ERROR) {
+		//		err_display("send()");
+		//		break;
+		//	}
+
+		//	retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+		//	if (retval == SOCKET_ERROR) {
+		//		err_display("send()");
+		//		break;
+		//	}
+
+		//	std::cout << "[" << nick_name << "] 서버 → 클라이언트: 투사체 정보 관련 패킷 전송" << size << '\n';
+		//}
+		//break;
+
+		////case SC_PACKET_TYPE::SC_ITEM:
+		////{
+		////	SC_ITEM_PACKET p;
+		////	p.type = static_cast<char>(SC_PACKET_TYPE::SC_ITEM);
+		////	size = sizeof(p);
+		////	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		////	if (retval == SOCKET_ERROR) {
+		////		err_display("send()");
+		////		break;
+		////	}
+		////	retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+		////	if (retval == SOCKET_ERROR) {
+		////		err_display("send()");
+		////		break;
+		////	}
+		//// 
+		////	std::cout << "[" << nick_name << "] 서버 → 클라이언트: 아이템 정보 관련 패킷을 전송하였습니다" << size << '\n';
+		////}
+		////break;
+
+		//case SC_PACKET_TYPE::SC_RANK:
+		//{
+		//	SC_RANK_PACKET p;
+		//	p.type = static_cast<char>(SC_PACKET_TYPE::SC_RANK);
 		//	size = sizeof(p);
 		//	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 		//	if (retval == SOCKET_ERROR) {
@@ -612,34 +549,14 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		//		err_display("send()");
 		//		break;
 		//	}
-		// 
-		//	std::cout << "[" << nick_name << "] 서버 → 클라이언트: 아이템 정보 관련 패킷을 전송하였습니다" << size << '\n';
+
+		//	std::cout << "[" << nick_name << "] 서버 → 클라이언트: 플레이어 순위 정보 패킷 전송" << size << '\n';
 		//}
 		//break;
 
-		case SC_PACKET_TYPE::SC_RANK:
-		{
-			SC_RANK_PACKET p;
-			p.type = static_cast<char>(SC_PACKET_TYPE::SC_RANK);
-			size = sizeof(p);
-			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-			retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-
-			std::cout << "[" << nick_name << "] 서버 → 클라이언트: 플레이어 순위 정보 패킷 전송" << size << '\n';
-		}
-		break;
-
-		default:
-			break;
-		}
+		//default:
+		//	break;
+		//}
 
 		// 데이터는 1초에 60번 전송
 		//Sleep(1000 / 60);	// 60fps

@@ -21,7 +21,7 @@ private:
 
 	std::array<HBRUSH, (UINT)BRUSH_TYPE::END>	m_arrBrush;		// 자주 사용할 브러쉬의 배열
 	std::array<HPEN, (UINT)PEN_TYPE::END>		m_arrPen;		// 자주 사용할 펜의 배열
-	CS_KEYBOARD_INPUT_PACKET m_inputkey[(int)KEY::LAST] = {};	// 키 입력 저장
+	CS_KEYBOARD_INPUT_PACKET m_inputkey[(int)KEY::LAST];	// 키 입력 저장
 
 public:
 	int init(HWND _hWnd, POINT _ptResolution);
@@ -48,8 +48,7 @@ public:
 	CS_KEYBOARD_INPUT_PACKET GetKey(int i) {	// 키 상태 가져오기
 			return m_inputkey[i];
 	}
-	void SetKey(int i, KEY key, KEY_STATE key_state) { 
-		m_inputkey[i].key = key;
+	void SetKey(int i, KEY_STATE key_state) { 
 		m_inputkey[i].key_state = key_state;
 	}
 };
