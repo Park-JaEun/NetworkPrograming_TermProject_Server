@@ -15,6 +15,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	int addrlen;						// 주소 길이
 	int size;							// 패킷 사이즈
 	bool isAllReady{ false };			// 모든 클라이언트가 준비 상태인지 확인
+	bool isAllInit{ false };			// 모든 클라이언트가 초기화 상태인지 확인
 
 	// 접속한 클라이언트 정보 출력
 	addrlen = sizeof(clientaddr);
@@ -102,7 +103,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		break;
 	}
 
-	// 모든 클라이언트가 준비 상태인지 확인
+	// 모든 클라이언트가 준비 상태인지 확인 (동기화)
 	while (1) {
 		isAllReady = true;
 
@@ -147,6 +148,39 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	CS_INIT_FINISH_PACKET* initFinishPacket = reinterpret_cast<CS_INIT_FINISH_PACKET*>(buf);
 	std::cout << "[Player" << clientId << "] 스테이지 초기화 완료" << std::endl;
 	ClientInfo[clientId].isInit = true;	// 클라이언트 초기화 상태 true로 변경
+
+	// 모든 클라이언트가 초기화를 완료하면 플레이어들에게 게임 시작 신호 패킷 전송
+	while (1) {
+		isAllInit = true;
+
+		for (const PlayerInfo& info : ClientInfo) {
+			if (!info.isInit) {
+				isAllInit = false;
+				break;
+			}
+		}
+
+		if (isAllInit)
+			break;
+	}
+
+	if (isAllInit) {
+		Sleep(3000);	// 3초 대기
+		SC_GAME_START_PACKET startPacket;
+		size = sizeof(SC_GAME_START_PACKET);
+		startPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_START);
+
+		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		retval = send(client_sock, reinterpret_cast<char*>(&startPacket), size, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			return 0;
+		}
+
+		std::cout << "모든 플레이어 초기화 완료" << std::endl;
+		std::cout << "플레이어들에게 게임 시작 신호 패킷 전송" << std::endl;
+	}
+
 
 	while (1) {
 		////////////
