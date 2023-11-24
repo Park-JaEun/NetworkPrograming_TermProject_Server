@@ -150,7 +150,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                     p.key_state = inputkey[i].key_state;                   // key의 상태 저장(눌림)
 
                     int size = sizeof(p);
-                    std::cout << "send() - 키보드 입력 정보 패킷을 전송하였습니다" << '\n';
 
                     retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
                     if (retval == SOCKET_ERROR) {
@@ -163,6 +162,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                         break;
                     }
 
+                    std::cout << "send() - 키보드 입력 정보 패킷을 전송하였습니다" << '\n';
 
                 }
             }

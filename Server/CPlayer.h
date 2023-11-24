@@ -15,6 +15,12 @@ private:
 
     CLONE(CPlayer)
 public:
+    float GetSpeed()                      {      return m_fSpeed;    }
+    bool GetDir()                       {        return m_bDir; }
+    PLAYER_STATE GetState()             { return m_eState; }
+
+    void SetState(PLAYER_STATE state)    { m_eState = state; }
+    void SetDir(bool dir)               { m_bDir = dir; }
     void update() override;
 
 private:

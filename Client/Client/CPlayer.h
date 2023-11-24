@@ -24,6 +24,8 @@ public:
     int GetLife() { return m_iLife; }
 
     void SetType(CHARACTER_TYPE _eType) { m_eType = _eType; }
+    void SetState(PLAYER_STATE state) { m_eState = state; }
+    void SetDir(bool dir) { m_bDir = dir; }
 
     void update() override;
     void render(HDC _dc) override;

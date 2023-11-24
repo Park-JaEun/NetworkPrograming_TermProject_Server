@@ -69,77 +69,83 @@ void CPlayer::update()
 	}
 	else {
 		// »ó
-		if (KEY_HOLD(KEY::UP)) {
-			vDummyPos = Vec2(vPos.x, vPos.y - m_fSpeed * DT);
+		//if (KEY_HOLD(KEY::UP)) {
+		//	vDummyPos = Vec2(vPos.x, vPos.y - m_fSpeed * DT);
 
-			if (IsInWorld(vDummyPos) && !bIsBoss)
-				vPos.y -= m_fSpeed * DT;
-			else if (IsInBossRoom(vDummyPos) && bIsBoss)
-				vPos.y -= m_fSpeed * DT;
+		//	if (IsInWorld(vDummyPos) && !bIsBoss)
+		//		vPos.y -= m_fSpeed * DT;
+		//	else if (IsInBossRoom(vDummyPos) && bIsBoss)
+		//		vPos.y -= m_fSpeed * DT;
 
-			m_eState = PLAYER_STATE::RUN;
-		}
-		if (KEY_AWAY(KEY::UP)) {
-			m_eState = PLAYER_STATE::IDLE;
-		}
+		//	m_eState = PLAYER_STATE::RUN;
+		//}
+		//if (KEY_AWAY(KEY::UP)) {
+		//	m_eState = PLAYER_STATE::IDLE;
+		//}
 
-		// ÇÏ
-		if (KEY_HOLD(KEY::DOWN)) {
-			vDummyPos = Vec2(vPos.x, vPos.y + m_fSpeed * DT);
+		//// ÇÏ
+		//if (KEY_HOLD(KEY::DOWN)) {
+		//	vDummyPos = Vec2(vPos.x, vPos.y + m_fSpeed * DT);
 
-			if (IsInWorld(vDummyPos) && !bIsBoss)
-				vPos.y += m_fSpeed * DT;
-			else if (IsInBossRoom(vDummyPos) && bIsBoss)
-				vPos.y += m_fSpeed * DT;
+		//	if (IsInWorld(vDummyPos) && !bIsBoss)
+		//		vPos.y += m_fSpeed * DT;
+		//	else if (IsInBossRoom(vDummyPos) && bIsBoss)
+		//		vPos.y += m_fSpeed * DT;
 
-			m_eState = PLAYER_STATE::RUN;
-		}
-		if (KEY_AWAY(KEY::DOWN)) {
-			m_eState = PLAYER_STATE::IDLE;
-		}
+		//	m_eState = PLAYER_STATE::RUN;
+		//}
+		//if (KEY_AWAY(KEY::DOWN)) {
+		//	m_eState = PLAYER_STATE::IDLE;
+		//}
 
-		// ÁÂ
-		if (KEY_HOLD(KEY::LEFT)) {
-			vDummyPos = Vec2(vPos.x - m_fSpeed * DT, vPos.y);
+		//// ÁÂ
+		//if (KEY_HOLD(KEY::LEFT)) {
+		//	vDummyPos = Vec2(vPos.x - m_fSpeed * DT, vPos.y);
 
-			if (IsInWorld(vDummyPos) && !bIsBoss)
-				vPos.x -= m_fSpeed * DT;
-			else if (IsInBossRoom(vDummyPos) && bIsBoss)
-				vPos.x -= m_fSpeed * DT;
+		//	if (IsInWorld(vDummyPos) && !bIsBoss)
+		//		vPos.x -= m_fSpeed * DT;
+		//	else if (IsInBossRoom(vDummyPos) && bIsBoss)
+		//		vPos.x -= m_fSpeed * DT;
 
-			m_eState = PLAYER_STATE::RUN;
-			if (m_bDir != DIR_LEFT)
-				m_bDir = DIR_LEFT;
-		}
-		if (KEY_AWAY(KEY::LEFT)) {
-			m_eState = PLAYER_STATE::IDLE;
-		}
+		//	m_eState = PLAYER_STATE::RUN;
+		//	if (m_bDir != DIR_LEFT)
+		//		m_bDir = DIR_LEFT;
+		//}
+		//if (KEY_AWAY(KEY::LEFT)) {
+		//	m_eState = PLAYER_STATE::IDLE;
+		//}
 
-		// ¿ì
-		if (KEY_HOLD(KEY::RIGHT)) {
-			vDummyPos = Vec2(vPos.x + m_fSpeed * DT, vPos.y);
+		//// ¿ì
+		//if (KEY_HOLD(KEY::RIGHT)) {
+		//	vDummyPos = Vec2(vPos.x + m_fSpeed * DT, vPos.y);
 
-			if (IsInWorld(vDummyPos) && !bIsBoss)
-				vPos.x += m_fSpeed * DT;
-			else if (IsInBossRoom(vDummyPos) && bIsBoss)
-				vPos.x += m_fSpeed * DT;
+		//	if (IsInWorld(vDummyPos) && !bIsBoss)
+		//		vPos.x += m_fSpeed * DT;
+		//	else if (IsInBossRoom(vDummyPos) && bIsBoss)
+		//		vPos.x += m_fSpeed * DT;
 
-			m_eState = PLAYER_STATE::RUN;
-			if (m_bDir != DIR_RIGHT)
-				m_bDir = DIR_RIGHT;
-		}
-		if (KEY_AWAY(KEY::RIGHT)) {
-			m_eState = PLAYER_STATE::IDLE;
-		}
+		//	m_eState = PLAYER_STATE::RUN;
+		//	if (m_bDir != DIR_RIGHT)
+		//		m_bDir = DIR_RIGHT;
+		//}
+		//if (KEY_AWAY(KEY::RIGHT)) {
+		//	m_eState = PLAYER_STATE::IDLE;
+		//}
 
-		if (KEY_TAP(KEY::SPACE)) {
-			// ÃÑ¾Ë ¹ß»ç
-			CreateBullet();
+		//if (KEY_TAP(KEY::SPACE)) {
+		//	// ÃÑ¾Ë ¹ß»ç
+		//	CreateBullet();
 
-			// ½´ÆÃ ÀÌÆåÆ® Àç»ý
-			m_EffectAnimator->Play(L"Shooting", false);
-			m_EffectAnimator->FindAnimation(L"Shooting")->SetFrame(0);
-		}
+		//	// ½´ÆÃ ÀÌÆåÆ® Àç»ý
+		//	m_EffectAnimator->Play(L"Shooting", false);
+		//	m_EffectAnimator->FindAnimation(L"Shooting")->SetFrame(0);
+		//}
+
+
+
+
+
+
 	}
 
 	PlayAnimation();

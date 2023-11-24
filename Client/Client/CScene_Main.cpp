@@ -232,8 +232,10 @@ void CScene_Main::Enter()
 	}
 	SC_GAME_START_PACKET* initPacket = reinterpret_cast<SC_GAME_START_PACKET*>(buf);
 
-	if(initPacket->type == static_cast<char>(SC_PACKET_TYPE::SC_GAME_START))
+	if (initPacket->type == static_cast<char>(SC_PACKET_TYPE::SC_GAME_START)) {
+		CCore::GetInst()->SetStart();
 		std::cout << "게임 시작 패킷 수신" << std::endl;
+	}
 	else {
 		std::cout << "게임 시작 패킷 수신 오류: Packet Type이" << initPacket->type << "입니다." << std::endl;
 		closesocket(sock);

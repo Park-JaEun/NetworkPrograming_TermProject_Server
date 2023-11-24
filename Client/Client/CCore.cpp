@@ -9,6 +9,7 @@
 #include "CCollisionMgr.h"
 #include "CEventMgr.h"
 #include "CCamera.h"
+#include "CScene.h"
 
 CCore::CCore() :
 	m_hWnd(nullptr), m_ptResolution{}, m_hDC(nullptr),
@@ -95,50 +96,50 @@ void CCore::CommunicationToServer()
 	char buf[BUFSIZE];
 
 	SOCKET sock = m_sock;
-	CS_PACKET_TYPE type = CS_PACKET_TYPE(rand() % 5 + 1); // send()타입 선택 
+	//CS_PACKET_TYPE type = CS_PACKET_TYPE(rand() % 5 + 1); // send()타입 선택 
 
-	switch (type) 
-	{
-	case CS_PACKET_TYPE::CS_KEYBOARD_INPUT: 
-	{
-		CS_KEYBOARD_INPUT_PACKET p;
-		p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
-		size = sizeof(p);
-		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
-	}
-	break;
+	//switch (type) 
+	//{
+	////case CS_PACKET_TYPE::CS_KEYBOARD_INPUT: 
+	////{
+	////	CS_KEYBOARD_INPUT_PACKET p;
+	////	p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
+	////	size = sizeof(p);
+	////	retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	////	retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+	////}
+	////break;
 
-	/*case CS_PACKET_TYPE::CS_SELECT_LOBBY: 
-	{
-		CS_SELECT_LOBBY_PACKET p;
-		p.type = static_cast<char>(CS_PACKET_TYPE::CS_SELECT_LOBBY);
-		size = sizeof(p);
-		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
-	}
-	break;
+	///*case CS_PACKET_TYPE::CS_SELECT_LOBBY: 
+	//{
+	//	CS_SELECT_LOBBY_PACKET p;
+	//	p.type = static_cast<char>(CS_PACKET_TYPE::CS_SELECT_LOBBY);
+	//	size = sizeof(p);
+	//	retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//	retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+	//}
+	//break;
 
-	case CS_PACKET_TYPE::CS_SELECT_EXIT: 
-	{
-		CS_SELECT_EXIT_PACKET p;
-		p.type = static_cast<char>(CS_PACKET_TYPE::CS_SELECT_EXIT);
-		size = sizeof(p);
-		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
-	}
-	break;*/
-	default:
-		break;
-	}
+	//case CS_PACKET_TYPE::CS_SELECT_EXIT: 
+	//{
+	//	CS_SELECT_EXIT_PACKET p;
+	//	p.type = static_cast<char>(CS_PACKET_TYPE::CS_SELECT_EXIT);
+	//	size = sizeof(p);
+	//	retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	//	retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+	//}
+	//break;*/
+	//default:
+	//	break;
+	//}
 
 	// 오류 처리
-	if (retval == SOCKET_ERROR) {
+	/*if (retval == SOCKET_ERROR) {
 		err_display("send()");
 		closesocket(sock);
 		WSACleanup();
 		return;
-	}
+	}*/
 
 	////////////
 	// recv() //
@@ -183,6 +184,15 @@ void CCore::CommunicationToServer()
 		case int(SC_PACKET_TYPE::SC_PLAYER): 
 		{
 			SC_PLAYER_PACKET* p = reinterpret_cast<SC_PLAYER_PACKET*>(buf);
+
+			// 
+			CScene* pCurScene = CSceneMgr::GetInst()->GetCurScene();
+			CPlayer* pPlayer = (CPlayer*)pCurScene->FindObject(L"player");
+			pPlayer->SetPos(p->playerPos);
+			pPlayer->SetState(p->playerState);
+			pPlayer->SetDir(p->playerDir);
+
+			std::cout << "SC_PLAYER_PACKET 받음" << std::endl;
 		}
 		break;
 
@@ -223,39 +233,74 @@ void CCore::CommunicationToServer()
 
 void CCore::TestSendKeyInput()
 {
-	//for (int i = 0; i < (int)KEY::LAST; ++i) {
-	//	if (inputkey[i].key_state == KEY_STATE::TAP) {              // key의 상태가 눌림이면
-	//		cout << (int)inputkey[i].key << endl;                   // key의 정보를 출력
+	int retval;
+	SOCKET sock = m_sock;
 
-	//		// send
-	//		CS_KEYBOARD_INPUT_PACKET p;
-	//		p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
-	//		p.key = inputkey[i].key;                               // key 정보 저장
-	//		p.key_state = inputkey[i].key_state;                   // key의 상태 저장(눌림)
+	for (int i = 0; i < (int)KEY::LAST; ++i) {
+		if (m_inputkey[i].key_state == KEY_STATE::TAP) {              // key의 상태가 눌림이면
+			std::cout << (int)m_inputkey[i].key << std::endl;                   // key의 정보를 출력
 
-	//		int size = sizeof(p);
-	//		std::cout << "send() - 키보드 입력 정보 패킷을 전송하였습니다" << '\n';
+			// send
+			CS_KEYBOARD_INPUT_PACKET p;
+			p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
+			p.key = m_inputkey[i].key;                               // key 정보 저장
+			p.key_state = m_inputkey[i].key_state;                   // key의 상태 저장(눌림)
 
-	//		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-	//		if (retval == SOCKET_ERROR) {
-	//			err_display("send()");
-	//			break;
-	//		}
-	//		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
-	//		if (retval == SOCKET_ERROR) {
-	//			err_display("send()");
-	//			break;
-	//		}
-	//	}
-	//}
+			int size = sizeof(p);
+
+			retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
+			}
+			retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
+			}
+			std::cout << "send() - 키보드 입력 정보 패킷을 전송하였습니다" << '\n';
+
+		}
+	}
+
+
+	////////////
+	// recv() //
+	////////////
+	int size;
+	//int retval;
+	char buf[BUFSIZE];
+
+	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+	retval = recv(sock, buf, size, MSG_WAITALL);
+
+	// 오류 처리
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
+
+	SC_PLAYER_PACKET* p = reinterpret_cast<SC_PLAYER_PACKET*>(buf);
+
+	// 
+	CScene* pCurScene = CSceneMgr::GetInst()->GetCurScene();
+	CPlayer* pPlayer = (CPlayer*)pCurScene->FindObject(L"Player");
+	pPlayer->SetPos(p->playerPos);
+	pPlayer->SetState(p->playerState);
+	pPlayer->SetDir(p->playerDir);
+
+	std::cout << "SC_PLAYER_PACKET 받음" << std::endl;
 }
 
 void CCore::progress()
 {
 	// 소켓이 연결되어 있으면 통신
-	if (m_sock != INVALID_SOCKET)
+	if (m_sock != INVALID_SOCKET && m_bIsStart) {
 		TestSendKeyInput();
 		//CommunicationToServer();
+	}
 
 	// Managers Update
 	CTimer::GetInst()->update();

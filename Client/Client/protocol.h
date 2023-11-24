@@ -59,7 +59,10 @@ struct SC_GAME_CLEAR_PACKET {
 // 플레이어 정보 수신 관련 패킷
 struct SC_PLAYER_PACKET {
 	char type;			// 패킷 타입
-	CPlayer  player;	// 플레이어 정보
+	// 플레이어 정보
+	Vec2 playerPos;					// 플레이어 위치
+	PLAYER_STATE playerState;		// 플레이어 상태
+	bool playerDir;					// 플레이어 방향
 };
 
 // 몬스터 정보 수신 관련 패킷
