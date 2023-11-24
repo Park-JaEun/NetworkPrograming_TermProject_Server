@@ -48,7 +48,8 @@ void CBoss::update()
 		vCurPos.y += DT * 50.f * 3;
 	}
 	else {
-		switch (m_eState) {
+		switch (m_eState) 
+		{
 		case BOSS_STATE::IDLE:
 			GetAnimator()->Play(L"Boss_Idle", true);
 			break;
@@ -93,7 +94,8 @@ void CBoss::update()
 
 				int iRand = rand() % 2;
 
-				switch (iRand) {
+				switch (iRand) 
+				{
 				case 0:
 					CreateMissile();
 					break;

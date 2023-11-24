@@ -18,8 +18,8 @@
 #include "CAnimation.h"
 
 CPlayer::CPlayer() : m_bDir(DIR_RIGHT), m_eState(PLAYER_STATE::IDLE), 
-					 m_EffectAnimator(nullptr), m_fSpeed(300.f), m_iHP(5),
-					 m_fDieTime(0.f)
+					 m_EffectAnimator(nullptr), m_fSpeed(300.f), m_iHP(3), m_iLife(1),
+					 m_fDieTime(0.f), m_fResurrectTime(0.f), m_bIsGameOver(false)
 {
 }
 
@@ -30,20 +30,42 @@ CPlayer::~CPlayer()
 
 void CPlayer::update()
 {
+	// 게임 오버시 return
+	if (m_bIsGameOver)
+		return;
+
 	Vec2 vPos = GetPos();
 	Vec2 vDummyPos{};
 	CScene_Main* pMainScene = (CScene_Main*)CSceneMgr::GetInst()->GetCurScene();
 	bool bIsBoss = pMainScene->GetIsBoss();
-
+	
 	if (m_iHP <= 0) {
-		if(m_eState != PLAYER_STATE::DIE)
+		if (m_eState != PLAYER_STATE::DIE) {
 			m_eState = PLAYER_STATE::DIE;
+		}
 
 		// 1.5초뒤 아래로 추락
-		if(m_fDieTime >= 1.5f)
+		if (m_fDieTime >= 1.5f && m_fDieTime <= 4.5)
 			vPos.y += DT * 50.f * 3;
 		else
 			m_fDieTime += DT;
+
+		// 3초뒤 부활
+		if (!m_bIsGameOver && m_iLife >= 1 && m_fResurrectTime >= 3.0f && m_fDieTime >= 1.5f) {
+			m_iLife -= 1;
+			if (m_iLife == 0) {
+				m_bIsGameOver = true;
+				return;
+			}
+			m_iHP = 3;
+			m_fDieTime = 0.f;
+			m_fResurrectTime = 0.f;
+			m_eState = PLAYER_STATE::IDLE;
+			vPos.y = 0.f;
+		}
+		else if (m_fDieTime >= 1.5f) {
+			m_fResurrectTime += DT;
+		}
 	}
 	else {
 		// 상
@@ -133,6 +155,38 @@ void CPlayer::render(HDC _dc)
 {
 	if (m_EffectAnimator != nullptr)
 		m_EffectAnimator->render(_dc);
+
+	// HP Bar UI 그리기
+	CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"HP", L"texture\\ui\\hp.bmp");
+	for (int i = 0; i < m_iHP; ++i) {
+		TransparentBlt(_dc,
+			24 + 18 * i,
+			382,
+			18,
+			18,
+			pTexture->GetDC(),
+			0,
+			9,
+			12,
+			9,
+			RGB(255, 0, 255));
+	}
+
+	// Life UI 그리기
+	pTexture = CResourceMgr::GetInst()->LoadTexture(L"Life", L"texture\\ui\\life.bmp");
+	for (int i = 0; i < m_iLife; ++i) {
+		TransparentBlt(_dc,
+			26 * i,
+			20,
+			26,
+			20,
+			pTexture->GetDC(),
+			0,
+			10,
+			13,
+			10,
+			RGB(255, 0, 255));
+	}
 
 	// 컴포넌트 그리기(충돌체, 애니메이션)
 	componentRender(_dc);
@@ -647,7 +701,8 @@ void CPlayer::PlayAnimation()
 {
 	switch (m_eType)
 	{
-	case CHARACTER_TYPE::MINJI: {
+	case CHARACTER_TYPE::MINJI: 
+	{
 		if (m_bDir == DIR_RIGHT) {
 			switch (m_eState)
 			{
@@ -665,7 +720,8 @@ void CPlayer::PlayAnimation()
 				break;
 			}
 		}
-		else if (m_bDir == DIR_LEFT) {
+		else if (m_bDir == DIR_LEFT) 
+		{
 			switch (m_eState)
 			{
 			case PLAYER_STATE::IDLE:
@@ -684,7 +740,8 @@ void CPlayer::PlayAnimation()
 		}
 	}
 		break;
-	case CHARACTER_TYPE::HANNIE: {
+	case CHARACTER_TYPE::HANNIE: 
+	{
 		if (m_bDir == DIR_RIGHT) {
 			switch (m_eState)
 			{
@@ -702,7 +759,8 @@ void CPlayer::PlayAnimation()
 				break;
 			}
 		}
-		else if (m_bDir == DIR_LEFT) {
+		else if (m_bDir == DIR_LEFT) 
+		{
 			switch (m_eState)
 			{
 			case PLAYER_STATE::IDLE:
@@ -721,7 +779,8 @@ void CPlayer::PlayAnimation()
 		}
 	}
 		break;
-	case CHARACTER_TYPE::DANIELLE: {
+	case CHARACTER_TYPE::DANIELLE: 
+	{
 		if (m_bDir == DIR_RIGHT) {
 			switch (m_eState)
 			{
@@ -758,7 +817,8 @@ void CPlayer::PlayAnimation()
 		}
 	}
 		break;
-	case CHARACTER_TYPE::HAERIN: {
+	case CHARACTER_TYPE::HAERIN: 
+	{
 		if (m_bDir == DIR_RIGHT) {
 			switch (m_eState)
 			{
@@ -795,7 +855,8 @@ void CPlayer::PlayAnimation()
 		}
 	}
 		break;
-	case CHARACTER_TYPE::HYEIN: {
+	case CHARACTER_TYPE::HYEIN: 
+	{
 		if (m_bDir == DIR_RIGHT) {
 			switch (m_eState)
 			{
@@ -848,11 +909,13 @@ void CPlayer::EnterCollision(CCollider* _pOther)
 	CObject* pOtherObj = _pOther->GetObj();
 
 	if (pOtherObj->GetName() == L"Monster Bullet") {
-		--m_iHP;
+		if(m_iHP > 0)
+			--m_iHP;
 	}
 
 	if (pOtherObj->GetName() == L"Boss Bullet" || pOtherObj->GetName() == L"Boss Missile") {
-		--m_iHP;
+		if (m_iHP > 0)
+			--m_iHP;
 	}
 }
 

@@ -1,26 +1,22 @@
 #include "pch.h"
 #include "CSceneMgr.h"
 #include "CScene_Main.h"
-
+#include "CObject.h"
 #include "CPlayer.h"
 #include "CMonster.h"
 #include "CBoss.h"
 #include "CBackground.h"
 #include "CFloor.h"
-
 #include "CCore.h"
-
 #include "CPathMgr.h"
 #include "CTexture.h"
-
 #include "CCollider.h"
 #include "CCollisionMgr.h"
-
 #include "CKeyMgr.h"
 #include "CAnimator.h"
 #include "CAnimation.h"
-
 #include "CCamera.h"
+#include "CUI.h"
 
 CScene_Main::CScene_Main() : m_bIsBoss(false)
 {
@@ -48,6 +44,7 @@ void CScene_Main::Enter()
 	CreateObject(pBGObj, GROUP_TYPE::BACKGROUND);
 	///////////////////////
 
+
 	/////////////////
 	// Boss Object //
 	/////////////////
@@ -64,6 +61,7 @@ void CScene_Main::Enter()
 
 	CreateObject(pBossObj, GROUP_TYPE::BOSS);
 	/////////////////
+
 
 	///////////////////
 	// Player Object //
@@ -103,6 +101,29 @@ void CScene_Main::Enter()
 	CreateObject(pPlayerObj, GROUP_TYPE::PLAYER);
 	///////////////////
 	
+	///////////////
+	// UI Object //
+	///////////////
+
+	// Profile UI
+	CUI* pProfileUI = new CUI;
+	pProfileUI->SetName(L"Profile");
+	pProfileUI->CreateAnimator();
+	AddObject(pProfileUI, GROUP_TYPE::UI);
+
+	// HP UI
+	CUI* pHPUI = new CUI;
+	pHPUI->SetName(L"HP");
+	pHPUI->CreateAnimator();
+	AddObject(pHPUI, GROUP_TYPE::UI);
+
+	// Life Text UI
+	CUI* pLifeTextUI = new CUI;
+	pLifeTextUI->SetName(L"Life Text");
+	pLifeTextUI->CreateAnimator();
+	AddObject(pLifeTextUI, GROUP_TYPE::UI);
+
+	//////////////
 	
 	//////////////////
 	// Floor Object //
@@ -224,6 +245,9 @@ void CScene_Main::update()
 		SetIsBoss(true);
 		pBoss->SetHaveToAppear(true);
 	}
+
+	// TODO: Player Life가 0이 되면, GameOver
+
 
 	// + @
 
