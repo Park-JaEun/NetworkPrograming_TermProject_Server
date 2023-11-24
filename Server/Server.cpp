@@ -165,7 +165,6 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	}
 
 	if (isAllInit) {
-		Sleep(3000);	// 3√  ¥Î±‚
 		SC_GAME_START_PACKET startPacket;
 		size = sizeof(SC_GAME_START_PACKET);
 		startPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_START);

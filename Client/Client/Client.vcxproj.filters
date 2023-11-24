@@ -104,6 +104,9 @@
     <Filter Include="Engine\05. Scene\Scene_Select">
       <UniqueIdentifier>{6030b03c-895c-4d94-b015-013bfd2a9fb9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\04. Objects\Item">
+      <UniqueIdentifier>{db3b4498-c39c-4dcf-9e6d-d3481266e65d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -218,6 +221,9 @@
     <ClInclude Include="protocol.h">
       <Filter>Engine\01. Headers</Filter>
     </ClInclude>
+    <ClInclude Include="CItem.h">
+      <Filter>Engine\04. Objects\Item</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -315,6 +321,9 @@
     </ClCompile>
     <ClCompile Include="CScene_Select.cpp">
       <Filter>Engine\05. Scene\Scene_Select</Filter>
+    </ClCompile>
+    <ClCompile Include="CItem.cpp">
+      <Filter>Engine\04. Objects\Item</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
