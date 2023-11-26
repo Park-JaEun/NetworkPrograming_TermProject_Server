@@ -7,11 +7,18 @@ class CPlayer :
     public CObject
 {
 private:
-    int             m_iHP;              // ÇÃ·¹ÀÌ¾î Ã¼·Â
-    float           m_fSpeed;           // ÇÃ·¹ÀÌ¾î ¼Óµµ
-    float           m_fDieTime;         // ÇÃ·¹ÀÌ¾î ÃÖ´ë ÀÌµ¿ °Å¸®
-    bool            m_bDir;             // ÇÃ·¹ÀÌ¾î ¹æÇâ
-    PLAYER_STATE    m_eState;           // ÇÃ·¹ÀÌ¾î »óÅÂ
+    int             m_iHP;              // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Ã¼ï¿½ï¿½
+    int             m_iLife;            // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½
+    int             m_iBunnyCount;      // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ä³¢ ï¿½ï¿½
+    int             m_iCookieCount;     // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ä³¢ ï¿½ï¿½
+    int             m_iKillCount;       // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Å³ ï¿½ï¿½
+    float           m_fSpeed;           // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½Óµï¿½
+    float           m_fDieTime;         // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
+    float           m_fResurrectTime;   // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½È° ï¿½Ã°ï¿½
+    bool            m_bDir;             // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½
+    bool			m_bIsGameOver;      // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    PLAYER_STATE    m_eState;           // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½
+    CHARACTER_TYPE  m_eType;            // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Å¸ï¿½ï¿½
 
     CLONE(CPlayer)
 public:
@@ -21,6 +28,19 @@ public:
 
     void SetState(PLAYER_STATE state)    { m_eState = state; }
     void SetDir(bool dir)               { m_bDir = dir; }
+
+    CHARACTER_TYPE GetType() { return m_eType; }
+    int GetLife() { return m_iLife; }
+    int GetBunnyCount() { return m_iBunnyCount; }
+    int GetCookieCount() { return m_iCookieCount; }
+    int GetKillCount() { return m_iKillCount; }
+
+    void SetType(CHARACTER_TYPE _eType) { m_eType = _eType; }
+
+    void PlusBunnyCount() { ++m_iBunnyCount; }
+    void PlusCookieCount() { ++m_iCookieCount; }
+    void PlusKillCount() { ++m_iKillCount; }
+
     void update() override;
 
 private:

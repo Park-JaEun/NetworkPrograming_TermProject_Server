@@ -17,6 +17,7 @@
 #include "CAnimation.h"
 #include "CCamera.h"
 #include "CUI.h"
+#include "CItem.h"
 
 CScene_Main::CScene_Main() : m_bIsBoss(false)
 {
@@ -62,6 +63,35 @@ void CScene_Main::Enter()
 	CreateObject(pBossObj, GROUP_TYPE::BOSS);
 	/////////////////
 
+	/////////////////
+	// Item Object //
+	/////////////////
+	CItem* pBunnyItemObj = new CItem;
+
+	pBunnyItemObj->SetName(L"Bunny");
+	pBunnyItemObj->SetPos(Vec2(100.f, 0.f));
+	pBunnyItemObj->SetFirstPos(Vec2(100.f, 0.f));
+	pBunnyItemObj->SetScale(Vec2(25.f, 25.f));
+
+	pBunnyItemObj->CreateCollider();
+	pBunnyItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));
+	pBunnyItemObj->GetCollider()->SetOffsetPos(Vec2(12.5f, 12.5f));
+
+	CreateObject(pBunnyItemObj, GROUP_TYPE::ITEM);
+
+	CItem* pCookieItemObj = new CItem;
+
+	pCookieItemObj->SetName(L"Cookie");
+	pCookieItemObj->SetPos(Vec2(150.f, 0.f));
+	pCookieItemObj->SetFirstPos(Vec2(150.f, 0.f));
+	pCookieItemObj->SetScale(Vec2(25.f, 25.f));
+
+	pCookieItemObj->CreateCollider();
+	pCookieItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));
+	pCookieItemObj->GetCollider()->SetOffsetPos(Vec2(12.5f, 12.5f));
+
+	CreateObject(pCookieItemObj, GROUP_TYPE::ITEM);
+	/////////////////
 
 	///////////////////
 	// Player Object //
@@ -122,6 +152,27 @@ void CScene_Main::Enter()
 	pLifeTextUI->SetName(L"Life Text");
 	pLifeTextUI->CreateAnimator();
 	AddObject(pLifeTextUI, GROUP_TYPE::UI);
+
+	// Score Text UI
+	CUI* pScoreTextUI = new CUI;
+	pScoreTextUI->SetName(L"Score Text");
+	pScoreTextUI->CreateAnimator();
+	AddObject(pScoreTextUI, GROUP_TYPE::UI);
+
+	// Bunny Score UI
+	CUI* pBunnyScoreUI = new CUI;
+	pBunnyScoreUI->SetName(L"Bunny Score");
+	AddObject(pBunnyScoreUI, GROUP_TYPE::UI);
+
+	// Cookie Score UI
+	CUI* pCookieScoreUI = new CUI;
+	pCookieScoreUI->SetName(L"Cookie Score");
+	AddObject(pCookieScoreUI, GROUP_TYPE::UI);
+	
+	// Kill Score UI
+	CUI* pKillScoreUI = new CUI;
+	pKillScoreUI->SetName(L"Kill Score");
+	AddObject(pKillScoreUI, GROUP_TYPE::UI);
 
 	//////////////
 	
@@ -194,6 +245,7 @@ void CScene_Main::Enter()
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_BOSS, GROUP_TYPE::PLAYER);
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_MONSTER, GROUP_TYPE::PLAYER);
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::MISSILE_BOSS, GROUP_TYPE::PLAYER);
+	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::ITEM, GROUP_TYPE::PLAYER);
 
 	// Camera Look ÁöÁ¤
 	//CCamera::GetInst()->SetLookAt(Vec2(5060.f, 0.f));
