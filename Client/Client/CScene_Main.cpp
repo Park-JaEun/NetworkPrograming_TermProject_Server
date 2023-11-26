@@ -63,36 +63,6 @@ void CScene_Main::Enter()
 	CreateObject(pBossObj, GROUP_TYPE::BOSS);
 	/////////////////
 
-	/////////////////
-	// Item Object //
-	/////////////////
-	CItem* pBunnyItemObj = new CItem;
-
-	pBunnyItemObj->SetName(L"Bunny");
-	pBunnyItemObj->SetPos(Vec2(100.f, 0.f));
-	pBunnyItemObj->SetFirstPos(Vec2(100.f, 0.f));
-	pBunnyItemObj->SetScale(Vec2(25.f, 25.f));
-
-	pBunnyItemObj->CreateCollider();
-	pBunnyItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));
-	pBunnyItemObj->GetCollider()->SetOffsetPos(Vec2(12.5f, 12.5f));
-
-	CreateObject(pBunnyItemObj, GROUP_TYPE::ITEM);
-
-	CItem* pCookieItemObj = new CItem;
-
-	pCookieItemObj->SetName(L"Cookie");
-	pCookieItemObj->SetPos(Vec2(150.f, 0.f));
-	pCookieItemObj->SetFirstPos(Vec2(150.f, 0.f));
-	pCookieItemObj->SetScale(Vec2(25.f, 25.f));
-
-	pCookieItemObj->CreateCollider();
-	pCookieItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));
-	pCookieItemObj->GetCollider()->SetOffsetPos(Vec2(12.5f, 12.5f));
-
-	CreateObject(pCookieItemObj, GROUP_TYPE::ITEM);
-	/////////////////
-
 	///////////////////
 	// Player Object //
 	///////////////////
@@ -236,6 +206,34 @@ void CScene_Main::Enter()
 	CreateMonster(Vec2(4480.f, -150.f));
 	CreateMonster(Vec2(4480.f, 50.f));
 	////////////////////
+
+	/////////////////
+	// Item Object //
+	/////////////////
+	CreateBunny(Vec2(710.f, -83.f - 25.f));
+	CreateBunny(Vec2(1350.f, -140.f - 25.f));
+	CreateBunny(Vec2(1355.f, 60.f - 25.f));
+	CreateBunny(Vec2(2165.f, -40.f - 25.f));
+	CreateBunny(Vec2(2855.f, 60.f - 25.f));
+	CreateBunny(Vec2(3375.f, -140.f - 25.f));
+	CreateBunny(Vec2(3925.f, -140.f - 25.f));
+	CreateBunny(Vec2(3660.f, 80.f - 25.f));
+	CreateBunny(Vec2(4195.f, 60.f - 25.f));
+	CreateBunny(Vec2(4480.f, 60.f - 25.f));
+	CreateBunny(Vec2(4340.f, -40.f - 25.f));
+	CreateBunny(Vec2(4480.f, -140.f - 25.f));
+	CreateBunny(Vec2(4195.f, -140.f - 25.f));
+
+	CreateCookie(Vec2(880.f, -80.f - 25.f));
+	CreateCookie(Vec2(760.f, 100.f - 25.f));
+	CreateCookie(Vec2(1525.f, -40.f - 25.f));
+	CreateCookie(Vec2(2095.f, -150.f - 25.f));
+	CreateCookie(Vec2(2215.f, 60.f - 25.f));
+	CreateCookie(Vec2(2975.f, -40.f - 25.f));
+	CreateCookie(Vec2(3093.f, -140.f - 25.f));
+	CreateCookie(Vec2(3660.f, -40.f - 25.f));
+	CreateCookie(Vec2(5065.f, 0.f - 25.f));
+	/////////////////
 
 
 	// 충돌 그룹 지정
