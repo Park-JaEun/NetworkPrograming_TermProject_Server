@@ -153,6 +153,27 @@ void CScene_Main::Enter()
 	pLifeTextUI->CreateAnimator();
 	AddObject(pLifeTextUI, GROUP_TYPE::UI);
 
+	// Score Text UI
+	CUI* pScoreTextUI = new CUI;
+	pScoreTextUI->SetName(L"Score Text");
+	pScoreTextUI->CreateAnimator();
+	AddObject(pScoreTextUI, GROUP_TYPE::UI);
+
+	// Bunny Score UI
+	CUI* pBunnyScoreUI = new CUI;
+	pBunnyScoreUI->SetName(L"Bunny Score");
+	AddObject(pBunnyScoreUI, GROUP_TYPE::UI);
+
+	// Cookie Score UI
+	CUI* pCookieScoreUI = new CUI;
+	pCookieScoreUI->SetName(L"Cookie Score");
+	AddObject(pCookieScoreUI, GROUP_TYPE::UI);
+	
+	// Kill Score UI
+	CUI* pKillScoreUI = new CUI;
+	pKillScoreUI->SetName(L"Kill Score");
+	AddObject(pKillScoreUI, GROUP_TYPE::UI);
+
 	//////////////
 	
 	//////////////////

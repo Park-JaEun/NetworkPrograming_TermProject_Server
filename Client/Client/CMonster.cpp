@@ -30,8 +30,11 @@ void CMonster::update()
 
 	// HP가 0이하가 되면 죽는 애니메이션 재생후 삭제
 	if (m_iHP <= 0) {
-		if(m_eState != MONSTER_STATE::DIE)
+		if (m_eState != MONSTER_STATE::DIE) {
 			m_eState = MONSTER_STATE::DIE;
+			// 플레이어 킬 카운트 증가
+			((CPlayer*)CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Player"))->PlusKillCount();
+		}
 
 		if (GetAnimator()->FindAnimation(L"Bunny_Die_Left")->IsFinish() || GetAnimator()->FindAnimation(L"Bunny_Die_Right")->IsFinish())
 			DeleteObject(this);

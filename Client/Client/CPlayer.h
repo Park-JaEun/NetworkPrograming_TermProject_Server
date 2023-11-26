@@ -9,6 +9,9 @@ class CPlayer :
 private:
     int             m_iHP;              // 플레이어 체력
     int             m_iLife;            // 플레이어 생명
+    int             m_iBunnyCount;      // 플레이어 토끼 수
+    int             m_iCookieCount;     // 플레이어 토끼 수
+    int             m_iKillCount;       // 플레이어 킬 수
     float           m_fSpeed;           // 플레이어 속도
     float           m_fDieTime;         // 플레이어 사망 시간
     float           m_fResurrectTime;   // 플레이어 부활 시간
@@ -22,8 +25,15 @@ private:
 public:
     CHARACTER_TYPE GetType() { return m_eType; }
     int GetLife() { return m_iLife; }
+    int GetBunnyCount() { return m_iBunnyCount; }
+    int GetCookieCount() { return m_iCookieCount; }
+    int GetKillCount() { return m_iKillCount; }
 
     void SetType(CHARACTER_TYPE _eType) { m_eType = _eType; }
+
+    void PlusBunnyCount() { ++m_iBunnyCount; }
+    void PlusCookieCount() { ++m_iCookieCount; }
+    void PlusKillCount() { ++m_iKillCount; }
 
     void update() override;
     void render(HDC _dc) override;

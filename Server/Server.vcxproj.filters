@@ -48,6 +48,9 @@
     <Filter Include="소스 파일\02. Managers\Object">
       <UniqueIdentifier>{c6d1d55b-42eb-4982-8cc2-39b1041192c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\03. Object\Item">
+      <UniqueIdentifier>{1a46791c-db8a-48b6-bd79-1fb411efccce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="protocol.h">
@@ -99,6 +102,9 @@
     <ClInclude Include="CObjectMgr.h">
       <Filter>소스 파일\02. Managers\Object</Filter>
     </ClInclude>
+    <ClInclude Include="CItem.h">
+      <Filter>소스 파일\03. Object\Item</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Server.cpp" />
@@ -137,6 +143,9 @@
     </ClCompile>
     <ClCompile Include="CObjectMgr.cpp">
       <Filter>소스 파일\02. Managers\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="CItem.cpp">
+      <Filter>소스 파일\03. Object\Item</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

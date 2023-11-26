@@ -18,8 +18,9 @@
 #include "CAnimation.h"
 
 CPlayer::CPlayer() : m_bDir(DIR_RIGHT), m_eState(PLAYER_STATE::IDLE), 
-					 m_EffectAnimator(nullptr), m_fSpeed(300.f), m_iHP(3), m_iLife(1),
-					 m_fDieTime(0.f), m_fResurrectTime(0.f), m_bIsGameOver(false)
+					 m_EffectAnimator(nullptr), m_fSpeed(300.f), m_iHP(3), m_iLife(3),
+					 m_fDieTime(0.f), m_fResurrectTime(0.f), m_bIsGameOver(false), 
+					 m_iKillCount(0), m_iBunnyCount(0), m_iCookieCount(0)
 {
 }
 
@@ -187,6 +188,49 @@ void CPlayer::render(HDC _dc)
 			10,
 			RGB(255, 0, 255));
 	}
+
+	// 스코어 Text
+	// 폰트 파일 경로
+	const TCHAR* fontPath = TEXT("resource\\font\\PixelBook.ttf");
+
+	// 폰트 리소스 추가
+	if (AddFontResourceEx(fontPath, FR_PRIVATE, 0) > 0) {
+		// 투명 배경 설정
+		SetBkMode(_dc, TRANSPARENT);
+
+		// 글씨	색 설정
+		SetTextColor(_dc, RGB(0, 0, 0));
+
+		// LOGFONT 구조체 설정
+		LOGFONT lf;
+		memset(&lf, 0, sizeof(LOGFONT));
+		lstrcpy(lf.lfFaceName, L"Pixel Book");
+		lf.lfHeight = 30;  // 폰트 크기 설정
+		lf.lfWeight = 50;  // 폰트 두께 설정
+
+
+		// 폰트 생성
+		HFONT hFont = CreateFontIndirect(&lf);
+		SelectObject(_dc, hFont);
+
+		// 토끼 수 Text 적기
+		std::wstring str = L"X " + std::to_wstring(m_iBunnyCount);
+		TextOut(_dc, 580, 308, str.c_str(), str.length());
+
+		// 쿠키 수 Text 적기
+		str = L"X " + std::to_wstring(m_iCookieCount);
+		TextOut(_dc, 580, 338, str.c_str(), str.length());
+
+		// 킬 수 Text 적기
+		str = L"X " + std::to_wstring(m_iKillCount);
+		TextOut(_dc, 580, 368, str.c_str(), str.length());
+
+		// 폰트 제거
+		DeleteObject(hFont);
+	}
+
+	// 리소스 정리
+	RemoveFontResourceEx(fontPath, FR_PRIVATE, 0);
 
 	// 컴포넌트 그리기(충돌체, 애니메이션)
 	componentRender(_dc);
