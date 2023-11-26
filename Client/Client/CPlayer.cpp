@@ -953,13 +953,13 @@ void CPlayer::EnterCollision(CCollider* _pOther)
 	CObject* pOtherObj = _pOther->GetObj();
 
 	if (pOtherObj->GetName() == L"Monster Bullet") {
-		if(m_iHP > 0)
-			--m_iHP;
+		//if(m_iHP > 0)
+		//	--m_iHP;
 	}
 
 	if (pOtherObj->GetName() == L"Boss Bullet" || pOtherObj->GetName() == L"Boss Missile") {
-		if (m_iHP > 0)
-			--m_iHP;
+		//if (m_iHP > 0)
+		//	--m_iHP;
 	}
 }
 
