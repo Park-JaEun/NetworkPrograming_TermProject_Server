@@ -4,6 +4,7 @@
 #include "CObject.h"
 #include "CFloor.h"
 #include "CMonster.h"
+#include "CItem.h"
 
 #include "CCollider.h"
 
@@ -50,6 +51,38 @@ void CreateFloor(const Vec2& _vPos)
 	pFloorObj->CreateAnimator();
 
 	CreateObject(pFloorObj, GROUP_TYPE::FLOOR);
+}
+
+void CreateBunny(const Vec2& _vPos)
+{
+	CItem* pBunnyItemObj = new CItem;
+
+	pBunnyItemObj->SetName(L"Bunny");
+	pBunnyItemObj->SetPos(_vPos);
+	pBunnyItemObj->SetFirstPos(_vPos);
+	pBunnyItemObj->SetScale(Vec2(25.f, 25.f));
+
+	pBunnyItemObj->CreateCollider();
+	pBunnyItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));
+	pBunnyItemObj->GetCollider()->SetOffsetPos(Vec2(12.5f, 12.5f));
+
+	CreateObject(pBunnyItemObj, GROUP_TYPE::ITEM);
+}
+
+void CreateCookie(const Vec2& _vPos)
+{
+	CItem* pCookieItemObj = new CItem;
+
+	pCookieItemObj->SetName(L"Cookie");
+	pCookieItemObj->SetPos(_vPos);
+	pCookieItemObj->SetFirstPos(_vPos);
+	pCookieItemObj->SetScale(Vec2(25.f, 25.f));
+
+	pCookieItemObj->CreateCollider();
+	pCookieItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));
+	pCookieItemObj->GetCollider()->SetOffsetPos(Vec2(12.5f, 12.5f));
+
+	CreateObject(pCookieItemObj, GROUP_TYPE::ITEM);
 }
 
 void DeleteObject(CObject* _pObj)

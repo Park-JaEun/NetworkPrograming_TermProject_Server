@@ -9,7 +9,6 @@ enum class KEY_STATE
 };
 
 // 사용할 키 값들
-// 사용할 키 값들
 enum class KEY
 {
 	LEFT,
@@ -44,6 +43,7 @@ enum class GROUP_TYPE
 	MONSTER,
 	BOSS,
 	PLAYER,
+	ITEM,
 	BULLET_PLAYER,
 	BULLET_MONSTER,
 	BULLET_BOSS,

@@ -37,7 +37,7 @@ void CSceneMgr::ChangeScene(SCENE_TYPE _eNextScene)
 	}
 	
 
-	// 새로운 Scene의 Enter 함수 호출
+	// 새로운 Scene의 Enter 함수 호출 (초기화)
 	m_pCurScene->Enter();
 }
 

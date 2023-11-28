@@ -289,19 +289,61 @@ void CUI::render(HDC _dc)
 			10,
 			RGB(255, 0, 255));
 	}
-	else if (GetName() == L"Life") {
-		/*CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Life", L"texture\\ui\\life.bmp");
+	else if (GetName() == L"Score Text") {
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Score", L"texture\\ui\\itemUI.bmp");
 		TransparentBlt(_dc,
-			(int)GetPos().x,
-			(int)GetPos().y,
+			546,
+			280,
+			94,
 			26,
-			20,
 			pTexture->GetDC(),
 			0,
-			10,
+			0,
+			47,
 			13,
-			10,
-			RGB(255, 0, 255));*/
+			RGB(255, 0, 255));
+	}
+	else if (GetName() == L"Bunny Score") {
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Score", L"texture\\ui\\itemUI.bmp");
+		TransparentBlt(_dc,
+						546,
+						310,
+						26,
+						24,
+						pTexture->GetDC(),
+						0,
+						13,
+						13,
+						12,
+						RGB(255, 0, 255));
+	}
+	else if (GetName() == L"Cookie Score") {
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Score", L"texture\\ui\\itemUI.bmp");
+		TransparentBlt(_dc,
+						548,
+						339,
+						22,
+						24,
+						pTexture->GetDC(),
+						0,
+						25,
+						11,
+						12,
+						RGB(255, 0, 255));
+	}
+	else if (GetName() == L"Kill Score") {
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Score", L"texture\\ui\\itemUI.bmp");
+		TransparentBlt(_dc,
+						548,
+						368,
+						21,
+						27,
+						pTexture->GetDC(),
+						0,
+						37,
+						7,
+						9,
+						RGB(255, 0, 255));
 	}
 }
 
@@ -467,5 +509,8 @@ void CUI::CreateAnimator()
 	}
 	else if (GetName() == L"Life Text") {
 		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Life", L"texture\\ui\\life.bmp");
+	}
+	else if (GetName() == L"Score Text") {
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Score", L"texture\\ui\\itemUI.bmp");
 	}
 }

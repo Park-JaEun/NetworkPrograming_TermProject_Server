@@ -17,6 +17,7 @@ private:
 
 	std::wstring m_strNickName;	// 닉네임
 	int 		m_iID;			// ID값 (1p, 2p, 3p)
+	bool        m_bIsStart;     // 게임 시작 여부
 
 	std::array<HBRUSH, (UINT)BRUSH_TYPE::END>	m_arrBrush;		// 자주 사용할 브러쉬의 배열
 	std::array<HPEN, (UINT)PEN_TYPE::END>		m_arrPen;		// 자주 사용할 펜의 배열
@@ -25,6 +26,7 @@ public:
 	int init(HWND _hWnd, POINT _ptResolution);
 	void CreateBrushPen();
 	void CommunicationToServer();
+	void TestSendKeyInput();
 	void progress();
 
 public:

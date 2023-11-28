@@ -17,6 +17,7 @@
 #include "CAnimation.h"
 #include "CCamera.h"
 #include "CUI.h"
+#include "CItem.h"
 
 CScene_Main::CScene_Main() : m_bIsBoss(false)
 {
@@ -61,7 +62,6 @@ void CScene_Main::Enter()
 
 	CreateObject(pBossObj, GROUP_TYPE::BOSS);
 	/////////////////
-
 
 	///////////////////
 	// Player Object //
@@ -122,6 +122,27 @@ void CScene_Main::Enter()
 	pLifeTextUI->SetName(L"Life Text");
 	pLifeTextUI->CreateAnimator();
 	AddObject(pLifeTextUI, GROUP_TYPE::UI);
+
+	// Score Text UI
+	CUI* pScoreTextUI = new CUI;
+	pScoreTextUI->SetName(L"Score Text");
+	pScoreTextUI->CreateAnimator();
+	AddObject(pScoreTextUI, GROUP_TYPE::UI);
+
+	// Bunny Score UI
+	CUI* pBunnyScoreUI = new CUI;
+	pBunnyScoreUI->SetName(L"Bunny Score");
+	AddObject(pBunnyScoreUI, GROUP_TYPE::UI);
+
+	// Cookie Score UI
+	CUI* pCookieScoreUI = new CUI;
+	pCookieScoreUI->SetName(L"Cookie Score");
+	AddObject(pCookieScoreUI, GROUP_TYPE::UI);
+	
+	// Kill Score UI
+	CUI* pKillScoreUI = new CUI;
+	pKillScoreUI->SetName(L"Kill Score");
+	AddObject(pKillScoreUI, GROUP_TYPE::UI);
 
 	//////////////
 	
@@ -186,6 +207,34 @@ void CScene_Main::Enter()
 	CreateMonster(Vec2(4480.f, 50.f));
 	////////////////////
 
+	/////////////////
+	// Item Object //
+	/////////////////
+	CreateBunny(Vec2(710.f, -83.f - 25.f));
+	CreateBunny(Vec2(1350.f, -140.f - 25.f));
+	CreateBunny(Vec2(1355.f, 60.f - 25.f));
+	CreateBunny(Vec2(2165.f, -40.f - 25.f));
+	CreateBunny(Vec2(2855.f, 60.f - 25.f));
+	CreateBunny(Vec2(3375.f, -140.f - 25.f));
+	CreateBunny(Vec2(3925.f, -140.f - 25.f));
+	CreateBunny(Vec2(3660.f, 80.f - 25.f));
+	CreateBunny(Vec2(4195.f, 60.f - 25.f));
+	CreateBunny(Vec2(4480.f, 60.f - 25.f));
+	CreateBunny(Vec2(4340.f, -40.f - 25.f));
+	CreateBunny(Vec2(4480.f, -140.f - 25.f));
+	CreateBunny(Vec2(4195.f, -140.f - 25.f));
+
+	CreateCookie(Vec2(880.f, -80.f - 25.f));
+	CreateCookie(Vec2(760.f, 100.f - 25.f));
+	CreateCookie(Vec2(1525.f, -40.f - 25.f));
+	CreateCookie(Vec2(2095.f, -150.f - 25.f));
+	CreateCookie(Vec2(2215.f, 60.f - 25.f));
+	CreateCookie(Vec2(2975.f, -40.f - 25.f));
+	CreateCookie(Vec2(3093.f, -140.f - 25.f));
+	CreateCookie(Vec2(3660.f, -40.f - 25.f));
+	CreateCookie(Vec2(5065.f, 0.f - 25.f));
+	/////////////////
+
 
 	// 충돌 그룹 지정
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::MONSTER);
@@ -194,6 +243,7 @@ void CScene_Main::Enter()
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_BOSS, GROUP_TYPE::PLAYER);
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_MONSTER, GROUP_TYPE::PLAYER);
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::MISSILE_BOSS, GROUP_TYPE::PLAYER);
+	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::ITEM, GROUP_TYPE::PLAYER);
 
 	// Camera Look 지정
 	//CCamera::GetInst()->SetLookAt(Vec2(5060.f, 0.f));
@@ -216,6 +266,31 @@ void CScene_Main::Enter()
 		WSACleanup();
 		return;
 	}
+	std::cout << "초기화 완료 패킷 송신" << std::endl;
+
+	std::cout << "게임 시작 패킷 수신 대기중" << std::endl;
+	// 게임 시작 신호 수신
+	char buf[BUFSIZE]{};
+
+	retval = recv(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	retval = recv(sock, buf, size, 0);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
+	SC_GAME_START_PACKET* initPacket = reinterpret_cast<SC_GAME_START_PACKET*>(buf);
+
+	if(initPacket->type == static_cast<char>(SC_PACKET_TYPE::SC_GAME_START))
+		std::cout << "게임 시작 패킷 수신" << std::endl;
+	else {
+		std::cout << "게임 시작 패킷 수신 오류: Packet Type이" << initPacket->type << "입니다." << std::endl;
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
+
 }
 
 void CScene_Main::Exit()
