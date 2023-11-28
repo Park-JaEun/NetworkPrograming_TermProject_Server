@@ -3,5 +3,3 @@
 **/.vs/
 **/Debug/*
 **/Release/*
-Client/Output/bin/Client.exe
-Client/Output/bin/Client.pdb
