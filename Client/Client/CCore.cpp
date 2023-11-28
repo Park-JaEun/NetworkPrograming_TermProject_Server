@@ -13,8 +13,8 @@
 
 CCore::CCore() :
 	m_hWnd(nullptr), m_ptResolution{}, m_hDC(nullptr),
-	m_hBit(nullptr), m_memDC(nullptr), m_arrBrush{}, m_arrPen{}, m_sock{ INVALID_SOCKET },
-	m_bIsStart{ false }
+	m_hBit(nullptr), m_memDC(nullptr), m_arrBrush{}, m_arrPen{}, 
+	m_sock{ INVALID_SOCKET }, m_bIsStart{ false }
 {
 	// 키 정보 초기화
 	for (int i = 0; i < (int)KEY::LAST; ++i) {

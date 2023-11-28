@@ -2,10 +2,11 @@
 #include "define.h"
 #include "CTimer.h"
 
-int clientId = 0;  // 클라이언트 id 초기값 0
+std::mutex g_mutex;
+int clientId = 0;		// 클라이언트 id 초기값 0
 
-std::vector<PlayerInfo> ClientInfo;
-std::array<CPlayer, 3> PlayerArray;
+std::vector<PlayerInfo> ClientInfo;					// 클라이언트 정보 벡터
+std::array<CPlayer, MAX_PLAYER> PlayerArray;		// 플레이어 배열
 
 // 함수를 사용하여 클라이언트 처리
 DWORD WINAPI ProcessClient(LPVOID arg)
@@ -40,23 +41,26 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 	// PlayerInfo 인스턴스를 생성하여 ClientInfo 벡터에 추가
 	PlayerInfo player;
-	player.nickname = nick_name;						// 클라이언트 닉네임 저장
-	player.portnumber = ntohs(clientaddr.sin_port);		// 네트워크 바이트 순서에서 호스트 바이트 순서로 변환
-	player.id = clientId;								// 클라이언트 닉네임 저장
-	player.isReady = false;								// 클라이언트 준비 상태 false로 초기화
-	player.isInit = false;								// 클라이언트 초기화 상태 false로 초기화
+	{
+		std::lock_guard<std::mutex> lock{ g_mutex };		// 뮤텍스 잠금
+		player.nickname = nick_name;						// 클라이언트 닉네임 저장
+		player.portnumber = ntohs(clientaddr.sin_port);		// 네트워크 바이트 순서에서 호스트 바이트 순서로 변환
+		player.id = clientId++;								// 클라이언트 ID 할당
+		player.isReady = false;								// 클라이언트 준비 상태 false로 초기화
+		player.isInit = false;								// 클라이언트 초기화 상태 false로 초기화
 
-	// 클라이언트의 정보를 벡터에 저장(닉네임, 포트번호, 아이디)
-	ClientInfo.emplace_back(player);
+		// 클라이언트의 정보를 벡터에 저장(닉네임, 포트번호, 아이디)
+		ClientInfo.emplace_back(player);
 
-	// 접속한 클라이언트 정보와 닉네임 출력
-	std::cout << "\nPlayer " << clientId << " 접속: IP 주소 = " << addr << ", 포트 번호 = " << ntohs(clientaddr.sin_port) << ", 닉네임 = " << nick_name << std::endl;
+		// 접속한 클라이언트 정보와 닉네임 출력
+		std::cout << "\nPlayer " << player.id << " 접속: IP 주소 = " << addr << ", 포트 번호 = " << ntohs(clientaddr.sin_port) << ", 닉네임 = " << nick_name << std::endl;
+	}
 
 	// 클라이언트 정보 송신
 	SC_MAKE_ID_PACKET idPacket;
 	size = sizeof(SC_MAKE_ID_PACKET);
 	idPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_MAKE_ID);
-	idPacket.id = clientId;
+	idPacket.id = player.id;
 
 	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 	retval = send(client_sock, reinterpret_cast<char*>(&idPacket), size, 0);
@@ -65,7 +69,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		return 0;
 	}
 
-	std::cout << "[Player" << clientId << "] ID 할당 패킷 전송" << std::endl;
+	std::cout << "[Player" << idPacket.id << "] ID 할당 패킷 전송" << std::endl;
 
 	// 클라이언트 캐릭터 선택 정보 수신
 	retval = recv(client_sock, reinterpret_cast<char*>(&size), sizeof(size), MSG_WAITALL);
@@ -78,8 +82,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		return 0;
 
 	SELECT_CHARACTER_PACKET* selectPacket = reinterpret_cast<SELECT_CHARACTER_PACKET*>(buf);
-	std::cout << "[Player" << clientId << "] ";
-	ClientInfo[clientId - 1].isReady = true;	// 클라이언트 준비 상태 true로 변경
+	std::cout << "[Player" << player.id << "] ";
+	{
+		std::lock_guard<std::mutex> lock{ g_mutex };				// 뮤텍스 잠금
+		PlayerArray[player.id].SetType(selectPacket->character);	// 플레이어 캐릭터 타입 설정
+		ClientInfo[player.id].isReady = true;						// 클라이언트 준비 상태 true로 변경
+	}
 
 	switch (selectPacket->character) {
 	case CHARACTER_TYPE::MINJI:
@@ -106,8 +114,9 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		break;
 	}
 
-	// 모든 클라이언트가 준비 상태인지 확인 (동기화)
+	// 클라이언트가 3명 들어와있고, 모두 준비 상태일 경우 플레이어들에게 초기화 신호 패킷 전송
 	while (1) {
+		std::lock_guard<std::mutex> lock{ g_mutex };	// 뮤텍스 잠금
 		isAllReady = true;
 
 		for (const PlayerInfo& info : ClientInfo) {
@@ -117,25 +126,42 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			}
 		}
 
-		if (isAllReady)
+		if (isAllReady && ClientInfo.size() == MAX_PLAYER)	// 모든 클라이언트가 준비 상태이면 루프 탈출
 			break;
 	}
 
-	// 모든 클라이언트가 준비 상태일 경우 플레이어들에게 초기화 신호 패킷 전송
-	if (isAllReady) {
-		SC_INIT_PACKET initPacket;
-		size = sizeof(SC_INIT_PACKET);
-		initPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_INIT);
+	SC_INIT_PACKET initPacket;
+	size = sizeof(SC_INIT_PACKET);
+	initPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_INIT);
 
-		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		retval = send(client_sock, reinterpret_cast<char*>(&initPacket), size, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			return 0;
+	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	retval = send(client_sock, reinterpret_cast<char*>(&initPacket), size, 0);
+	if (retval == SOCKET_ERROR) {
+		err_display("send()");
+		return 0;
+	}
+
+	std::cout << "모든 플레이어 준비 완료" << std::endl;
+	std::cout << "플레이어들에게 초기화 신호 패킷 전송" << std::endl;
+
+	// 본인을 제외한 다른 클라이언트들의 플레이어 정보 송신
+	for (const PlayerInfo& info : ClientInfo) {
+		if (info.id != player.id) {
+			SC_PLAYER_PACKET pp;
+			pp.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
+			pp.playerPos = PlayerArray[info.id].GetPos();
+			pp.playerState = PlayerArray[info.id].GetState();
+			pp.playerDir = PlayerArray[info.id].GetDir();
+			pp.character = PlayerArray[info.id].GetType();
+			size = sizeof(pp);
+
+			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+			retval = send(client_sock, reinterpret_cast<char*>(&pp), size, 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				return 0;
+			}
 		}
-
-		std::cout << "모든 플레이어 준비 완료" << std::endl;
-		std::cout << "플레이어들에게 초기화 신호 패킷 전송" << std::endl;
 	}
 
 	// 초기화 완료 신호 패킷 수신
@@ -149,11 +175,15 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		return 0;
 
 	CS_INIT_FINISH_PACKET* initFinishPacket = reinterpret_cast<CS_INIT_FINISH_PACKET*>(buf);
-	std::cout << "[Player" << clientId << "] 스테이지 초기화 완료" << std::endl;
-	ClientInfo[clientId - 1].isInit = true;	// 클라이언트 초기화 상태 true로 변경
+	{
+		std::lock_guard<std::mutex> lock{ g_mutex };	// 뮤텍스 잠금
+		ClientInfo[player.id].isInit = true;			// 클라이언트 초기화 상태 true로 변경
+		std::cout << "[Player" << player.id << "] 스테이지 초기화 완료" << std::endl;
+	}
 
 	// 모든 클라이언트가 초기화를 완료하면 플레이어들에게 게임 시작 신호 패킷 전송
 	while (1) {
+		std::lock_guard<std::mutex> lock{ g_mutex };
 		isAllInit = true;
 
 		for (const PlayerInfo& info : ClientInfo) {
@@ -163,28 +193,25 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			}
 		}
 
-		if (isAllInit)
+		if (isAllInit && ClientInfo.size() == MAX_PLAYER)
 			break;
 	}
 
-	if (isAllInit) {
-		SC_GAME_START_PACKET startPacket;
-		size = sizeof(SC_GAME_START_PACKET);
-		startPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_START);
+	SC_GAME_START_PACKET startPacket;
+	size = sizeof(SC_GAME_START_PACKET);
+	startPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_START);
 
-		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		retval = send(client_sock, reinterpret_cast<char*>(&startPacket), size, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			return 0;
-		}
-
-		std::cout << "모든 플레이어 초기화 완료" << std::endl;
-		std::cout << "플레이어들에게 게임 시작 신호 패킷 전송" << std::endl;
+	retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	retval = send(client_sock, reinterpret_cast<char*>(&startPacket), size, 0);
+	if (retval == SOCKET_ERROR) {
+		err_display("send()");
+		return 0;
 	}
 
-	CTimer::GetInst()->init();
+	std::cout << "모든 플레이어 초기화 완료" << std::endl;
+	std::cout << "플레이어들에게 게임 시작 신호 패킷 전송" << std::endl;
 
+	CTimer::GetInst()->init();
 	while (1) {
 		Sleep(100 / 60);	// 600fps
 		CTimer::GetInst()->update();
@@ -209,6 +236,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		switch (buf[0]) {
 			case int(CS_PACKET_TYPE::CS_KEYBOARD_INPUT):
 			{
+				std::lock_guard<std::mutex> lock{ g_mutex };
 				CS_KEYBOARD_INPUT_PACKET* p = reinterpret_cast<CS_KEYBOARD_INPUT_PACKET*>(buf);
 
 				for (int i = 0; i < p->keyCount; ++i) {
@@ -218,9 +246,9 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 						// 캐릭터 충돌 처리, 캐릭터랑 총알, 캐릭터랑 아이템
 						// 몬스터랑 충돌처리
 						// 각 플레이어의 위치 업데이트는 각 클라이언트의 스레드에서 배열에 동시접근해서 각자 바꿈
-						Vec2 vCurPos = PlayerArray[clientId - 1].GetPos();
+						Vec2 vCurPos = PlayerArray[player.id].GetPos();
 						Vec2 vDummyPos{};
-						float speed = PlayerArray[clientId - 1].GetSpeed();
+						float speed = PlayerArray[player.id].GetSpeed();
 
 						// 상
 						if (p->inputs[i].key == KEY::UP && p->inputs[i].key_state == KEY_STATE::HOLD) {
@@ -231,10 +259,10 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 							else if (IsInBossRoom(vDummyPos))
 								vCurPos.y -= speed * DT;
 
-							PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
+							PlayerArray[player.id].SetState(PLAYER_STATE::RUN);
 						}
 						if (p->inputs[i].key == KEY::UP && p->inputs[i].key_state == KEY_STATE::AWAY) {
-							PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
+							PlayerArray[player.id].SetState(PLAYER_STATE::IDLE);
 						}
 
 						// 하
@@ -246,10 +274,10 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 							else if (IsInBossRoom(vDummyPos))
 								vCurPos.y += speed * DT;
 
-							PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
+							PlayerArray[player.id].SetState(PLAYER_STATE::RUN);
 						}
 						if (p->inputs[i].key == KEY::DOWN && p->inputs[i].key_state == KEY_STATE::AWAY) {
-							PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
+							PlayerArray[player.id].SetState(PLAYER_STATE::IDLE);
 						}
 
 						// 좌
@@ -261,13 +289,13 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 							else if (IsInBossRoom(vDummyPos))
 								vCurPos.x -= speed * DT;
 
-							PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
+							PlayerArray[player.id].SetState(PLAYER_STATE::RUN);
 
-							if (PlayerArray[clientId - 1].GetDir() != DIR_LEFT)
-								PlayerArray[clientId - 1].SetDir(DIR_LEFT);
+							if (PlayerArray[player.id].GetDir() != DIR_LEFT)
+								PlayerArray[player.id].SetDir(DIR_LEFT);
 						}
 						if (p->inputs[i].key == KEY::LEFT && p->inputs[i].key_state == KEY_STATE::AWAY) {
-							PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
+							PlayerArray[player.id].SetState(PLAYER_STATE::IDLE);
 						}
 
 						// 우
@@ -279,13 +307,13 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 							else if (IsInBossRoom(vDummyPos))
 								vCurPos.x += speed * DT;
 
-							PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
+							PlayerArray[player.id].SetState(PLAYER_STATE::RUN);
 
-							if (PlayerArray[clientId - 1].GetDir() != DIR_RIGHT)
-								PlayerArray[clientId - 1].SetDir(DIR_RIGHT);
+							if (PlayerArray[player.id].GetDir() != DIR_RIGHT)
+								PlayerArray[player.id].SetDir(DIR_RIGHT);
 						}
 						if (p->inputs[i].key == KEY::RIGHT && p->inputs[i].key_state == KEY_STATE::AWAY) {
-							PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
+							PlayerArray[player.id].SetState(PLAYER_STATE::IDLE);
 						}
 
 						if (p->inputs[i].key == KEY::SPACE && p->inputs[i].key_state == KEY_STATE::TAP) {
@@ -297,7 +325,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 							//m_EffectAnimator->FindAnimation(L"Shooting")->SetFrame(0);
 						}
 
-						PlayerArray[clientId - 1].SetPos(vCurPos);
+						PlayerArray[player.id].SetPos(vCurPos);
 					}
 				}
 				
@@ -305,9 +333,9 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				// 플레이어 인포 3개짜리 배열을 보냄
 				SC_PLAYER_PACKET pp;
 				pp.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
-				pp.playerPos = PlayerArray[clientId - 1].GetPos();
-				pp.playerState = PlayerArray[clientId - 1].GetState();
-				pp.playerDir = PlayerArray[clientId - 1].GetDir();
+				pp.playerPos = PlayerArray[player.id].GetPos();
+				pp.playerState = PlayerArray[player.id].GetState();
+				pp.playerDir = PlayerArray[player.id].GetDir();
 				size = sizeof(pp);
 
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
@@ -526,6 +554,29 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 	closesocket(client_sock);
 
+	--clientId;
+
+	// 클라이언트 벡터에서 해당 클라이언트 정보 삭제
+	{
+		std::lock_guard<std::mutex> lock{ g_mutex };
+		ClientInfo.erase(std::remove_if(ClientInfo.begin(), ClientInfo.end(), [&](const PlayerInfo& info) {
+			return info.id == player.id;
+		}), ClientInfo.end());
+
+		// 클라이언트 벡터에서 해당 클라이언트 정보 삭제 후 남은 클라이언트 정보 갱신
+		for (int i = 0; i < ClientInfo.size(); ++i)
+			ClientInfo[i].id = i;
+
+		// 남은 클라이언트 정보	출력
+		std::cout<< "남은 클라이언트 정보" << std::endl;
+		for (const PlayerInfo& info : ClientInfo)
+			std::cout << "id: " << info.id << ", nickname: " << info.nickname << ", portnumber: " << info.portnumber << std::endl;
+
+		// 클라이언트 벡터에 남은 클라이언트가 없으면 클라이언트 벡터 초기화
+		if (ClientInfo.empty())
+			ClientInfo.clear();
+	}
+
 	return 0;
 }
 
@@ -574,9 +625,8 @@ int main(int argc, char* argv[])
 			break;
 		}
 
-		++clientId;	// 클라이언트 id 설정
-
 		// 클라이언트를 별도의 스레드에서 처리
+		std::lock_guard<std::mutex> lock{ g_mutex };
 		HANDLE hThread = CreateThread(NULL, 0, ProcessClient, (LPVOID)client_sock, 0, NULL);
 
 		if (hThread == NULL)

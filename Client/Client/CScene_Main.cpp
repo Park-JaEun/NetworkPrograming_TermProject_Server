@@ -249,11 +249,118 @@ void CScene_Main::Enter()
 	//CCamera::GetInst()->SetLookAt(Vec2(5060.f, 0.f));
 	CCamera::GetInst()->SetTarget(pPlayerObj);	// Camera가 Player를 따라다니도록 지정
 
-	// 서버에게 초기화 완료 패킷 송신
-	CS_INIT_FINISH_PACKET initFinishPacket;
+	// 통신에 필요한 변수들
 	SOCKET sock = CCore::GetInst()->GetSocket();
 	int retval{};
-	int size = sizeof(CS_INIT_FINISH_PACKET);
+	int size{};
+
+	// 플레이어 2명의 정보 수신
+	char buf[BUFSIZE]{};
+
+	////////////////////
+	// Player2 Object //
+	////////////////////
+	retval = recv(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	retval = recv(sock, buf, size, 0);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
+
+	SC_PLAYER_PACKET* playerPacket = reinterpret_cast<SC_PLAYER_PACKET*>(buf);
+
+	CObject* pPlayer2Obj = new CPlayer;
+
+	pPlayer2Obj->SetName(L"Player2");
+	pPlayer2Obj->SetPos(playerPacket->playerPos);
+
+	switch (playerPacket->character)
+	{ 
+	case CHARACTER_TYPE::MINJI:
+		((CPlayer*)pPlayer2Obj)->SetType(CHARACTER_TYPE::MINJI);
+		break;
+	case CHARACTER_TYPE::HANNIE:
+		((CPlayer*)pPlayer2Obj)->SetType(CHARACTER_TYPE::HANNIE);
+		break;
+	case CHARACTER_TYPE::DANIELLE:
+		((CPlayer*)pPlayer2Obj)->SetType(CHARACTER_TYPE::DANIELLE);
+		break;
+	case CHARACTER_TYPE::HAERIN:
+		((CPlayer*)pPlayer2Obj)->SetType(CHARACTER_TYPE::HAERIN);
+		break;
+	case CHARACTER_TYPE::HYEIN:
+		((CPlayer*)pPlayer2Obj)->SetType(CHARACTER_TYPE::HYEIN);
+		break;
+	default:
+		break;
+	}
+
+	// 충돌체, 애니메이터 생성
+	pPlayer2Obj->CreateCollider();
+	pPlayer2Obj->CreateAnimator();
+
+	pPlayer2Obj->GetCollider()->SetScale(Vec2(31.f, 30.f));
+
+	CreateObject(pPlayer2Obj, GROUP_TYPE::PLAYER);
+	///////////////////
+
+	////////////////////
+	// Player3 Object //
+	////////////////////
+
+	retval = recv(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+	retval = recv(sock, buf, size, 0);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
+
+	playerPacket = reinterpret_cast<SC_PLAYER_PACKET*>(buf);
+
+	CObject* pPlayer3Obj = new CPlayer;
+
+	pPlayer3Obj->SetName(L"Player3");
+	pPlayer3Obj->SetPos(Vec2(0.f, 0.f));
+
+	switch (playerPacket->character)
+	{
+	case CHARACTER_TYPE::MINJI:
+		((CPlayer*)pPlayer3Obj)->SetType(CHARACTER_TYPE::MINJI);
+		break;
+	case CHARACTER_TYPE::HANNIE:
+		((CPlayer*)pPlayer3Obj)->SetType(CHARACTER_TYPE::HANNIE);
+		break;
+	case CHARACTER_TYPE::DANIELLE:
+		((CPlayer*)pPlayer3Obj)->SetType(CHARACTER_TYPE::DANIELLE);
+		break;
+	case CHARACTER_TYPE::HAERIN:
+		((CPlayer*)pPlayer3Obj)->SetType(CHARACTER_TYPE::HAERIN);
+		break;
+	case CHARACTER_TYPE::HYEIN:
+		((CPlayer*)pPlayer3Obj)->SetType(CHARACTER_TYPE::HYEIN);
+		break;
+	default:
+		break;
+	}
+
+	// 충돌체, 애니메이터 생성
+	pPlayer3Obj->CreateCollider();
+	pPlayer3Obj->CreateAnimator();
+
+	pPlayer3Obj->GetCollider()->SetScale(Vec2(31.f, 30.f));
+
+	CreateObject(pPlayer3Obj, GROUP_TYPE::PLAYER);
+	///////////////////
+
+
+	// 서버에게 초기화 완료 패킷 송신
+	CS_INIT_FINISH_PACKET initFinishPacket;
+	size = sizeof(CS_INIT_FINISH_PACKET);
+	
 
 	initFinishPacket.type = static_cast<char>(CS_PACKET_TYPE::CS_INIT_FINISH);
 	initFinishPacket.id = CCore::GetInst()->GetID();
@@ -270,8 +377,7 @@ void CScene_Main::Enter()
 
 	std::cout << "게임 시작 패킷 수신 대기중" << std::endl;
 	// 게임 시작 신호 수신
-	char buf[BUFSIZE]{};
-
+	memset(buf, 0, BUFSIZE);
 	retval = recv(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 	retval = recv(sock, buf, size, 0);
 	if (retval == SOCKET_ERROR) {

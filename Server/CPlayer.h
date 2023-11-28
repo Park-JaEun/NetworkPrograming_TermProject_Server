@@ -7,18 +7,18 @@ class CPlayer :
     public CObject
 {
 private:
-    int             m_iHP;              // �÷��̾� ü��
-    int             m_iLife;            // �÷��̾� ����
-    int             m_iBunnyCount;      // �÷��̾� �䳢 ��
-    int             m_iCookieCount;     // �÷��̾� �䳢 ��
-    int             m_iKillCount;       // �÷��̾� ų ��
-    float           m_fSpeed;           // �÷��̾� �ӵ�
-    float           m_fDieTime;         // �÷��̾� ��� �ð�
-    float           m_fResurrectTime;   // �÷��̾� ��Ȱ �ð�
-    bool            m_bDir;             // �÷��̾� ����
-    bool			m_bIsGameOver;      // �÷��̾� ���ӿ��� ����
-    PLAYER_STATE    m_eState;           // �÷��̾� ����
-    CHARACTER_TYPE  m_eType;            // �÷��̾� Ÿ��
+    int             m_iHP;              // 체력
+    int             m_iLife;            // 목숨
+    int             m_iBunnyCount;      // 토끼 획득 개수
+    int             m_iCookieCount;     // 쿠키 획득 개수
+    int             m_iKillCount;       // 킬 개수 
+    float           m_fSpeed;           // 스피드 
+    float           m_fDieTime;         // 죽은 시간
+    float           m_fResurrectTime;   // 부활 시간
+    bool            m_bDir;             // 방향
+    bool			m_bIsGameOver;      // 게임오버 유무
+    PLAYER_STATE    m_eState;           // 상태
+    CHARACTER_TYPE  m_eType;            // 캐릭터 
 
     CLONE(CPlayer)
 public:

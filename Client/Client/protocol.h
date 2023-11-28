@@ -63,6 +63,7 @@ struct SC_PLAYER_PACKET {
 	Vec2 playerPos;					// 플레이어 위치
 	PLAYER_STATE playerState;		// 플레이어 상태
 	bool playerDir;					// 플레이어 방향
+	CHARACTER_TYPE character;		// 캐릭터 (2023. 11. 29 수정)
 };
 
 // 몬스터 정보 수신 관련 패킷
@@ -124,12 +125,6 @@ struct CS_INIT_FINISH_PACKET {
 };
 
 // 키 입력 수신 관련 패킷
-//struct CS_KEYBOARD_INPUT_PACKET {
-//	char type;				// 패킷 타입
-//	KEY key;				// 눌린 키
-//	KEY_STATE key_state;	// 눌린 키의 상태
-//};
-
 struct CS_KEYBOARD_INPUT_PACKET {
 	char type;
 	int keyCount; // 키 입력의 개수
