@@ -64,115 +64,12 @@ void CKeyMgr::update()
 				if (m_vecKey[i].bPrevPush) {
 					// 이전에 눌려있었다면 KEY_STATE::HOLD
 					m_vecKey[i].eState = KEY_STATE::HOLD;
-
-					switch (g_arrVK[i])
-					{
-					case VK_LEFT:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_RIGHT:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_UP:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_DOWN:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_SPACE:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_LBUTTON:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_NUMPAD0:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_NUMPAD1:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_NUMPAD2:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_NUMPAD3:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_NUMPAD4:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_NUMPAD5:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_NUMPAD6:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_NUMPAD7:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_NUMPAD8:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					case VK_NUMPAD9:
-						CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
-						break;
-					}
+					CCore::GetInst()->SetKey(i, KEY_STATE::HOLD);
 				}
 				else {
 					// 눌려있지 않았다면 KEY_STATE::TAP
 					m_vecKey[i].eState = KEY_STATE::TAP;
-
-					switch (g_arrVK[i])
-					{
-					case VK_LEFT:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_RIGHT:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_UP:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_DOWN:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_SPACE:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_LBUTTON:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_NUMPAD0:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_NUMPAD1:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_NUMPAD2:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_NUMPAD3:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_NUMPAD4:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_NUMPAD5:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_NUMPAD6:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_NUMPAD7:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_NUMPAD8:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					case VK_NUMPAD9:
-						CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
-						break;
-					}
-
+					CCore::GetInst()->SetKey(i, KEY_STATE::TAP);
 				}
 
 				// 상태 갱신

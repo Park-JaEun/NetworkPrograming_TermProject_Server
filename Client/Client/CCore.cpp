@@ -18,8 +18,8 @@ CCore::CCore() :
 {
 	// 키 정보 초기화
 	for (int i = 0; i < (int)KEY::LAST; ++i) {
-		m_inputkey[i].key = KEY(i);
-		m_inputkey[i].key_state = KEY_STATE::NONE;
+		m_inputkey[i].inputs->key = KEY(i);
+		m_inputkey[i].inputs->key_state = KEY_STATE::NONE;
 	}
 }
 
@@ -243,56 +243,40 @@ void CCore::TestSendKeyInput()
 	bool bAllKeyNone = true;
 	SOCKET sock = m_sock;
 
+	CS_KEYBOARD_INPUT_PACKET cs_p;
+	cs_p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
+	cs_p.keyCount = 0;
+	size = sizeof(cs_p);
+
 	for (int i = 0; i < (int)KEY::LAST; ++i) {
-		if (m_inputkey[i].key_state != KEY_STATE::NONE) {              // key의 상태가 눌림이면
+		if (m_inputkey[i].inputs->key_state != KEY_STATE::NONE) {
 			if(bAllKeyNone)
-				bAllKeyNone = false;               // 모든키가 안눌려있지 않다.
+				bAllKeyNone = false;
 
-			std::cout << (int)m_inputkey[i].key << std::endl; // key의 정보를 출력
-
-			// send
-			CS_KEYBOARD_INPUT_PACKET p;
-			p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
-			p.key = m_inputkey[i].key;                               // key 정보 저장
-			p.key_state = m_inputkey[i].key_state;                   // key의 상태 저장(눌림)
-			size = sizeof(p);
-
-			retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
+			if (cs_p.keyCount < MAX_KEYS) {
+				cs_p.inputs[cs_p.keyCount].key = m_inputkey[i].inputs->key;
+				cs_p.inputs[cs_p.keyCount].key_state = m_inputkey[i].inputs->key_state;
+				cs_p.keyCount++;
 			}
-			retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-			std::cout << "send() - 키보드 입력 정보 패킷을 전송하였습니다" << '\n';
 		}
 	}
 
-	if (bAllKeyNone) {	// 모든 키가 안눌렸다.
-		CS_KEYBOARD_INPUT_PACKET p;
-		p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
-		p.key = KEY::LAST;                         // key 정보 저장
-		p.key_state = KEY_STATE::NONE;                   // key의 상태 저장(눌림)
-		size = sizeof(p);
+	if (cs_p.keyCount > 0 || bAllKeyNone) {
+		if (bAllKeyNone) {
+			cs_p.inputs[0].key = KEY::LAST;
+			cs_p.inputs[0].key_state = KEY_STATE::NONE;
+			cs_p.keyCount = 1;
+			bAllKeyNone = true;
+		}
 
+		size = sizeof(cs_p);
 		retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+		retval = send(sock, reinterpret_cast<char*>(&cs_p), size, 0);
 		if (retval == SOCKET_ERROR) {
 			err_display("send()");
 			return;
 		}
-		retval = send(sock, reinterpret_cast<char*>(&p), size, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			return;
-		}
-
-		bAllKeyNone = true;
-		std::cout << "send() - 아무 키도 안눌림" << '\n';
 	}
-
 
 	////////////
 	// recv() //
@@ -312,16 +296,14 @@ void CCore::TestSendKeyInput()
 		return;
 	}
 
-	SC_PLAYER_PACKET* p = reinterpret_cast<SC_PLAYER_PACKET*>(buf);
+	SC_PLAYER_PACKET* sc_p = reinterpret_cast<SC_PLAYER_PACKET*>(buf);
 
 	// 
 	CScene* pCurScene = CSceneMgr::GetInst()->GetCurScene();
 	CPlayer* pPlayer = (CPlayer*)pCurScene->FindObject(L"Player");
-	pPlayer->SetPos(p->playerPos);
-	pPlayer->SetState(p->playerState);
-	pPlayer->SetDir(p->playerDir);
-
-	std::cout << "SC_PLAYER_PACKET 받음" << std::endl;
+	pPlayer->SetPos(sc_p->playerPos);
+	pPlayer->SetState(sc_p->playerState);
+	pPlayer->SetDir(sc_p->playerDir);
 }
 
 void CCore::progress()

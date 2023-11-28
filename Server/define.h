@@ -21,6 +21,7 @@
 #define DIR_DOWN  2
 
 #define MAX_PLAYER 3
+#define MAX_KEYS 5
 #define BUFSIZE 512
 
 #define MAX_FRAME 60

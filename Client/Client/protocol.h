@@ -124,11 +124,21 @@ struct CS_INIT_FINISH_PACKET {
 };
 
 // 키 입력 수신 관련 패킷
+//struct CS_KEYBOARD_INPUT_PACKET {
+//	char type;				// 패킷 타입
+//	KEY key;				// 눌린 키
+//	KEY_STATE key_state;	// 눌린 키의 상태
+//};
+
 struct CS_KEYBOARD_INPUT_PACKET {
-	char type;				// 패킷 타입
-	KEY key;				// 눌린 키
-	KEY_STATE key_state;	// 눌린 키의 상태
+	char type;
+	int keyCount; // 키 입력의 개수
+	struct {
+		KEY key;
+		KEY_STATE key_state;
+	} inputs[MAX_KEYS]; // MAX_KEYS는 동시에 처리할 수 있는 최대 키 입력 수
 };
+
 
 // 로비 버튼 선택 수신 관련 패킷
 struct CS_SELECT_LOBBY_PACKET {

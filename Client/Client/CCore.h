@@ -49,6 +49,6 @@ public:
 			return m_inputkey[i];
 	}
 	void SetKey(int i, KEY_STATE key_state) { 
-		m_inputkey[i].key_state = key_state;
+		m_inputkey[i].inputs->key_state = key_state;	// 키 상태 설정
 	}
 };

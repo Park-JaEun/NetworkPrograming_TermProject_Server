@@ -186,7 +186,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	CTimer::GetInst()->init();
 
 	while (1) {
-
+		Sleep(100 / 60);	// 600fps
 		CTimer::GetInst()->update();
 
 		////////////
@@ -211,127 +211,96 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			{
 				CS_KEYBOARD_INPUT_PACKET* p = reinterpret_cast<CS_KEYBOARD_INPUT_PACKET*>(buf);
 
-				// 아무 키도 눌리지 않은 상태
-				if (p->key == KEY::LAST && p->key_state == KEY_STATE::NONE)
-					std::cout << "[" << nick_name << "] 아무 키도 안누름" << '\n';
-				else
-					std::cout << "[" << nick_name << "] 클라이언트 → 서버: 키보드 입력 정보 패킷 받음" << '\n';
+				for (int i = 0; i < p->keyCount; ++i) {
+					// NONE이 아니면 키 입력이 들어온 것
+					if (p->inputs[i].key != KEY::LAST && p->inputs[i].key_state != KEY_STATE::NONE) {
+						// 플레이어 위치 자기것만 수정
+						// 캐릭터 충돌 처리, 캐릭터랑 총알, 캐릭터랑 아이템
+						// 몬스터랑 충돌처리
+						// 각 플레이어의 위치 업데이트는 각 클라이언트의 스레드에서 배열에 동시접근해서 각자 바꿈
+						Vec2 vCurPos = PlayerArray[clientId - 1].GetPos();
+						Vec2 vDummyPos{};
+						float speed = PlayerArray[clientId - 1].GetSpeed();
+
+						// 상
+						if (p->inputs[i].key == KEY::UP && p->inputs[i].key_state == KEY_STATE::HOLD) {
+							vDummyPos = Vec2(vCurPos.x, vCurPos.y - speed * DT);
+
+							if (IsInWorld(vDummyPos))
+								vCurPos.y -= speed * DT;
+							else if (IsInBossRoom(vDummyPos))
+								vCurPos.y -= speed * DT;
+
+							PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
+						}
+						if (p->inputs[i].key == KEY::UP && p->inputs[i].key_state == KEY_STATE::AWAY) {
+							PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
+						}
+
+						// 하
+						if (p->inputs[i].key == KEY::DOWN && p->inputs[i].key_state == KEY_STATE::HOLD) {
+							vDummyPos = Vec2(vCurPos.x, vCurPos.y + speed * DT);
+
+							if (IsInWorld(vDummyPos))
+								vCurPos.y += speed * DT;
+							else if (IsInBossRoom(vDummyPos))
+								vCurPos.y += speed * DT;
+
+							PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
+						}
+						if (p->inputs[i].key == KEY::DOWN && p->inputs[i].key_state == KEY_STATE::AWAY) {
+							PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
+						}
+
+						// 좌
+						if (p->inputs[i].key == KEY::LEFT && p->inputs[i].key_state == KEY_STATE::HOLD) {
+							vDummyPos = Vec2(vCurPos.x - speed * DT, vCurPos.y);
+
+							if (IsInWorld(vDummyPos))
+								vCurPos.x -= speed * DT;
+							else if (IsInBossRoom(vDummyPos))
+								vCurPos.x -= speed * DT;
+
+							PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
+
+							if (PlayerArray[clientId - 1].GetDir() != DIR_LEFT)
+								PlayerArray[clientId - 1].SetDir(DIR_LEFT);
+						}
+						if (p->inputs[i].key == KEY::LEFT && p->inputs[i].key_state == KEY_STATE::AWAY) {
+							PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
+						}
+
+						// 우
+						if (p->inputs[i].key == KEY::RIGHT && p->inputs[i].key_state == KEY_STATE::HOLD) {
+							vDummyPos = Vec2(vCurPos.x + speed * DT, vCurPos.y);
+
+							if (IsInWorld(vDummyPos))
+								vCurPos.x += speed * DT;
+							else if (IsInBossRoom(vDummyPos))
+								vCurPos.x += speed * DT;
+
+							PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
+
+							if (PlayerArray[clientId - 1].GetDir() != DIR_RIGHT)
+								PlayerArray[clientId - 1].SetDir(DIR_RIGHT);
+						}
+						if (p->inputs[i].key == KEY::RIGHT && p->inputs[i].key_state == KEY_STATE::AWAY) {
+							PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
+						}
+
+						if (p->inputs[i].key == KEY::SPACE && p->inputs[i].key_state == KEY_STATE::TAP) {
+							//// 총알 발사
+							//CreateBullet();
+
+							//// 슈팅 이펙트 재생
+							//m_EffectAnimator->Play(L"Shooting", false);
+							//m_EffectAnimator->FindAnimation(L"Shooting")->SetFrame(0);
+						}
+
+						PlayerArray[clientId - 1].SetPos(vCurPos);
+					}
+				}
 				
-				// 수신한 키보드 정보와 상태 출력
-				std::cout << (int)p->key << std::endl;
-				std::cout << (int)p->key_state << std::endl;
-
-				// 플레이어 위치 자기것만 수정
-				// 캐릭터 충돌 처리, 캐릭터랑 총알, 캐릭터랑 아이템
-				// 몬스터랑 충돌처리
-				// 각 플레이어의 위치 업데이트는 각 클라이언트의 스레드에서 배열에 동시접근해서 각자 바꿈
-				Vec2 vCurPos = PlayerArray[clientId - 1].GetPos();
-				float speed = PlayerArray[clientId - 1].GetSpeed();
-
-				// 상
-				if (p->key == KEY::UP && p->key_state == KEY_STATE::HOLD) {
-					/*vDummyPos = Vec2(vPos.x, vPos.y - m_fSpeed * DT);*/
-
-					//if (IsInWorld(vDummyPos) && !bIsBoss)
-					//	vPos.y -= m_fSpeed * DT;
-					//else if (IsInBossRoom(vDummyPos) && bIsBoss)
-					//	vPos.y -= m_fSpeed * DT;
-
-					if (IsInWorld(vCurPos))
-						vCurPos.y -= speed * DT;
-					else if (IsInBossRoom(vCurPos) )
-						vCurPos.y -= speed * DT;
-
-					PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
-				}
-				if (p->key == KEY::UP && p->key_state == KEY_STATE::AWAY) {
-					PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
-				}
-
-				// 하
-				if (p->key == KEY::DOWN && p->key_state == KEY_STATE::HOLD) {
-					/*vDummyPos = Vec2(vPos.x, vPos.y + m_fSpeed * DT);
-
-					if (IsInWorld(vDummyPos) && !bIsBoss)
-						vPos.y += m_fSpeed * DT;
-					else if (IsInBossRoom(vDummyPos) && bIsBoss)
-						vPos.y += m_fSpeed * DT;
-
-					m_eState = PLAYER_STATE::RUN;*/
-					if (IsInWorld(vCurPos))
-						vCurPos.y += speed * DT;
-					else if (IsInBossRoom(vCurPos))
-						vCurPos.y += speed * DT;
-
-					PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
-				}
-				if (p->key == KEY::DOWN && p->key_state == KEY_STATE::AWAY) {
-					PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
-				}
-
-				// 좌
-				if (p->key == KEY::LEFT && p->key_state == KEY_STATE::HOLD) {
-					/*vDummyPos = Vec2(vPos.x - m_fSpeed * DT, vPos.y);
-
-					if (IsInWorld(vDummyPos) && !bIsBoss)
-						vPos.x -= m_fSpeed * DT;
-					else if (IsInBossRoom(vDummyPos) && bIsBoss)
-						vPos.x -= m_fSpeed * DT;
-
-					m_eState = PLAYER_STATE::RUN;
-					if (m_bDir != DIR_LEFT)
-						m_bDir = DIR_LEFT;*/
-
-					if (IsInWorld(vCurPos))
-						vCurPos.x -= speed * DT;
-					else if (IsInBossRoom(vCurPos))
-						vCurPos.x -= speed * DT;
-
-					PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
-					if (PlayerArray[clientId - 1].GetDir() != DIR_LEFT)
-						PlayerArray[clientId - 1].SetDir(DIR_LEFT);
-				}
-				if (p->key == KEY::LEFT && p->key_state == KEY_STATE::AWAY) {
-					PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
-				}
-
-				// 우
-				if (p->key == KEY::RIGHT && p->key_state == KEY_STATE::HOLD) {
-					/*vDummyPos = Vec2(vPos.x + m_fSpeed * DT, vPos.y);
-
-					if (IsInWorld(vDummyPos) && !bIsBoss)
-						vPos.x += m_fSpeed * DT;
-					else if (IsInBossRoom(vDummyPos) && bIsBoss)
-						vPos.x += m_fSpeed * DT;
-
-					m_eState = PLAYER_STATE::RUN;
-					if (m_bDir != DIR_RIGHT)
-						m_bDir = DIR_RIGHT;*/
-
-					if (IsInWorld(vCurPos))
-						vCurPos.x += speed * DT;
-					else if (IsInBossRoom(vCurPos))
-						vCurPos.x += speed * DT;
-
-					PlayerArray[clientId - 1].SetState(PLAYER_STATE::RUN);
-					if (PlayerArray[clientId - 1].GetDir() != DIR_RIGHT)
-						PlayerArray[clientId - 1].SetDir(DIR_RIGHT);
-				}
-				if (p->key == KEY::RIGHT && p->key_state == KEY_STATE::AWAY) {
-					PlayerArray[clientId - 1].SetState(PLAYER_STATE::IDLE);
-				}
-
-				if (p->key == KEY::SPACE && p->key_state == KEY_STATE::TAP) {
-					//// 총알 발사
-					//CreateBullet();
-
-					//// 슈팅 이펙트 재생
-					//m_EffectAnimator->Play(L"Shooting", false);
-					//m_EffectAnimator->FindAnimation(L"Shooting")->SetFrame(0);
-				}
-		
-				PlayerArray[clientId - 1].SetPos(vCurPos);
-
 				// 바로 send 플레이어 인포
 				// 플레이어 인포 3개짜리 배열을 보냄
 				SC_PLAYER_PACKET pp;
@@ -342,20 +311,11 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				size = sizeof(pp);
 
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-				if (retval == SOCKET_ERROR) {
-					err_display("send()");
-					break;
-				}
-
 				retval = send(client_sock, reinterpret_cast<char*>(&pp), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
 					break;
 				}
-				
-				// 데이터 전송량이 너무 많아서 캐릭터가 빠르게 움직인다.
-
-				std::cout << "[" << nick_name << "] 서버 → 클라이언트: 플레이어 정보 관련 패킷 전송" << size << '\n';
 			}
 			break;
 
