@@ -1,6 +1,8 @@
 #include "pch.h"
-#include "define.h"
 #include "CTimer.h"
+#include "CObjectMgr.h"
+#include "CCollisionMgr.h"
+#include "CEventMgr.h"
 
 std::mutex g_mutex;
 int clientId = 0;		// 클라이언트 id 초기값 0
@@ -580,6 +582,23 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	return 0;
 }
 
+DWORD WINAPI Progress(LPVOID arg) 
+{
+	// 매니징 여기에서 처리
+	// 타이머
+	CTimer::GetInst()->update();
+
+	// 오브젝트
+	CObjectMgr::GetInst()->update();
+
+	// 충돌
+	CCollisionMgr::GetInst()->update();
+
+	// 이벤트
+	CEventMgr::GetInst()->update();
+
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -615,6 +634,11 @@ int main(int argc, char* argv[])
 	SOCKET client_sock;
 	struct sockaddr_in clientaddr;
 	int addrlen;
+
+	// 4번 스레드
+	HANDLE Thread4 = CreateThread(NULL, 0, Progress, NULL, 0, NULL);
+
+
 
 	while (1) {
 		// accept()
