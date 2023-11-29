@@ -7,6 +7,8 @@
 
 #include "CUI.h"
 #include "CCollider.h"
+#include "CSound.h"
+#include "CResourceMgr.h"
 
 CScene_Start::CScene_Start()
 {
@@ -21,6 +23,12 @@ void CScene_Start::Enter()
 	HINSTANCE hInst{};
 	HWND hWnd = CCore::GetInst()->GetMainHwnd();
 	Vec2 vResolution = CCore::GetInst()->GetResolution();
+
+	// BGM 틀기
+	CSoundMgr::GetInst()->init();
+	CResourceMgr::GetInst()->LoadSound(L"BGM_01", L"sound\\NewJeans.wav");
+	CSound* pSound = CResourceMgr::GetInst()->FindSound(L"BGM_01");
+	pSound->PlayToBGM();
 
 	///////////////////////
 	// Background Object //
@@ -106,6 +114,11 @@ void CScene_Start::Exit()
 	// Edit 컨트롤을 삭제한다.
 	DestroyWindow(hEditNickname);
 	DestroyWindow(hEditIP);
+
+	// 소리 멈춤
+	CResourceMgr::GetInst()->LoadSound(L"BGM_01", L"sound\\NewJeans.wav");
+	CSound* pSound = CResourceMgr::GetInst()->FindSound(L"BGM_01");
+	pSound->Stop();
 }
 
 void CScene_Start::render(HDC _dc)

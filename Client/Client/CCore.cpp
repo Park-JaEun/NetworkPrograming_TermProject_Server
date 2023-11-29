@@ -10,6 +10,8 @@
 #include "CEventMgr.h"
 #include "CCamera.h"
 #include "CScene.h"
+#include "CSound.h"
+
 
 CCore::CCore() :
 	m_hWnd(nullptr), m_ptResolution{}, m_hDC(nullptr),
@@ -67,7 +69,7 @@ int CCore::init(HWND _hWnd, POINT _ptResolution)
 	CTimer::GetInst()->init();
 	CKeyMgr::GetInst()->init();
 	CSceneMgr::GetInst()->init();
-
+	CSoundMgr::GetInst()->init();
 
 	// 윈속 초기화
 	WSADATA wsa;
