@@ -2,13 +2,14 @@
 #include "CTimer.h"
 #include "CObjectMgr.h"
 #include "CCollisionMgr.h"
+#include "CCollider.h"
 #include "CEventMgr.h"
 
 std::mutex g_mutex;
 int clientId = 0;		// 클라이언트 id 초기값 0
 
 std::vector<PlayerInfo> ClientInfo;					// 클라이언트 정보 벡터
-std::array<CPlayer, MAX_PLAYER> PlayerArray;		// 플레이어 배열
+//std::array<CPlayer, MAX_PLAYER> PlayerArray;		// 플레이어 배열
 
 // 함수를 사용하여 클라이언트 처리
 DWORD WINAPI ProcessClient(LPVOID arg)
@@ -22,6 +23,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	int size;							// 패킷 사이즈
 	bool isAllReady{ false };			// 모든 클라이언트가 준비 상태인지 확인
 	bool isAllInit{ false };			// 모든 클라이언트가 초기화 상태인지 확인
+	CObject* pCharacter = new CPlayer;
 
 	// 접속한 클라이언트 정보 출력
 	addrlen = sizeof(clientaddr);
@@ -87,8 +89,15 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	std::cout << "[Player" << player.id << "] ";
 	{
 		std::lock_guard<std::mutex> lock{ g_mutex };				// 뮤텍스 잠금
-		PlayerArray[player.id].SetType(selectPacket->character);	// 플레이어 캐릭터 타입 설정
+		((CPlayer*)pCharacter)->SetType(selectPacket->character);	// 플레이어 캐릭터 타입 설정
+		((CPlayer*)pCharacter)->SetName(L"Player" + std::to_wstring(player.id));		// 플레이어 아이디에 따라서 캐릭터 이름 설정
+		((CPlayer*)pCharacter)->SetPos(Vec2(0.f, 0.f));
+		((CPlayer*)pCharacter)->SetDir(DIR_RIGHT);
+		((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
+		((CPlayer*)pCharacter)->CreateCollider();					// 충돌체 생성
+		((CPlayer*)pCharacter)->GetCollider()->SetScale(Vec2(31.f, 30.f));
 		ClientInfo[player.id].isReady = true;						// 클라이언트 준비 상태 true로 변경
+		CObjectMgr::GetInst()->AddObject(pCharacter, GROUP_TYPE::PLAYER);			// 플레이어 객체 등록
 	}
 
 	switch (selectPacket->character) {
@@ -149,12 +158,14 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	// 본인을 제외한 다른 클라이언트들의 플레이어 정보 송신
 	for (const PlayerInfo& info : ClientInfo) {
 		if (info.id != player.id) {
+			CObject* pOtherPlayer = CObjectMgr::GetInst()->FindObject(L"Player" + std::to_wstring(info.id));
+
 			SC_PLAYER_PACKET pp;
 			pp.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
-			pp.playerPos = PlayerArray[info.id].GetPos();
-			pp.playerState = PlayerArray[info.id].GetState();
-			pp.playerDir = PlayerArray[info.id].GetDir();
-			pp.character = PlayerArray[info.id].GetType();
+			pp.playerPos = pOtherPlayer->GetPos();
+			pp.playerState = ((CPlayer*)pOtherPlayer)->GetState();
+			pp.playerDir = ((CPlayer*)pOtherPlayer)->GetDir();
+			pp.character = ((CPlayer*)pOtherPlayer)->GetType();
 			size = sizeof(pp);
 
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
@@ -213,11 +224,8 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	std::cout << "모든 플레이어 초기화 완료" << std::endl;
 	std::cout << "플레이어들에게 게임 시작 신호 패킷 전송" << std::endl;
 
-	CTimer::GetInst()->init();
 	while (1) {
 		Sleep(100 / 60);	// 600fps
-		CTimer::GetInst()->update();
-
 		////////////
 		// recv() //
 		////////////
@@ -248,9 +256,9 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 						// 캐릭터 충돌 처리, 캐릭터랑 총알, 캐릭터랑 아이템
 						// 몬스터랑 충돌처리
 						// 각 플레이어의 위치 업데이트는 각 클라이언트의 스레드에서 배열에 동시접근해서 각자 바꿈
-						Vec2 vCurPos = PlayerArray[player.id].GetPos();
+						Vec2 vCurPos = pCharacter->GetPos();
 						Vec2 vDummyPos{};
-						float speed = PlayerArray[player.id].GetSpeed();
+						float speed = ((CPlayer*)pCharacter)->GetSpeed();
 
 						// 상
 						if (p->inputs[i].key == KEY::UP && p->inputs[i].key_state == KEY_STATE::HOLD) {
@@ -261,10 +269,10 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 							else if (IsInBossRoom(vDummyPos))
 								vCurPos.y -= speed * DT;
 
-							PlayerArray[player.id].SetState(PLAYER_STATE::RUN);
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
 						}
 						if (p->inputs[i].key == KEY::UP && p->inputs[i].key_state == KEY_STATE::AWAY) {
-							PlayerArray[player.id].SetState(PLAYER_STATE::IDLE);
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
 						}
 
 						// 하
@@ -276,10 +284,10 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 							else if (IsInBossRoom(vDummyPos))
 								vCurPos.y += speed * DT;
 
-							PlayerArray[player.id].SetState(PLAYER_STATE::RUN);
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
 						}
 						if (p->inputs[i].key == KEY::DOWN && p->inputs[i].key_state == KEY_STATE::AWAY) {
-							PlayerArray[player.id].SetState(PLAYER_STATE::IDLE);
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
 						}
 
 						// 좌
@@ -291,13 +299,13 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 							else if (IsInBossRoom(vDummyPos))
 								vCurPos.x -= speed * DT;
 
-							PlayerArray[player.id].SetState(PLAYER_STATE::RUN);
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
 
-							if (PlayerArray[player.id].GetDir() != DIR_LEFT)
-								PlayerArray[player.id].SetDir(DIR_LEFT);
+							if (((CPlayer*)pCharacter)->GetDir() != DIR_LEFT)
+								((CPlayer*)pCharacter)->SetDir(DIR_LEFT);
 						}
 						if (p->inputs[i].key == KEY::LEFT && p->inputs[i].key_state == KEY_STATE::AWAY) {
-							PlayerArray[player.id].SetState(PLAYER_STATE::IDLE);
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
 						}
 
 						// 우
@@ -309,13 +317,13 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 							else if (IsInBossRoom(vDummyPos))
 								vCurPos.x += speed * DT;
 
-							PlayerArray[player.id].SetState(PLAYER_STATE::RUN);
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
 
-							if (PlayerArray[player.id].GetDir() != DIR_RIGHT)
-								PlayerArray[player.id].SetDir(DIR_RIGHT);
+							if (((CPlayer*)pCharacter)->GetDir() != DIR_RIGHT)
+								((CPlayer*)pCharacter)->SetDir(DIR_RIGHT);
 						}
 						if (p->inputs[i].key == KEY::RIGHT && p->inputs[i].key_state == KEY_STATE::AWAY) {
-							PlayerArray[player.id].SetState(PLAYER_STATE::IDLE);
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
 						}
 
 						if (p->inputs[i].key == KEY::SPACE && p->inputs[i].key_state == KEY_STATE::TAP) {
@@ -327,16 +335,16 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 							//m_EffectAnimator->FindAnimation(L"Shooting")->SetFrame(0);
 						}
 
-						PlayerArray[player.id].SetPos(vCurPos);
+						((CPlayer*)pCharacter)->SetPos(vCurPos);
 					}
 				}
 				
 				// 플레이어 정보 송신
 				SC_PLAYER_PACKET pp;
 				pp.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
-				pp.playerPos = PlayerArray[player.id].GetPos();
-				pp.playerState = PlayerArray[player.id].GetState();
-				pp.playerDir = PlayerArray[player.id].GetDir();
+				pp.playerPos = pCharacter->GetPos();
+				pp.playerState = ((CPlayer*)pCharacter)->GetState();
+				pp.playerDir = ((CPlayer*)pCharacter)->GetDir();
 				size = sizeof(pp);
 
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
@@ -349,18 +357,21 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				// 본인을 제외한 다른 클라이언트 정보 송신
 				for (const PlayerInfo& info : ClientInfo) {
 					if (info.id != player.id) {
+						CObject* pOtherPlayer = CObjectMgr::GetInst()->FindObject(L"Player" + std::to_wstring(info.id));
+
 						SC_PLAYER_PACKET pp;
 						pp.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
-						pp.playerPos = PlayerArray[info.id].GetPos();
-						pp.playerState = PlayerArray[info.id].GetState();
-						pp.playerDir = PlayerArray[info.id].GetDir();
+						pp.playerPos = pOtherPlayer->GetPos();
+						pp.playerState = ((CPlayer*)pOtherPlayer)->GetState();
+						pp.playerDir = ((CPlayer*)pOtherPlayer)->GetDir();
+						pp.character = ((CPlayer*)pOtherPlayer)->GetType();
 						size = sizeof(pp);
 
 						retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 						retval = send(client_sock, reinterpret_cast<char*>(&pp), size, 0);
 						if (retval == SOCKET_ERROR) {
 							err_display("send()");
-							break;
+							return 0;
 						}
 					}
 				}
@@ -597,25 +608,58 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		if (ClientInfo.empty())
 			ClientInfo.clear();
 	}
-
+	
+	delete pCharacter;
+	
 	return 0;
+}
+
+void init()
+{
+	// 타이머 초기화
+	CTimer::GetInst()->init();
+
+	// 몬스터 만들기
+	CreateMonsters();
+
+	// 보스 만들기
+	CreateBoss();
+
+	// 아이템 만들기
+	CreateItems();
+
+	// 충돌 그룹 지정
+	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::MONSTER);
+	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::ITEM, GROUP_TYPE::PLAYER);
+	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_PLAYER, GROUP_TYPE::MONSTER);
+	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_PLAYER, GROUP_TYPE::BOSS);
+	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_BOSS, GROUP_TYPE::PLAYER);
+	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_MONSTER, GROUP_TYPE::PLAYER);
+	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::MISSILE_BOSS, GROUP_TYPE::PLAYER);
 }
 
 DWORD WINAPI Progress(LPVOID arg) 
 {
-	// 매니징 여기에서 처리
-	// 타이머
-	CTimer::GetInst()->update();
+	// 초기화
+	init();
 
-	// 오브젝트
-	CObjectMgr::GetInst()->update();
+	while (1) {
+		// 매니징 여기에서 처리
+		// 타이머
+		CTimer::GetInst()->update();
 
-	// 충돌
-	CCollisionMgr::GetInst()->update();
+		// 오브젝트
+		CObjectMgr::GetInst()->update();
+		//CObjectMgr::GetInst()->finalUpdate();
 
-	// 이벤트
-	CEventMgr::GetInst()->update();
+		// 충돌
+		CCollisionMgr::GetInst()->update();
+		
+		// 이벤트
+		CEventMgr::GetInst()->update();
+	}
 
+	return 0;
 }
 
 
@@ -655,9 +699,7 @@ int main(int argc, char* argv[])
 	int addrlen;
 
 	// 4번 스레드
-	HANDLE Thread4 = CreateThread(NULL, 0, Progress, NULL, 0, NULL);
-
-
+	HANDLE hThread4 = CreateThread(NULL, 0, Progress, NULL, 0, NULL);
 
 	while (1) {
 		// accept()
@@ -677,6 +719,8 @@ int main(int argc, char* argv[])
 		else
 			CloseHandle(hThread);
 	}
+
+	CloseHandle(hThread4);
 
 	// 소켓 닫기
 	closesocket(listen_sock);

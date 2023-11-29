@@ -15,6 +15,22 @@ void CreateObject(CObject* _pObj, GROUP_TYPE _eGroup)
 	ADDEVENT(event);
 }
 
+void CreateBoss()
+{
+	// 보스 오브젝트 만들기
+	CObject* pBossObj = new CBoss;
+
+	pBossObj->SetName(L"Boss");
+	pBossObj->SetPos(Vec2(5250.f, 360.f));
+
+	// 충돌체, 애니메이터 생성
+	pBossObj->CreateCollider();
+
+	pBossObj->GetCollider()->SetScale(Vec2(33.f * 2.f, 64.f * 4.6f));
+
+	CreateObject(pBossObj, GROUP_TYPE::BOSS);
+}
+
 void CreateMonster(const Vec2& _vPos)
 {
 	CObject* pMonsterObj = new CMonster;
@@ -30,6 +46,91 @@ void CreateMonster(const Vec2& _vPos)
 	pMonsterObj->GetCollider()->SetScale(Vec2(30.f, 48.f));
 
 	CreateObject(pMonsterObj, GROUP_TYPE::MONSTER);
+}
+
+void CreateMonsters()
+{
+	// 몬스터 오브젝트들 만들기
+	CreateMonster(Vec2(800.f, -90.f));
+	CreateMonster(Vec2(910.f, 50.f));
+	CreateMonster(Vec2(1440.f, -150.f));
+	CreateMonster(Vec2(1440.f, 50.f));
+	CreateMonster(Vec2(1440.f, -50.f));
+	CreateMonster(Vec2(2010.f, -150.f));
+	CreateMonster(Vec2(2130.f, 50.f));
+	CreateMonster(Vec2(2250.f, -50.f));
+	CreateMonster(Vec2(2770.f, 50.f));
+	CreateMonster(Vec2(2890.f, -50.f));
+	CreateMonster(Vec2(3010.f, -150.f));
+	CreateMonster(Vec2(3460.f, -150.f));
+	CreateMonster(Vec2(3660.f, -50.f));
+	CreateMonster(Vec2(3660.f, 70.f));
+	CreateMonster(Vec2(3840.f, -150.f));
+	CreateMonster(Vec2(4340.f, -50.f));
+	CreateMonster(Vec2(4200.f, -150.f));
+	CreateMonster(Vec2(4200.f, 50.f));
+	CreateMonster(Vec2(4480.f, -150.f));
+	CreateMonster(Vec2(4480.f, 50.f));
+}
+
+void CreateBunny(const Vec2& _vPos)
+{
+	CItem* pBunnyItemObj = new CItem;
+
+	pBunnyItemObj->SetName(L"Bunny");
+	pBunnyItemObj->SetPos(_vPos);
+	pBunnyItemObj->SetFirstPos(_vPos);
+	pBunnyItemObj->SetScale(Vec2(25.f, 25.f));
+
+	pBunnyItemObj->CreateCollider();
+	pBunnyItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));
+	pBunnyItemObj->GetCollider()->SetOffsetPos(Vec2(12.5f, 12.5f));
+
+	CreateObject(pBunnyItemObj, GROUP_TYPE::ITEM);
+}
+
+void CreateCookie(const Vec2& _vPos)
+{
+	CItem* pCookieItemObj = new CItem;
+
+	pCookieItemObj->SetName(L"Cookie");
+	pCookieItemObj->SetPos(_vPos);
+	pCookieItemObj->SetFirstPos(_vPos);
+	pCookieItemObj->SetScale(Vec2(25.f, 25.f));
+
+	pCookieItemObj->CreateCollider();
+	pCookieItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));
+	pCookieItemObj->GetCollider()->SetOffsetPos(Vec2(12.5f, 12.5f));
+
+	CreateObject(pCookieItemObj, GROUP_TYPE::ITEM);
+}
+
+void CreateItems()
+{
+	// 아이템 오브젝트들 만들기
+	CreateBunny(Vec2(710.f, -83.f - 25.f));
+	CreateBunny(Vec2(1350.f, -140.f - 25.f));
+	CreateBunny(Vec2(1355.f, 60.f - 25.f));
+	CreateBunny(Vec2(2165.f, -40.f - 25.f));
+	CreateBunny(Vec2(2855.f, 60.f - 25.f));
+	CreateBunny(Vec2(3375.f, -140.f - 25.f));
+	CreateBunny(Vec2(3925.f, -140.f - 25.f));
+	CreateBunny(Vec2(3660.f, 80.f - 25.f));
+	CreateBunny(Vec2(4195.f, 60.f - 25.f));
+	CreateBunny(Vec2(4480.f, 60.f - 25.f));
+	CreateBunny(Vec2(4340.f, -40.f - 25.f));
+	CreateBunny(Vec2(4480.f, -140.f - 25.f));
+	CreateBunny(Vec2(4195.f, -140.f - 25.f));
+
+	CreateCookie(Vec2(880.f, -80.f - 25.f));
+	CreateCookie(Vec2(760.f, 100.f - 25.f));
+	CreateCookie(Vec2(1525.f, -40.f - 25.f));
+	CreateCookie(Vec2(2095.f, -150.f - 25.f));
+	CreateCookie(Vec2(2215.f, 60.f - 25.f));
+	CreateCookie(Vec2(2975.f, -40.f - 25.f));
+	CreateCookie(Vec2(3093.f, -140.f - 25.f));
+	CreateCookie(Vec2(3660.f, -40.f - 25.f));
+	CreateCookie(Vec2(5065.f, 0.f - 25.f));
 }
 
 void DeleteObject(CObject* _pObj)

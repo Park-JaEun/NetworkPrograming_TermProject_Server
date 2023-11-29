@@ -25,113 +25,113 @@ void CPlayer::update()
 	if (m_bIsGameOver)
 		return;
 
-	Vec2 vPos = GetPos();
-	Vec2 vDummyPos{};
-	
-	CBoss* pBoss = (CBoss*)CObjectMgr::GetInst()->FindObject(L"Boss");
-	bool bIsBoss = pBoss->GetHaveToAppear();
+	//Vec2 vPos = GetPos();
+	//Vec2 vDummyPos{};
+	//
+	//CBoss* pBoss = (CBoss*)CObjectMgr::GetInst()->FindObject(L"Boss");
+	//bool bIsBoss = pBoss->GetHaveToAppear();
 
 
-	if (m_iHP <= 0) {
-		if (m_eState != PLAYER_STATE::DIE) {
-			m_eState = PLAYER_STATE::DIE;
-		}
+	//if (m_iHP <= 0) {
+	//	if (m_eState != PLAYER_STATE::DIE) {
+	//		m_eState = PLAYER_STATE::DIE;
+	//	}
 
-		// 1.5초뒤 아래로 추락
-		if (m_fDieTime >= 1.5f && m_fDieTime <= 4.5)
-			vPos.y += DT * 50.f * 3;
-		else
-			m_fDieTime += DT;
+	//	// 1.5초뒤 아래로 추락
+	//	if (m_fDieTime >= 1.5f && m_fDieTime <= 4.5)
+	//		vPos.y += DT * 50.f * 3;
+	//	else
+	//		m_fDieTime += DT;
 
-		// 3초뒤 부활
-		if (!m_bIsGameOver && m_iLife >= 1 && m_fResurrectTime >= 3.0f && m_fDieTime >= 1.5f) {
-			m_iLife -= 1;
-			if (m_iLife == 0) {
-				m_bIsGameOver = true;
-				return;
-			}
-			m_iHP = 3;
-			m_fDieTime = 0.f;
-			m_fResurrectTime = 0.f;
-			m_eState = PLAYER_STATE::IDLE;
-			vPos.y = 0.f;
-		}
-		else if (m_fDieTime >= 1.5f) {
-			m_fResurrectTime += DT;
-		}
-	}
-	else {
-		// 상
-		if (KEY_HOLD(KEY::UP)) {
-			vDummyPos = Vec2(vPos.x, vPos.y - m_fSpeed * DT);
+	//	// 3초뒤 부활
+	//	if (!m_bIsGameOver && m_iLife >= 1 && m_fResurrectTime >= 3.0f && m_fDieTime >= 1.5f) {
+	//		m_iLife -= 1;
+	//		if (m_iLife == 0) {
+	//			m_bIsGameOver = true;
+	//			return;
+	//		}
+	//		m_iHP = 3;
+	//		m_fDieTime = 0.f;
+	//		m_fResurrectTime = 0.f;
+	//		m_eState = PLAYER_STATE::IDLE;
+	//		vPos.y = 0.f;
+	//	}
+	//	else if (m_fDieTime >= 1.5f) {
+	//		m_fResurrectTime += DT;
+	//	}
+	//}
+	//else {
+	//	// 상
+	//	if (KEY_HOLD(KEY::UP)) {
+	//		vDummyPos = Vec2(vPos.x, vPos.y - m_fSpeed * DT);
 
-			if (IsInWorld(vDummyPos) && !bIsBoss)
-				vPos.y -= m_fSpeed * DT;
-			else if (IsInBossRoom(vDummyPos) && bIsBoss)
-				vPos.y -= m_fSpeed * DT;
+	//		if (IsInWorld(vDummyPos) && !bIsBoss)
+	//			vPos.y -= m_fSpeed * DT;
+	//		else if (IsInBossRoom(vDummyPos) && bIsBoss)
+	//			vPos.y -= m_fSpeed * DT;
 
-			m_eState = PLAYER_STATE::RUN;
-		}
-		if (KEY_AWAY(KEY::UP)) {
-			m_eState = PLAYER_STATE::IDLE;
-		}
+	//		m_eState = PLAYER_STATE::RUN;
+	//	}
+	//	if (KEY_AWAY(KEY::UP)) {
+	//		m_eState = PLAYER_STATE::IDLE;
+	//	}
 
-		// 하
-		if (KEY_HOLD(KEY::DOWN)) {
-			vDummyPos = Vec2(vPos.x, vPos.y + m_fSpeed * DT);
+	//	// 하
+	//	if (KEY_HOLD(KEY::DOWN)) {
+	//		vDummyPos = Vec2(vPos.x, vPos.y + m_fSpeed * DT);
 
-			if (IsInWorld(vDummyPos) && !bIsBoss)
-				vPos.y += m_fSpeed * DT;
-			else if (IsInBossRoom(vDummyPos) && bIsBoss)
-				vPos.y += m_fSpeed * DT;
+	//		if (IsInWorld(vDummyPos) && !bIsBoss)
+	//			vPos.y += m_fSpeed * DT;
+	//		else if (IsInBossRoom(vDummyPos) && bIsBoss)
+	//			vPos.y += m_fSpeed * DT;
 
-			m_eState = PLAYER_STATE::RUN;
-		}
-		if (KEY_AWAY(KEY::DOWN)) {
-			m_eState = PLAYER_STATE::IDLE;
-		}
+	//		m_eState = PLAYER_STATE::RUN;
+	//	}
+	//	if (KEY_AWAY(KEY::DOWN)) {
+	//		m_eState = PLAYER_STATE::IDLE;
+	//	}
 
-		// 좌
-		if (KEY_HOLD(KEY::LEFT)) {
-			vDummyPos = Vec2(vPos.x - m_fSpeed * DT, vPos.y);
+	//	// 좌
+	//	if (KEY_HOLD(KEY::LEFT)) {
+	//		vDummyPos = Vec2(vPos.x - m_fSpeed * DT, vPos.y);
 
-			if (IsInWorld(vDummyPos) && !bIsBoss)
-				vPos.x -= m_fSpeed * DT;
-			else if (IsInBossRoom(vDummyPos) && bIsBoss)
-				vPos.x -= m_fSpeed * DT;
+	//		if (IsInWorld(vDummyPos) && !bIsBoss)
+	//			vPos.x -= m_fSpeed * DT;
+	//		else if (IsInBossRoom(vDummyPos) && bIsBoss)
+	//			vPos.x -= m_fSpeed * DT;
 
-			m_eState = PLAYER_STATE::RUN;
-			if (m_bDir != DIR_LEFT)
-				m_bDir = DIR_LEFT;
-		}
-		if (KEY_AWAY(KEY::LEFT)) {
-			m_eState = PLAYER_STATE::IDLE;
-		}
+	//		m_eState = PLAYER_STATE::RUN;
+	//		if (m_bDir != DIR_LEFT)
+	//			m_bDir = DIR_LEFT;
+	//	}
+	//	if (KEY_AWAY(KEY::LEFT)) {
+	//		m_eState = PLAYER_STATE::IDLE;
+	//	}
 
-		// 우
-		if (KEY_HOLD(KEY::RIGHT)) {
-			vDummyPos = Vec2(vPos.x + m_fSpeed * DT, vPos.y);
+	//	// 우
+	//	if (KEY_HOLD(KEY::RIGHT)) {
+	//		vDummyPos = Vec2(vPos.x + m_fSpeed * DT, vPos.y);
 
-			if (IsInWorld(vDummyPos) && !bIsBoss)
-				vPos.x += m_fSpeed * DT;
-			else if (IsInBossRoom(vDummyPos) && bIsBoss)
-				vPos.x += m_fSpeed * DT;
+	//		if (IsInWorld(vDummyPos) && !bIsBoss)
+	//			vPos.x += m_fSpeed * DT;
+	//		else if (IsInBossRoom(vDummyPos) && bIsBoss)
+	//			vPos.x += m_fSpeed * DT;
 
-			m_eState = PLAYER_STATE::RUN;
-			if (m_bDir != DIR_RIGHT)
-				m_bDir = DIR_RIGHT;
-		}
-		if (KEY_AWAY(KEY::RIGHT)) {
-			m_eState = PLAYER_STATE::IDLE;
-		}
+	//		m_eState = PLAYER_STATE::RUN;
+	//		if (m_bDir != DIR_RIGHT)
+	//			m_bDir = DIR_RIGHT;
+	//	}
+	//	if (KEY_AWAY(KEY::RIGHT)) {
+	//		m_eState = PLAYER_STATE::IDLE;
+	//	}
 
-		if (KEY_TAP(KEY::SPACE)) {
-			// 총알 발사
-			CreateBullet();
-		}
-	}
+	//	if (KEY_TAP(KEY::SPACE)) {
+	//		// 총알 발사
+	//		CreateBullet();
+	//	}
+	//}
 
-	SetPos(vPos);				// 위치 업데이트
+	//SetPos(vPos);				// 위치 업데이트
 }
 
 void CPlayer::CreateBullet()

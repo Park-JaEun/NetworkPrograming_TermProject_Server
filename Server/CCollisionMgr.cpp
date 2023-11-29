@@ -113,8 +113,9 @@ bool CCollisionMgr::IsCollision(CCollider* _pLHS, CCollider* _pRHS)
 		(int)(vRightPos.y + vRightScale.y / 2.f) };
 
 	// 충돌검사
-	if (IntersectRect(&tempRECT, &rectLeft, &rectRight))
+	if (IntersectRect(&tempRECT, &rectLeft, &rectRight)) {
 		return true;
+	}
 	return false;
 }
 

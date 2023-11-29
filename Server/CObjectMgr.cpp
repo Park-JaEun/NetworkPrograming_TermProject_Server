@@ -15,8 +15,10 @@ void CObjectMgr::update()
 {
 	for (std::vector<CObject*>& _vecObj : m_arrVecObj) {
 		for (CObject* _pObj : _vecObj) {
-			if (!_pObj->IsDead())
+			if (!_pObj->IsDead()) {
 				_pObj->update();
+				_pObj->finalUpdate();
+			}
 		}
 	}
 }
