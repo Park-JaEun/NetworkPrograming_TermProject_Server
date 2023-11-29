@@ -3,7 +3,7 @@
 
 #include "CPathMgr.h"
 #include "CTexture.h"
-
+#include "CSound.h"
 CResourceMgr::CResourceMgr()
 {
 
@@ -48,6 +48,44 @@ CTexture* CResourceMgr::FindTexture(const std::wstring& _strKey)
 	std::map<std::wstring, CTexture*>::iterator _mapIter = m_mapTex.find(_strKey);
 
 	if (_mapIter == m_mapTex.end()) {
+		return nullptr;
+	}
+
+	return _mapIter->second;
+}
+
+CSound* CResourceMgr::LoadSound(const std::wstring& _strKey, const std::wstring& _strRelativePath)
+{
+	CSound* pSound = FindSound(_strKey);
+	// 이미 존재하는지 확인
+
+	// 이미 있는 텍스처면 그 텍스처를 반환
+	if (pSound != nullptr)
+		return pSound;
+
+	// 아니면 텍스처 load
+	std::wstring strFilePath = CPathMgr::GetInst()->GetResourcePath();
+	strFilePath += _strRelativePath;
+
+	// texture load
+	pSound = new CSound;
+	pSound->Load(strFilePath);
+
+	// texture 정보 등록
+	pSound->SetKey(_strKey);
+	pSound->SetRelativePath(_strRelativePath);
+
+	// resource manager에 추가
+	m_mapSound.insert(std::make_pair(_strKey, pSound));
+
+	return pSound;
+}
+
+CSound* CResourceMgr::FindSound(const std::wstring& _strKey)
+{
+	std::map<std::wstring, CSound*>::iterator _mapIter = m_mapSound.find(_strKey);
+
+	if (_mapIter == m_mapSound.end()) {
 		return nullptr;
 	}
 
