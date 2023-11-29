@@ -239,6 +239,7 @@ void CCore::CommunicationToServer()
 
 void CCore::TestSendKeyInput()
 {
+	char buf[BUFSIZE];
 	int retval;
 	int size;
 	bool bAllKeyNone = true;
@@ -283,12 +284,9 @@ void CCore::TestSendKeyInput()
 	// recv() //
 	////////////
 	
-	char buf[BUFSIZE];
-
+	// 내 정보 받기
 	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 	retval = recv(sock, buf, size, MSG_WAITALL);
-
-	// 오류 처리
 	if (retval == SOCKET_ERROR) {
 		err_display("recv()");
 		closesocket(sock);
@@ -304,22 +302,55 @@ void CCore::TestSendKeyInput()
 	pPlayer->SetState(sc_p->playerState);
 	pPlayer->SetDir(sc_p->playerDir);
 
-	// Player 2,3 정보 받기
+	// Player 2 정보 받기
 	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 	retval = recv(sock, buf, size, MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
 
 	CPlayer* pPlayer2 = (CPlayer*)pCurScene->FindObject(L"Player2");
 	pPlayer2->SetPos(sc_p->playerPos);
 	pPlayer2->SetState(sc_p->playerState);
 	pPlayer2->SetDir(sc_p->playerDir);
 
+	// Player 3 정보 받기
 	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 	retval = recv(sock, buf, size, MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
 
 	CPlayer* pPlayer3 = (CPlayer*)pCurScene->FindObject(L"Player3");
 	pPlayer3->SetPos(sc_p->playerPos);
 	pPlayer3->SetState(sc_p->playerState);
 	pPlayer3->SetDir(sc_p->playerDir);
+
+	// 몬스터 정보 받기
+	SC_MONSTER_PACKET* sc_m = reinterpret_cast<SC_MONSTER_PACKET*>(buf);
+	const std::vector<CObject*>& vecMonster = CSceneMgr::GetInst()->GetCurScene()->GetGroupObject(GROUP_TYPE::MONSTER);
+	for (CObject* pMonster : vecMonster) {
+		retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+		retval = recv(sock, buf, size, MSG_WAITALL);
+		if (retval == SOCKET_ERROR) {
+			err_display("recv()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+
+		pMonster->SetPos(sc_m->monsterPos);
+		((CMonster*)pMonster)->SetDir(sc_m->monsterDir);
+		((CMonster*)pMonster)->SetState(sc_m->monsterState);
+	}
+
+
 }
 
 void CCore::progress()

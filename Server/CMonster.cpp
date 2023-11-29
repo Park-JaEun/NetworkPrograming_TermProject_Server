@@ -39,8 +39,7 @@ void CMonster::update()
 
 		// 공격하고 있을 때
 		if (m_eState == MONSTER_STATE::ATTACK) {
-
-			CreateBullet();
+			//CreateBullet();
 		}
 
 		// 움직이고 있을 때

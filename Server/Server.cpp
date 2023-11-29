@@ -226,12 +226,13 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 	while (1) {
 		Sleep(100 / 60);	// 600fps
+		// 버퍼 비우기
+		memset(buf, 0, BUFSIZE);
+
+
 		////////////
 		// recv() //
 		////////////
-		
-		// 버퍼 비우기
-		memset(buf, 0, BUFSIZE);
 
 		// 데이터 받기
 		retval = recv(client_sock, reinterpret_cast<char*>(&size), sizeof(size), MSG_WAITALL);
@@ -338,7 +339,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 						((CPlayer*)pCharacter)->SetPos(vCurPos);
 					}
 				}
-				
+
 				// 플레이어 정보 송신
 				SC_PLAYER_PACKET pp;
 				pp.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
@@ -375,7 +376,6 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 						}
 					}
 				}
-
 			}
 			break;
 
@@ -396,8 +396,33 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 		////////////
 		// send() //
-	    ////////////
-		//SC_PACKET_TYPE type = SC_PACKET_TYPE(rand() % 11 + 1);
+		////////////
+
+		// 오브젝트 매니저에서 몬스터 벡터를 가져온다
+		{
+			std::lock_guard<std::mutex> lock{ g_mutex };
+			const std::vector<CObject*>& vecMonster = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::MONSTER);
+
+			SC_MONSTER_PACKET p;
+			p.type = static_cast<char>(SC_PACKET_TYPE::SC_MONSTER);
+			size = sizeof(SC_MONSTER_PACKET);
+
+			for (const CObject* pMonster : vecMonster) {
+				// 몬스터 정보를 담는다
+				p.monsterPos = ((CMonster*)pMonster)->GetPos();
+				p.monsterState = ((CMonster*)pMonster)->GetState();
+				p.monsterDir = ((CMonster*)pMonster)->GetDir();
+
+				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					break;
+				}
+			}
+		}
+		
+		
 
 		//// 패킷 정보 보내기 
 		//switch (type) {
@@ -644,13 +669,13 @@ DWORD WINAPI Progress(LPVOID arg)
 	init();
 
 	while (1) {
+		Sleep(100 / 60);	// 600fps
 		// 매니징 여기에서 처리
 		// 타이머
 		CTimer::GetInst()->update();
 
 		// 오브젝트
 		CObjectMgr::GetInst()->update();
-		//CObjectMgr::GetInst()->finalUpdate();
 
 		// 충돌
 		CCollisionMgr::GetInst()->update();

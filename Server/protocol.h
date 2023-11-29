@@ -69,7 +69,10 @@ struct SC_PLAYER_PACKET {
 // 몬스터 정보 수신 관련 패킷
 struct SC_MONSTER_PACKET {
 	char type;			// 패킷 타입
-	CMonster  monster;	// 몬스터 정보
+	// 몬스터 정보	(2023. 11. 30 수정)
+	Vec2 monsterPos;					// 몬스터 위치
+	MONSTER_STATE monsterState;		// 몬스터 상태
+	bool monsterDir;					// 몬스터 방향
 };
 
 // 보스 정보 수신 관련 패킷

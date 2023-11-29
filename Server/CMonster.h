@@ -18,10 +18,14 @@ public:
 
 public:
     float GetSpeed() { return m_fSpeed; }
-    void SetSpeed(const float& _f) { m_fSpeed = _f; }
+    bool GetDir() { return m_bDir; }
+    MONSTER_STATE GetState() { return m_eState; }
 
+    void SetSpeed(const float& _f) { m_fSpeed = _f; }
     void SetFirstPos(Vec2 _vPos) { m_vFirstPos = _vPos; }
     void SetMaxDistance(float _f) { m_fMaxDistance = _f; }
+    void SetDir(bool _dir) { m_bDir = _dir; }
+    void SetState(MONSTER_STATE _eState) { m_eState = _eState; }
 
 private:
     void CreateBullet();
