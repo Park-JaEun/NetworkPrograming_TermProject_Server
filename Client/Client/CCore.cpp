@@ -282,7 +282,6 @@ void CCore::TestSendKeyInput()
 	// recv() //
 	////////////
 	
-	//int retval;
 	char buf[BUFSIZE];
 
 	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
@@ -298,12 +297,28 @@ void CCore::TestSendKeyInput()
 
 	SC_PLAYER_PACKET* sc_p = reinterpret_cast<SC_PLAYER_PACKET*>(buf);
 
-	// 
 	CScene* pCurScene = CSceneMgr::GetInst()->GetCurScene();
 	CPlayer* pPlayer = (CPlayer*)pCurScene->FindObject(L"Player");
 	pPlayer->SetPos(sc_p->playerPos);
 	pPlayer->SetState(sc_p->playerState);
 	pPlayer->SetDir(sc_p->playerDir);
+
+	// Player 2,3 정보 받기
+	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+	retval = recv(sock, buf, size, MSG_WAITALL);
+
+	CPlayer* pPlayer2 = (CPlayer*)pCurScene->FindObject(L"Player2");
+	pPlayer2->SetPos(sc_p->playerPos);
+	pPlayer2->SetState(sc_p->playerState);
+	pPlayer2->SetDir(sc_p->playerDir);
+
+	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+	retval = recv(sock, buf, size, MSG_WAITALL);
+
+	CPlayer* pPlayer3 = (CPlayer*)pCurScene->FindObject(L"Player3");
+	pPlayer3->SetPos(sc_p->playerPos);
+	pPlayer3->SetState(sc_p->playerState);
+	pPlayer3->SetDir(sc_p->playerDir);
 }
 
 void CCore::progress()

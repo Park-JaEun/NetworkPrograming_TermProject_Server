@@ -329,8 +329,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					}
 				}
 				
-				// 바로 send 플레이어 인포
-				// 플레이어 인포 3개짜리 배열을 보냄
+				// 플레이어 정보 송신
 				SC_PLAYER_PACKET pp;
 				pp.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
 				pp.playerPos = PlayerArray[player.id].GetPos();
@@ -344,6 +343,26 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					err_display("send()");
 					break;
 				}
+
+				// 본인을 제외한 다른 클라이언트 정보 송신
+				for (const PlayerInfo& info : ClientInfo) {
+					if (info.id != player.id) {
+						SC_PLAYER_PACKET pp;
+						pp.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
+						pp.playerPos = PlayerArray[info.id].GetPos();
+						pp.playerState = PlayerArray[info.id].GetState();
+						pp.playerDir = PlayerArray[info.id].GetDir();
+						size = sizeof(pp);
+
+						retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+						retval = send(client_sock, reinterpret_cast<char*>(&pp), size, 0);
+						if (retval == SOCKET_ERROR) {
+							err_display("send()");
+							break;
+						}
+					}
+				}
+
 			}
 			break;
 
