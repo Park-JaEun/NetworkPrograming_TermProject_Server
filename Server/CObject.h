@@ -19,15 +19,13 @@ public:
 	CCollider* GetCollider()		{ return m_pCollider; }
 	const std::wstring& GetName()	{ return m_strName; }
 	const bool IsDead()				{ return !m_bAlive; }
+	void SetDead() { m_bAlive = false; }
 
 	void SetPos(const Vec2& _vPos)				{ m_vPos = _vPos; }
 	void SetScale(const Vec2& _vScale)			{ m_vScale = _vScale; }
 	void SetName(const std::wstring& _strName)	{ m_strName = _strName; }
 
 	void CreateCollider();
-
-private:
-	void SetDead() { m_bAlive = false; }
 
 public:
 	virtual void update() = 0;

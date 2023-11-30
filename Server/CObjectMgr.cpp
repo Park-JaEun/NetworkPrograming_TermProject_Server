@@ -23,15 +23,6 @@ void CObjectMgr::update()
 	}
 }
 
-void CObjectMgr::finalUpdate()
-{
-	for (std::vector<CObject*>& _vecObj : m_arrVecObj) {
-		for (CObject* _pObj : _vecObj) {
-			_pObj->finalUpdate();
-		}
-	}
-}
-
 void CObjectMgr::DeleteDeadObject()
 {
 	for (std::vector<CObject*>& _vecObj : m_arrVecObj) {
@@ -42,6 +33,8 @@ void CObjectMgr::DeleteDeadObject()
 			if ((*pObjIter)->IsDead())
 				// 삭제 예정인 오브젝트는 벡터 내에서 삭제
 				pObjIter = _vecObj.erase(pObjIter);
+			else
+				++pObjIter;
 		}
 	}
 }

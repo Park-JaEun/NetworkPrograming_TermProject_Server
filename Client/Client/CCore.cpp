@@ -352,6 +352,24 @@ void CCore::TestSendKeyInput()
 		((CMonster*)pMonster)->SetState(sc_m->monsterState);
 	}
 
+	// 아이템 정보 받기
+	SC_ITEM_PACKET* sc_i = reinterpret_cast<SC_ITEM_PACKET*>(buf);
+	const std::vector<CObject*>& vecItem = CSceneMgr::GetInst()->GetCurScene()->GetGroupObject(GROUP_TYPE::ITEM);
+	for (CObject* pItem : vecItem) {
+		retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+		retval = recv(sock, buf, size, MSG_WAITALL);
+		if (retval == SOCKET_ERROR) {
+			err_display("recv()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+
+		pItem->SetPos(sc_i->itemPos);
+		if (sc_i->itemIsDead) {
+			DeleteObject(pItem);
+		}
+	}
 
 }
 

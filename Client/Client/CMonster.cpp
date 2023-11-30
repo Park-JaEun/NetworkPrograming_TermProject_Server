@@ -115,8 +115,12 @@ void CMonster::update()
 			break;
 		case MONSTER_STATE::HIT:
 			break;
-		case MONSTER_STATE::ATTACK:
+		case MONSTER_STATE::ATTACK: 
+		{
 			GetAnimator()->Play(L"Bunny_Attack_Right", false);
+			if(GetAnimator()->FindAnimation(L"Bunny_Attack_Right")->IsFinish())
+				GetAnimator()->FindAnimation(L"Bunny_Attack_Right")->SetFrame(0);
+		}
 			break;
 		case MONSTER_STATE::DIE:
 			GetAnimator()->Play(L"Bunny_Die_Right", false);
@@ -136,8 +140,12 @@ void CMonster::update()
 			break;
 		case MONSTER_STATE::HIT:
 			break;
-		case MONSTER_STATE::ATTACK:
+		case MONSTER_STATE::ATTACK: 
+		{
 			GetAnimator()->Play(L"Bunny_Attack_Left", false);
+			if(GetAnimator()->FindAnimation(L"Bunny_Attack_Left")->IsFinish())
+				GetAnimator()->FindAnimation(L"Bunny_Attack_Left")->SetFrame(0);
+		}
 			break;
 		case MONSTER_STATE::DIE:
 			GetAnimator()->Play(L"Bunny_Die_Left", false);
