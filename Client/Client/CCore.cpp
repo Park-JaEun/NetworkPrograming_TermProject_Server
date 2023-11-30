@@ -355,7 +355,20 @@ void CCore::TestSendKeyInput()
 	// 아이템 정보 받기
 	SC_ITEM_PACKET* sc_i = reinterpret_cast<SC_ITEM_PACKET*>(buf);
 	const std::vector<CObject*>& vecItem = CSceneMgr::GetInst()->GetCurScene()->GetGroupObject(GROUP_TYPE::ITEM);
-	for (CObject* pItem : vecItem) {
+	
+	
+	// 서버로부터 객체의 수 받기
+	int objectCount = 0;
+	retval = recv(sock, reinterpret_cast<char*>(&objectCount), sizeof(objectCount), MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
+
+	// 서버로부터 아이템 정보 받기
+	for (int i = 0; i < objectCount; ++i) {
 		retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 		retval = recv(sock, buf, size, MSG_WAITALL);
 		if (retval == SOCKET_ERROR) {
@@ -365,11 +378,16 @@ void CCore::TestSendKeyInput()
 			return;
 		}
 
-		pItem->SetPos(sc_i->itemPos);
+		SC_ITEM_PACKET* sc_i = reinterpret_cast<SC_ITEM_PACKET*>(buf);
+		
+		vecItem[i]->SetPos(sc_i->itemPos);
 		if (sc_i->itemIsDead) {
-			DeleteObject(pItem);
+			std::cout << "삭제";
+			DeleteObject(vecItem[i]);
 		}
 	}
+
+	
 
 }
 

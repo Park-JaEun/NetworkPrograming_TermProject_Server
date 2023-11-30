@@ -430,21 +430,36 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			p.type = static_cast<char>(SC_PACKET_TYPE::SC_ITEM);
 			size = sizeof(SC_ITEM_PACKET);
 
+			// 클라이언트에 객체의 수 전송
+			int objectCount = vecItem.size();
+			retval = send(client_sock, reinterpret_cast<char*>(&objectCount), sizeof(objectCount), 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				// 오류 처리
+			}
+
+			// 클라이언트에 아이템 정보 보내기
 			for (CObject* pItem : vecItem) {
-				// 아이템 정보를 담는다
 				p.itemPos = ((CItem*)pItem)->GetPos();
 				p.itemIsDead = pItem->IsDead();
 
+				// 클라이언트에 정보 전송
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
 					break;
 				}
-			}
-		}
-		
 
+				// 아이템 삭제 처리 (필요한 경우)
+				if (pItem->IsDead()) {
+					//DeleteObject(pItem); // 아이템 삭제 처리
+					// 객체가 삭제되었으므로 objectCount 감소
+					--objectCount;
+				}
+			}
+
+		}
 		//// 패킷 정보 보내기 
 		//switch (type) {
 
@@ -694,15 +709,15 @@ DWORD WINAPI Progress(LPVOID arg)
 		// 매니징 여기에서 처리
 		// 타이머
 		CTimer::GetInst()->update();
+		
+		//삭제
+		CObjectMgr::GetInst()->DeleteDeadObject();
 
 		// 오브젝트
 		CObjectMgr::GetInst()->update();
 
 		// 충돌
 		CCollisionMgr::GetInst()->update();
-
-		// 죽은 오브젝트 삭제
-		CObjectMgr::GetInst()->DeleteDeadObject();
 
 		// 이벤트
 		CEventMgr::GetInst()->update();

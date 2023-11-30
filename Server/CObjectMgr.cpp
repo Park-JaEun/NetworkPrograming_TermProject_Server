@@ -30,9 +30,10 @@ void CObjectMgr::DeleteDeadObject()
 		auto pObjIter = _vecObj.begin();
 
 		while (pObjIter != _vecObj.end()) {
-			if ((*pObjIter)->IsDead())
+			if ((*pObjIter)->IsDead()) {
 				// 삭제 예정인 오브젝트는 벡터 내에서 삭제
 				pObjIter = _vecObj.erase(pObjIter);
+			}
 			else
 				++pObjIter;
 		}
