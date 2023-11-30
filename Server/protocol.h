@@ -89,8 +89,9 @@ struct SC_BULLET_PACKET {
 
 // 아이템 정보 수신 관련 패킷
 struct SC_ITEM_PACKET {
-	char type;		// 패킷 타입
-	CItem  item;	// 투사체 정보
+	char type;			// 패킷 타입
+	Vec2 itemPos;		// 아이템 위치(2023. 11. 30 수정)
+	bool itemIsDead;	// 아이템 생존 여부 (2023. 11. 30 수정)
 };
 
 // 게임 클리어 후, 플레이어들의 순위 정보 수신 관련 패킷

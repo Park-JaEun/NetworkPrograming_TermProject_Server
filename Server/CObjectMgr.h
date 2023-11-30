@@ -14,7 +14,6 @@ public:
 	CObject* FindObject(std::wstring _strName);
 
 	virtual void update();
-	void finalUpdate();		// 최종 업데이트 (확정짓는 역할, 작업의 마무리)
 
 public:
 	void AddObject(CObject* _pObj, GROUP_TYPE _eType) { m_arrVecObj[(UINT)_eType].push_back(_pObj); }

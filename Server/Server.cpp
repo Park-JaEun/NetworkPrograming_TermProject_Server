@@ -397,7 +397,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		// send() //
 		////////////
 
-		// 오브젝트 매니저에서 몬스터 벡터를 가져온다
+		// 몬스터 정보 송신
 		{
 			std::lock_guard<std::mutex> lock{ g_mutex };
 			const std::vector<CObject*>& vecMonster = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::MONSTER);
@@ -421,6 +421,28 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			}
 		}
 		
+		// 아이템 정보 송신
+		{
+			std::lock_guard<std::mutex> lock{ g_mutex };
+			const std::vector<CObject*>& vecItem = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::ITEM);
+
+			SC_ITEM_PACKET p;
+			p.type = static_cast<char>(SC_PACKET_TYPE::SC_ITEM);
+			size = sizeof(SC_ITEM_PACKET);
+
+			for (CObject* pItem : vecItem) {
+				// 아이템 정보를 담는다
+				p.itemPos = ((CItem*)pItem)->GetPos();
+				p.itemIsDead = pItem->IsDead();
+
+				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					break;
+				}
+			}
+		}
 		
 
 		//// 패킷 정보 보내기 
@@ -678,7 +700,10 @@ DWORD WINAPI Progress(LPVOID arg)
 
 		// 충돌
 		CCollisionMgr::GetInst()->update();
-		
+
+		// 죽은 오브젝트 삭제
+		CObjectMgr::GetInst()->DeleteDeadObject();
+
 		// 이벤트
 		CEventMgr::GetInst()->update();
 	}

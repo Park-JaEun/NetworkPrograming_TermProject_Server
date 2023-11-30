@@ -3,6 +3,7 @@
 #include "CCollider.h"
 #include "CTimer.h"
 
+
 CItem::CItem() : m_vFirstPos{ Vec2(0.f, 0.f) }, m_fSpeed{ 50.f }, m_fMaxDistance{ 20.f }, m_bDir{ true }
 {
 }
@@ -55,15 +56,17 @@ void CItem::OnCollision(CCollider* _pOther)
 void CItem::EnterCollision(CCollider* _pOther)
 {
 	CObject* pOtherObj = _pOther->GetObj();
+	
+	for (int i = 0; i < MAX_PLAYER; ++i) {
+		if (pOtherObj->GetName() == L"Player" + std::to_wstring(i)) {
+			DeleteObject(this);
+			std::cout<<"플레이어 "<<i<<"와 충돌!!!!!!!!!!!!!"<<std::endl;
 
-	if (pOtherObj->GetName() == L"Player") {
-		// 플레이어와 충돌시 아이템을 삭제한다.
-		DeleteObject(this);
-
-		if (GetName() == L"Bunny")
-			((CPlayer*)pOtherObj)->PlusBunnyCount();
-		else if (GetName() == L"Cookie")
-			((CPlayer*)pOtherObj)->PlusCookieCount();
+			if (GetName() == L"Bunny")
+				((CPlayer*)pOtherObj)->PlusBunnyCount();
+			else if (GetName() == L"Cookie")
+				((CPlayer*)pOtherObj)->PlusCookieCount();
+		}
 	}
 }
 
