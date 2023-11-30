@@ -29,12 +29,14 @@ void CMonster::update()
 	// HP가 0보다 높을 때
 	else {
 		// 본인 시야에 플레이어가 있으면 공격
-		if (IsInSight(GetPos(), 300.f, L"Player")) {
-			m_eState = MONSTER_STATE::ATTACK;
-		}
-		// 플레이어가 없으면 다시 움직임
-		else {
-			m_eState = MONSTER_STATE::MOVE;
+		for (int i = 0; i < MAX_PLAYER; ++i) {
+			// 모든 플레이어가 시야에 없는지 체크
+			if (IsInSight(vCurPos, 300.f, L"Player" + std::to_wstring(i))) {
+				m_eState = MONSTER_STATE::ATTACK;
+				break;
+			}
+			else
+				m_eState = MONSTER_STATE::MOVE;
 		}
 
 		// 공격하고 있을 때
@@ -115,7 +117,7 @@ bool CMonster::IsInSight(Vec2 _vPos, float _fDistance, const std::wstring& _strN
 			float fDistance = sqrtf(powf(_vPos.x - vOtherPos.x, 2) + powf(_vPos.y - vOtherPos.y, 2));
 
 			if (fDistance < _fDistance) {
-				// 대상이 오른에 있으면 DIR_RIGHT, 왼쪽에 있으면 DIR_LEFT
+				// 대상이 오른쪽에 있으면 DIR_RIGHT, 왼쪽에 있으면 DIR_LEFT
 				if (_vPos.x - vOtherPos.x > 0)
 					m_bDir = DIR_LEFT;
 				else

@@ -229,7 +229,6 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		// 버퍼 비우기
 		memset(buf, 0, BUFSIZE);
 
-
 		////////////
 		// recv() //
 		////////////
