@@ -430,12 +430,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			p.type = static_cast<char>(SC_PACKET_TYPE::SC_ITEM);
 			size = sizeof(SC_ITEM_PACKET);
 
-			// 클라이언트에 객체의 수 전송
-			int objectCount = vecItem.size();
-			retval = send(client_sock, reinterpret_cast<char*>(&objectCount), sizeof(objectCount), 0);
+			// 클라이언트에게 아이템 수 전송
+			int itemCount = vecItem.size();
+			retval = send(client_sock, reinterpret_cast<char*>(&itemCount), sizeof(itemCount), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				// 오류 처리
+				break;
 			}
 
 			// 클라이언트에 아이템 정보 보내기
@@ -451,14 +451,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					break;
 				}
 
-				// 아이템 삭제 처리 (필요한 경우)
+				// 아이템 삭제
 				if (pItem->IsDead()) {
-					//DeleteObject(pItem); // 아이템 삭제 처리
-					// 객체가 삭제되었으므로 objectCount 감소
-					--objectCount;
+					// itemCount 감소
+					--itemCount;
 				}
 			}
-
 		}
 		//// 패킷 정보 보내기 
 		//switch (type) {
