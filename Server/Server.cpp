@@ -8,6 +8,7 @@
 
 std::mutex g_mutex;
 int clientId = 0;		// 클라이언트 id 초기값 0
+int bulletId = 0;		// 투사체 id 초기값 0
 
 std::vector<PlayerInfo> ClientInfo;					// 클라이언트 정보 벡터
 
@@ -326,7 +327,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 					if (pKeyInputPacket->inputs[i].key == KEY::SPACE && pKeyInputPacket->inputs[i].key_state == KEY_STATE::TAP) {
 						// 총알 발사
-						((CPlayer*)pCharacter)->CreateBullet(player.id);
+						((CPlayer*)pCharacter)->CreateBullet(player.id, bulletId++);
 					}
 
 					// 처리한 정보 업데이트
@@ -440,43 +441,46 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		}
 		
 		// 플레이어 투사체 정보 송신
-		//{
-		//	std::lock_guard<std::mutex> lock{ g_mutex };
-		//	const std::vector<CObject*>& vecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_PLAYER);
+		{
+			std::lock_guard<std::mutex> lock{ g_mutex };
+			const std::vector<CObject*>& vecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_PLAYER);
 
-		//	SC_BULLET_PACKET p;
-		//	p.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
-		//	size = sizeof(SC_BULLET_PACKET);
+			SC_BULLET_PACKET bulletPacket;
+			bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
+			size = sizeof(SC_BULLET_PACKET);
 
-		//	// 클라이언트에게 플레이어 투사체 수 전송
-		//	int bulletCount = vecBullet.size();
-		//	retval = send(client_sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), 0);
-		//	if (retval == SOCKET_ERROR) {
-		//		err_display("send()");
-		//		break;
-		//	}
+			// 클라이언트에게 플레이어 투사체 수 전송
+			int bulletCount = vecBullet.size();
+			retval = send(client_sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
+			}
 
-		//	// 클라이언트에 플레이어 투사체 정보 보내기
-		//	for (CObject* pBullet : vecBullet) {
-		//		p.bulletPos = ((CBullet*)pBullet)->GetPos();
-		//		p.bulletIsDead = ((CBullet*)pBullet)->IsDead();
-		//		p.bulletDir = ((CBullet*)pBullet)->GetDir();
+			if (bulletCount != 0) {
+				// 클라이언트에 플레이어 투사체 정보 보내기
+				for (CObject* pBullet : vecBullet) {
+					bulletPacket.playerID		= player.id;	// 발사한 플레이어 id
+					bulletPacket.bulletID		= ((CBullet*)pBullet)->GetID();
+					bulletPacket.bulletPos		= ((CBullet*)pBullet)->GetPos();
+					bulletPacket.bulletIsDead	= ((CBullet*)pBullet)->IsDead();
+					bulletPacket.bulletDir		= ((CBullet*)pBullet)->GetDir();
 
-		//		retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-		//		retval = send(client_sock, reinterpret_cast<char*>(&p), size, 0);
-		//		if (retval == SOCKET_ERROR) {
-		//			err_display("send()");
-		//			break;
-		//		}
+					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+					retval = send(client_sock, reinterpret_cast<char*>(&bulletPacket), size, 0);
+					if (retval == SOCKET_ERROR) {
+						err_display("send()");
+						break;
+					}
 
-		//		// 투사체 삭제
-		//		if (pBullet->IsDead()) {
-		//			// BulletCount 감소
-		//			--bulletCount;
-		//		}
-		//	}
-		//}
-		
+					// 투사체 삭제
+					if (pBullet->IsDead()) {
+						// BulletCount 감소
+						--bulletCount;
+					}
+				}
+			}
+		}
 	}
 
 	std::cout << "\n[TCP 서버] 클라이언트 접속 종료: IP 주소=" << addr << ", 포트 번호=" << ntohs(clientaddr.sin_port) << ", 닉네임=" << nick_name << std::endl;
@@ -528,7 +532,7 @@ void init()
 	// 충돌 그룹 지정
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::MONSTER);
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::ITEM, GROUP_TYPE::PLAYER);
-	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_PLAYER, GROUP_TYPE::MONSTER);
+	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_PLAYER, GROUP_TYPE::MONSTER);
 	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_PLAYER, GROUP_TYPE::BOSS);
 	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_BOSS, GROUP_TYPE::PLAYER);
 	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_MONSTER, GROUP_TYPE::PLAYER);

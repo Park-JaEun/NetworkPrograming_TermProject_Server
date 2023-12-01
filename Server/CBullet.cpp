@@ -4,7 +4,7 @@
 #include "CTimer.h"
 #include "CCollider.h"
 
-CBullet::CBullet() : m_fDir(1.f), m_fSpeed(0.f), m_bIsDown(false), m_fDegree(0.f), m_vFirstPos(Vec2(0.f, 0.f))
+CBullet::CBullet() : m_fDir(1.f), m_fSpeed(0.f), m_bIsDown(false), m_fDegree(0.f), m_vFirstPos(Vec2(0.f, 0.f)), m_iID(0)
 {
 }
 

@@ -136,8 +136,8 @@ void CPlayer::update()
 
 		if (KEY_TAP(KEY::SPACE)) {
 			// ÃÑ¾Ë ¹ß»ç
-			int id = CCore::GetInst()->GetID();
-			CreateBullet(id);
+			//int id = CCore::GetInst()->GetID();
+			//CreateBullet(id);
 
 			// ½´ÆÃ ÀÌÆåÆ® Àç»ý
 			m_EffectAnimator->Play(L"Shooting", false);

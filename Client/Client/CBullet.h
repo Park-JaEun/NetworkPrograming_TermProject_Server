@@ -38,6 +38,7 @@ public:
 
 public:
     void CreateAnimator(GROUP_TYPE _eType);
+    void CreateAnimator(int id);
 
 public:
     CBullet();

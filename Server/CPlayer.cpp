@@ -133,7 +133,7 @@ void CPlayer::update()
 	//SetPos(vPos);				// 위치 업데이트
 }
 
-void CPlayer::CreateBullet(int id)
+void CPlayer::CreateBullet(int id, int bulletId)
 {
 	Vec2 vBulletPos = GetPos();
 
@@ -142,6 +142,7 @@ void CPlayer::CreateBullet(int id)
 	pBullet->SetName(L"Player" + std::to_wstring(id) + L" Bullet");
 	pBullet->SetPos(vBulletPos);
 	pBullet->SetFirstPos(vBulletPos);
+	pBullet->SetID(bulletId);
 
 	if (m_bDir == DIR_RIGHT)
 		pBullet->SetDir(DIR_RIGHT);

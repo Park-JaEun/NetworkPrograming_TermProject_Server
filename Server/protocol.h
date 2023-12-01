@@ -85,6 +85,8 @@ struct SC_BOSS_PACKET {
 // 투사체 정보 수신 관련 패킷
 struct SC_BULLET_PACKET {
 	char type;			// 패킷 타입
+	int playerID;		// 발사한 플레이어 id (2023. 12. 01 수정)
+	int bulletID;		// 투사체 id (2023. 12. 01 수정)
 	Vec2 bulletPos;		// 투사체 위치 (2023. 11. 30 수정)
 	float bulletDir;	// 투사체 방향 (2023. 12. 01 수정)
 	bool bulletIsDead;	// 투사체 생존 여부 (2023. 11. 30 수정)

@@ -24,24 +24,24 @@ void CBullet::update()
 	Vec2 vPos = GetPos();
 
 	if (m_fDegree != 0.f) {
-		vPos.x += DT * m_fSpeed * cosf(m_fDegree);
-		vPos.y += DT * m_fSpeed * sinf(m_fDegree);
+		/*vPos.x += DT * m_fSpeed * cosf(m_fDegree);
+		vPos.y += DT * m_fSpeed * sinf(m_fDegree);*/
 	}
 	else {
-		if (m_bIsDown)
+		/*if (m_bIsDown)
 			vPos.y += DT * m_fSpeed * m_fDir;
 		else
-			vPos.x += DT * m_fSpeed * m_fDir;
+			vPos.x += DT * m_fSpeed * m_fDir;*/
 	}
 	
-	SetPos(vPos);
+	//SetPos(vPos);
 	GetAnimator()->update();
 
-	// 총알이 게임월드 밖으로 나가거나, 최대 사거리(MAX_BULLET_DISTANCE)를 넘어가면 삭제
-	// 최대 사거리 계산
-	double fDistance = sqrt(pow(GetFirstPos().x - vPos.x, 2) + pow(GetFirstPos().y - vPos.y, 2));
-	if (!IsInWorld(vPos) || fDistance > MAX_BULLET_DISTANCE)
-		DeleteObject(this);
+	//// 총알이 게임월드 밖으로 나가거나, 최대 사거리(MAX_BULLET_DISTANCE)를 넘어가면 삭제
+	//// 최대 사거리 계산
+	//double fDistance = sqrt(pow(GetFirstPos().x - vPos.x, 2) + pow(GetFirstPos().y - vPos.y, 2));
+	//if (!IsInWorld(vPos) || fDistance > MAX_BULLET_DISTANCE)
+	//	DeleteObject(this);
 }
 
 void CBullet::render(HDC _dc)
@@ -289,6 +289,33 @@ void CBullet::CreateAnimator(GROUP_TYPE _eType)
 	}
 }
 
+void CBullet::CreateAnimator(int id)
+{
+	CPlayer* pPlayer = (CPlayer*)CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Player" + std::to_wstring(id));
+
+	switch (pPlayer->GetType())
+	{
+	case CHARACTER_TYPE::MINJI:
+		CreateMinjiBullet();
+		break;
+	case CHARACTER_TYPE::HANNIE:
+		CreateHannieBullet();
+		break;
+	case CHARACTER_TYPE::DANIELLE:
+		CreateDanielleBullet();
+		break;
+	case CHARACTER_TYPE::HAERIN:
+		CreateHaerinBullet();
+		break;
+	case CHARACTER_TYPE::HYEIN:
+		CreateHyeinBullet();
+		break;
+
+	default:
+		break;
+	}
+}
+
 void CBullet::SetDir(int _iDir)
 {
 	if (_iDir == DIR_RIGHT)
@@ -307,19 +334,6 @@ void CBullet::OnCollision(CCollider* _pOther)
 
 void CBullet::EnterCollision(CCollider* _pOther)
 {
-	CObject* pOtherObj = _pOther->GetObj();
-
-	if (pOtherObj->GetName() == L"Monster") {
-		DeleteObject(this);
-	}
-
-	if (pOtherObj->GetName() == L"Boss") {
-		DeleteObject(this);
-	}
-
-	if (pOtherObj->GetName() == L"Player") {
-		DeleteObject(this);
-	}
 }
 
 void CBullet::ExitCollision(CCollider* _pOther)

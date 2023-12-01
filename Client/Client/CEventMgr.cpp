@@ -21,7 +21,8 @@ void CEventMgr::update()
 {
 	// 삭제 예정 오브젝트들 삭제
 	for (CObject* pDeadObj : m_vecDead)
-		delete pDeadObj;
+		if(pDeadObj != nullptr)
+			delete pDeadObj;
 
 	// clear
 	if (!m_vecDead.empty())
