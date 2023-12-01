@@ -73,11 +73,12 @@ void CreateMonsters()
 	CreateMonster(Vec2(4480.f, 50.f));
 }
 
-void CreateBunny(const Vec2& _vPos)
+void CreateBunny(const Vec2& _vPos, int id)
 {
 	CItem* pBunnyItemObj = new CItem;
 
-	pBunnyItemObj->SetName(L"Bunny");
+	pBunnyItemObj->SetName(L"Bunny" + std::to_wstring(id));
+	pBunnyItemObj->SetID(id);
 	pBunnyItemObj->SetPos(_vPos);
 	pBunnyItemObj->SetFirstPos(_vPos);
 	pBunnyItemObj->SetScale(Vec2(25.f, 25.f));
@@ -86,14 +87,15 @@ void CreateBunny(const Vec2& _vPos)
 	pBunnyItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));
 	pBunnyItemObj->GetCollider()->SetOffsetPos(Vec2(12.5f, 12.5f));
 
-	CreateObject(pBunnyItemObj, GROUP_TYPE::ITEM);
+	CreateObject(pBunnyItemObj, GROUP_TYPE::ITEM_RABBIT);
 }
 
-void CreateCookie(const Vec2& _vPos)
+void CreateCookie(const Vec2& _vPos, int id)
 {
 	CItem* pCookieItemObj = new CItem;
 
-	pCookieItemObj->SetName(L"Cookie");
+	pCookieItemObj->SetName(L"Cookie" + std::to_wstring(id));
+	pCookieItemObj->SetID(id);
 	pCookieItemObj->SetPos(_vPos);
 	pCookieItemObj->SetFirstPos(_vPos);
 	pCookieItemObj->SetScale(Vec2(25.f, 25.f));
@@ -102,35 +104,35 @@ void CreateCookie(const Vec2& _vPos)
 	pCookieItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));
 	pCookieItemObj->GetCollider()->SetOffsetPos(Vec2(12.5f, 12.5f));
 
-	CreateObject(pCookieItemObj, GROUP_TYPE::ITEM);
+	CreateObject(pCookieItemObj, GROUP_TYPE::ITEM_COOKIE);
 }
 
 void CreateItems()
 {
 	// 아이템 오브젝트들 만들기
-	CreateBunny(Vec2(710.f, -83.f - 25.f));
-	CreateBunny(Vec2(1350.f, -140.f - 25.f));
-	CreateBunny(Vec2(1355.f, 60.f - 25.f));
-	CreateBunny(Vec2(2165.f, -40.f - 25.f));
-	CreateBunny(Vec2(2855.f, 60.f - 25.f));
-	CreateBunny(Vec2(3375.f, -140.f - 25.f));
-	CreateBunny(Vec2(3925.f, -140.f - 25.f));
-	CreateBunny(Vec2(3660.f, 80.f - 25.f));
-	CreateBunny(Vec2(4195.f, 60.f - 25.f));
-	CreateBunny(Vec2(4480.f, 60.f - 25.f));
-	CreateBunny(Vec2(4340.f, -40.f - 25.f));
-	CreateBunny(Vec2(4480.f, -140.f - 25.f));
-	CreateBunny(Vec2(4195.f, -140.f - 25.f));
+	CreateBunny(Vec2(710.f, -83.f - 25.f), 0);
+	CreateBunny(Vec2(1350.f, -140.f - 25.f), 1);
+	CreateBunny(Vec2(1355.f, 60.f - 25.f), 2);
+	CreateBunny(Vec2(2165.f, -40.f - 25.f), 3);
+	CreateBunny(Vec2(2855.f, 60.f - 25.f), 4);
+	CreateBunny(Vec2(3375.f, -140.f - 25.f), 5);
+	CreateBunny(Vec2(3925.f, -140.f - 25.f), 6);
+	CreateBunny(Vec2(3660.f, 80.f - 25.f), 7);
+	CreateBunny(Vec2(4195.f, 60.f - 25.f), 8);
+	CreateBunny(Vec2(4480.f, 60.f - 25.f), 9);
+	CreateBunny(Vec2(4340.f, -40.f - 25.f), 10);
+	CreateBunny(Vec2(4480.f, -140.f - 25.f), 11);
+	CreateBunny(Vec2(4195.f, -140.f - 25.f), 12);
 
-	CreateCookie(Vec2(880.f, -80.f - 25.f));
-	CreateCookie(Vec2(760.f, 100.f - 25.f));
-	CreateCookie(Vec2(1525.f, -40.f - 25.f));
-	CreateCookie(Vec2(2095.f, -150.f - 25.f));
-	CreateCookie(Vec2(2215.f, 60.f - 25.f));
-	CreateCookie(Vec2(2975.f, -40.f - 25.f));
-	CreateCookie(Vec2(3093.f, -140.f - 25.f));
-	CreateCookie(Vec2(3660.f, -40.f - 25.f));
-	CreateCookie(Vec2(5065.f, 0.f - 25.f));
+	CreateCookie(Vec2(880.f, -80.f - 25.f), 0);
+	CreateCookie(Vec2(760.f, 100.f - 25.f), 1);
+	CreateCookie(Vec2(1525.f, -40.f - 25.f), 2);
+	CreateCookie(Vec2(2095.f, -150.f - 25.f), 3);
+	CreateCookie(Vec2(2215.f, 60.f - 25.f), 4);
+	CreateCookie(Vec2(2975.f, -40.f - 25.f), 5);
+	CreateCookie(Vec2(3093.f, -140.f - 25.f), 6);
+	CreateCookie(Vec2(3660.f, -40.f - 25.f), 7);
+	CreateCookie(Vec2(5065.f, 0.f - 25.f), 8);
 }
 
 void DeleteObject(CObject* _pObj)

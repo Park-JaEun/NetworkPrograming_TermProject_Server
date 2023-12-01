@@ -21,27 +21,7 @@ CBullet::~CBullet()
 
 void CBullet::update()
 {
-	Vec2 vPos = GetPos();
-
-	if (m_fDegree != 0.f) {
-		/*vPos.x += DT * m_fSpeed * cosf(m_fDegree);
-		vPos.y += DT * m_fSpeed * sinf(m_fDegree);*/
-	}
-	else {
-		/*if (m_bIsDown)
-			vPos.y += DT * m_fSpeed * m_fDir;
-		else
-			vPos.x += DT * m_fSpeed * m_fDir;*/
-	}
-	
-	//SetPos(vPos);
 	GetAnimator()->update();
-
-	//// 총알이 게임월드 밖으로 나가거나, 최대 사거리(MAX_BULLET_DISTANCE)를 넘어가면 삭제
-	//// 최대 사거리 계산
-	//double fDistance = sqrt(pow(GetFirstPos().x - vPos.x, 2) + pow(GetFirstPos().y - vPos.y, 2));
-	//if (!IsInWorld(vPos) || fDistance > MAX_BULLET_DISTANCE)
-	//	DeleteObject(this);
 }
 
 void CBullet::render(HDC _dc)

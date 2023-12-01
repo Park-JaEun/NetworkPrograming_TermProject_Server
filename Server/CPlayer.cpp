@@ -143,6 +143,7 @@ void CPlayer::CreateBullet(int id, int bulletId)
 	pBullet->SetPos(vBulletPos);
 	pBullet->SetFirstPos(vBulletPos);
 	pBullet->SetID(bulletId);
+	pBullet->SetPlayerID(id);
 
 	if (m_bDir == DIR_RIGHT)
 		pBullet->SetDir(DIR_RIGHT);

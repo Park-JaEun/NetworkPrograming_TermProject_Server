@@ -92,10 +92,19 @@ struct SC_BULLET_PACKET {
 	bool bulletIsDead;	// 투사체 생존 여부 (2023. 11. 30 수정)
 };
 
-// 아이템 정보 수신 관련 패킷
-struct SC_ITEM_PACKET {
+// 토끼 아이템 정보 수신 관련 패킷 (2023. 12. 01 수정)
+struct SC_RABBIT_ITEM_PACKET {
 	char type;			// 패킷 타입
-	Vec2 itemPos;		// 아이템 위치	(2023. 11. 30 수정)
+	int itemID;			// 아이템 id (2023. 12. 01 수정)
+	Vec2 itemPos;		// 아이템 위치(2023. 11. 30 수정)
+	bool itemIsDead;	// 아이템 생존 여부 (2023. 11. 30 수정)
+};
+
+// 쿠키 아이템 정보 수신 관련 패킷 (2023. 12. 01 수정)
+struct SC_COOKIE_ITEM_PACKET {
+	char type;			// 패킷 타입
+	int itemID;			// 아이템 id (2023. 12. 01 수정)
+	Vec2 itemPos;		// 아이템 위치(2023. 11. 30 수정)
 	bool itemIsDead;	// 아이템 생존 여부 (2023. 11. 30 수정)
 };
 

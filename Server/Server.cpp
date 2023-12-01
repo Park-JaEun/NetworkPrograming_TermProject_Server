@@ -402,43 +402,71 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				}
 			}
 		}
-		
-		// 아이템 정보 송신
+
+		// 토끼 아이템 정보 송신
 		{
 			std::lock_guard<std::mutex> lock{ g_mutex };
-			const std::vector<CObject*>& vecItem = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::ITEM);
+			const std::vector<CObject*>& vecRabbitItem = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::ITEM_RABBIT);
 
-			SC_ITEM_PACKET itemPacket;
-			itemPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_ITEM);
-			size = sizeof(SC_ITEM_PACKET);
+			SC_RABBIT_ITEM_PACKET rabbitItemPacket;
+			rabbitItemPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_RABBIT_ITEM);
+			size = sizeof(SC_RABBIT_ITEM_PACKET);
 
-			// 아이템 수 전송
-			int itemCount = vecItem.size();
-			retval = send(client_sock, reinterpret_cast<char*>(&itemCount), sizeof(itemCount), 0);
+			// 토끼 아이템 수 전송
+			int rabbitItemCount = vecRabbitItem.size();
+			retval = send(client_sock, reinterpret_cast<char*>(&rabbitItemCount), sizeof(rabbitItemCount), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
 				break;
 			}
 
-			// 아이템 정보 보내기
-			for (CObject* pItem : vecItem) {
-				itemPacket.itemPos		= ((CItem*)pItem)->GetPos();
-				itemPacket.itemIsDead	= pItem->IsDead();
+			// 토끼 아이템 정보 보내기
+			for (CObject* pRabbitItem : vecRabbitItem) {
+				rabbitItemPacket.itemID		= ((CItem*)pRabbitItem)->GetID();
+				rabbitItemPacket.itemPos	= ((CItem*)pRabbitItem)->GetPos();
+				rabbitItemPacket.itemIsDead = pRabbitItem->IsDead();
 
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-				retval = send(client_sock, reinterpret_cast<char*>(&itemPacket), size, 0);
+				retval = send(client_sock, reinterpret_cast<char*>(&rabbitItemPacket), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
 					break;
 				}
+			}
+		}
 
-				// 아이템 삭제
-				if (pItem->IsDead()) {
-					// itemCount 감소
-					--itemCount;
+		// 쿠키 아이템 정보 송신
+		{
+			std::lock_guard<std::mutex> lock{ g_mutex };
+			const std::vector<CObject*>& vecCookieItem = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::ITEM_COOKIE);
+
+			SC_COOKIE_ITEM_PACKET cookieItemPacket;
+			cookieItemPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_COOKIE_ITEM);
+			size = sizeof(SC_COOKIE_ITEM_PACKET);
+
+			// 쿠키 아이템 수 전송
+			int cookieItemCount = vecCookieItem.size();
+			retval = send(client_sock, reinterpret_cast<char*>(&cookieItemCount), sizeof(cookieItemCount), 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
+			}
+
+			// 쿠키 아이템 정보 보내기
+			for (CObject* pCookieItem : vecCookieItem) {
+				cookieItemPacket.itemID		= ((CItem*)pCookieItem)->GetID();
+				cookieItemPacket.itemPos	= ((CItem*)pCookieItem)->GetPos();
+				cookieItemPacket.itemIsDead = pCookieItem->IsDead();
+
+				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				retval = send(client_sock, reinterpret_cast<char*>(&cookieItemPacket), size, 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					break;
 				}
 			}
 		}
+
 		
 		// 플레이어 투사체 정보 송신
 		{
@@ -460,7 +488,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			if (bulletCount != 0) {
 				// 클라이언트에 플레이어 투사체 정보 보내기
 				for (CObject* pBullet : vecBullet) {
-					bulletPacket.playerID		= player.id;	// 발사한 플레이어 id
+					bulletPacket.playerID		= ((CBullet*)pBullet)->GetPlayerID();	// 발사한 플레이어 id
 					bulletPacket.bulletID		= ((CBullet*)pBullet)->GetID();
 					bulletPacket.bulletPos		= ((CBullet*)pBullet)->GetPos();
 					bulletPacket.bulletIsDead	= ((CBullet*)pBullet)->IsDead();
@@ -472,15 +500,11 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 						err_display("send()");
 						break;
 					}
-
-					// 투사체 삭제
-					if (pBullet->IsDead()) {
-						// BulletCount 감소
-						--bulletCount;
-					}
 				}
 			}
 		}
+
+
 	}
 
 	std::cout << "\n[TCP 서버] 클라이언트 접속 종료: IP 주소=" << addr << ", 포트 번호=" << ntohs(clientaddr.sin_port) << ", 닉네임=" << nick_name << std::endl;
@@ -531,7 +555,8 @@ void init()
 
 	// 충돌 그룹 지정
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::MONSTER);
-	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::ITEM, GROUP_TYPE::PLAYER);
+	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::ITEM_RABBIT, GROUP_TYPE::PLAYER);
+	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::ITEM_COOKIE, GROUP_TYPE::PLAYER);
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_PLAYER, GROUP_TYPE::MONSTER);
 	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_PLAYER, GROUP_TYPE::BOSS);
 	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_BOSS, GROUP_TYPE::PLAYER);

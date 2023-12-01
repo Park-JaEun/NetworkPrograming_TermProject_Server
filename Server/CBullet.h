@@ -4,6 +4,7 @@
 class CBullet : public CObject {
 private:
     int     m_iID;          // ID
+    int     m_iPlayerID;    // 발사한 플레이어 ID
     float   m_fDir;         // 방향
     float   m_fSpeed;       // 속도
     float   m_fDegree;      // 각도
@@ -16,12 +17,14 @@ public:
     float GetDegree() { return m_fDegree; }
     Vec2 GetFirstPos() { return m_vFirstPos; }
     int GetID() { return m_iID; }
+    int GetPlayerID() { return m_iPlayerID; }
 
     void SetDir(int _iDir);
     void SetSpeed(float _fSpeed) { m_fSpeed = _fSpeed; }
     void SetDegree(float _fDegree) { m_fDegree = _fDegree; }
     void SetFirstPos(Vec2 _vPos) { m_vFirstPos = _vPos; }
     void SetID(int _iID) { m_iID = _iID; }
+    void SetPlayerID(int _iID) { m_iPlayerID = _iID; }
 
 public:
     void OnCollision(CCollider* _pOther) override;

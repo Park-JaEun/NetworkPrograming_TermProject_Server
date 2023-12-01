@@ -12,6 +12,7 @@
 #include "CScene.h"
 #include "CSound.h"
 #include "CCollider.h"
+#include "CPlayer.h"
 
 
 CCore::CCore() :
@@ -208,13 +209,12 @@ void CCore::TestSendKeyInput()
 		((CMonster*)pMonster)->SetState(pMonsterPacket->monsterState);
 	}
 
-	// 아이템 정보 받기
-	SC_ITEM_PACKET* pItemPacket = reinterpret_cast<SC_ITEM_PACKET*>(buf);
-	const std::vector<CObject*>& vecItem = CSceneMgr::GetInst()->GetCurScene()->GetGroupObject(GROUP_TYPE::ITEM);
+	// 토끼 아이템 정보 받기
+	SC_RABBIT_ITEM_PACKET* pRabbitItemPacket = reinterpret_cast<SC_RABBIT_ITEM_PACKET*>(buf);
 
-	// 아이템 수 받기
-	int itemCount = 0;
-	retval = recv(sock, reinterpret_cast<char*>(&itemCount), sizeof(itemCount), MSG_WAITALL);
+	// 토끼 아이템 수 받기
+	int rabbitItemCount = 0;
+	retval = recv(sock, reinterpret_cast<char*>(&rabbitItemCount), sizeof(rabbitItemCount), MSG_WAITALL);
 	if (retval == SOCKET_ERROR) {
 		err_display("recv()");
 		closesocket(sock);
@@ -222,91 +222,72 @@ void CCore::TestSendKeyInput()
 		return;
 	}
 
-	// 정보 받기
-	for (int i = 0; i < itemCount; ++i) {
-		retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
-		retval = recv(sock, buf, size, MSG_WAITALL);
-		if (retval == SOCKET_ERROR) {
-			err_display("recv()");
-			closesocket(sock);
-			WSACleanup();
-			return;
-		}
+	if (rabbitItemCount != 0) {
+		// 정보 받기
+		for (int i = 0; i < rabbitItemCount; ++i) {
+			retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+			retval = recv(sock, buf, size, MSG_WAITALL);
+			if (retval == SOCKET_ERROR) {
+				err_display("recv()");
+				closesocket(sock);
+				WSACleanup();
+				return;
+			}
 
-		if (pItemPacket->itemIsDead) {
-			// 삭제된 아이템은 클라이언트 내에서 삭제
-			DeleteObject(vecItem[i]);
-		}
-		else {
-			// 삭제되지 않은 아이템들은 업데이트
-			vecItem[i]->SetPos(pItemPacket->itemPos);
+			// vecRabbitItem 안에 똑같은 이름의 오브젝트 불러오기
+			CObject* pRabbitItem = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Bunny" + std::to_wstring(pRabbitItemPacket->itemID));
+
+			if (pRabbitItemPacket->itemIsDead) {
+				// 삭제된 아이템은 클라이언트 내에서 삭제
+				DeleteObject(pRabbitItem);
+			}
+			else {
+				// 삭제되지 않은 아이템들은 업데이트
+				pRabbitItem->SetPos(pRabbitItemPacket->itemPos);
+			}
 		}
 	}
 
-	//// 플레이어 투사체 정보 받기
-	//SC_BULLET_PACKET* pbulletPacket = reinterpret_cast<SC_BULLET_PACKET*>(buf);
-	//const std::vector<CObject*>& vecPlayerBullet = CSceneMgr::GetInst()->GetCurScene()->GetGroupObject(GROUP_TYPE::BULLET_PLAYER);
+	// 쿠키 아이템 정보 받기
+	SC_COOKIE_ITEM_PACKET* pCookieItemPacket = reinterpret_cast<SC_COOKIE_ITEM_PACKET*>(buf);
 
-	//// 플레이어 투사체 수 받기
-	//int bulletCount = 0;
-	//retval = recv(sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), MSG_WAITALL);
-	//if (retval == SOCKET_ERROR) {
-	//	err_display("recv()");
-	//	closesocket(sock);
-	//	WSACleanup();
-	//	return;
-	//}
+	// 쿠키 아이템 수 받기
+	int cookieItemCount = 0;
 
-	//if (bulletCount != 0) {
-	//	// 정보 받기
-	//	for (int i = 0; i < bulletCount; ++i) {
-	//		retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
-	//		retval = recv(sock, buf, size, MSG_WAITALL);
-	//		if (retval == SOCKET_ERROR) {
-	//			err_display("recv()");
-	//			closesocket(sock);
-	//			WSACleanup();
-	//			return;
-	//		}
+	retval = recv(sock, reinterpret_cast<char*>(&cookieItemCount), sizeof(cookieItemCount), MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
 
-	//		// vecPlayerBullet 안에 똑같은 이름의 오브젝트가 있는지 확인
-	//		CObject* pBullet = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Player" + std::to_wstring(pbulletPacket->playerID) + L"Bullet" + std::to_wstring(pbulletPacket->bulletID));
+	if (cookieItemCount != 0) {
+		// 정보 받기
+		for (int i = 0; i < cookieItemCount; ++i) {
+			retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+			retval = recv(sock, buf, size, MSG_WAITALL);
+			if (retval == SOCKET_ERROR) {
+				err_display("recv()");
+				closesocket(sock);
+				WSACleanup();
+				return;
+			}
 
-	//		if (pBullet == nullptr) {
-	//			// 없으면 새로 생성
-	//			pBullet = new CBullet;
-	//			pBullet->SetName(L"Player" + std::to_wstring(pbulletPacket->playerID) + L"Bullet" + std::to_wstring(pbulletPacket->bulletID));
-	//			pBullet->SetPos(pbulletPacket->bulletPos);
-	//			((CBullet*)pBullet)->SetFirstPos(pbulletPacket->bulletPos);
-	//			((CBullet*)pBullet)->SetDir(pbulletPacket->bulletDir);
-	//			((CBullet*)pBullet)->SetSpeed(700.f);
+			// vecCookieItem 안에 똑같은 이름의 오브젝트 불러오기
+			CObject* pCookieItem = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Cookie" + std::to_wstring(pCookieItemPacket->itemID));
 
-	//			pBullet->CreateCollider();
-	//			((CBullet*)pBullet)->CreateAnimator(pbulletPacket->playerID);
+			if (pCookieItemPacket->itemIsDead) {
+				// 삭제된 아이템은 클라이언트 내에서 삭제
+				DeleteObject(pCookieItem);
+			}
+			else {
+				// 삭제되지 않은 아이템들은 업데이트
+				pCookieItem->SetPos(pCookieItemPacket->itemPos);
+			}
+		}
+	}
 
-	//			pBullet->GetCollider()->SetScale(Vec2(25.f, 25.f));
-
-	//			CreateObject(pBullet, GROUP_TYPE::BULLET_PLAYER);
-	//		}
-	//		// 있으면 업데이트
-	//		else {
-	//			if (pbulletPacket->bulletIsDead) {
-	//				// 삭제된 아이템은 클라이언트 내에서 삭제
-	//				DeleteObject(vecPlayerBullet[i]);
-	//			}
-	//			else {
-	//				// 삭제되지 않은 아이템들은 업데이트
-	//				vecPlayerBullet[i]->SetPos(pbulletPacket->bulletPos);
-	//			}
-	//		}
-	//	}
-	//}
-
-	// 위 플레이어 투사체 정보 받기는 EventMgr에서 삭제될 때, 액세스 위반 오류가 발생한다.
-	// 액세스 위반 오류가 나지 않도록 전체 코드를 기반으로 알맞게 고쳐줘.
-	// 이 부분은 너가 고쳐야 할 부분이야.
-	// 이 부분을 고치면, 플레이어 투사체 정보를 받는 부분은 다음과 같이 바뀌어야 해.
-	// 이 부분을 고치면, 플레이어 투사체 정보를 받는 부분은 다음과 같이 바뀌어야 해.
 
 	// 플레이어 투사체 정보 받기
 	SC_BULLET_PACKET* pbulletPacket = reinterpret_cast<SC_BULLET_PACKET*>(buf);
@@ -351,6 +332,10 @@ void CCore::TestSendKeyInput()
 				pBullet->GetCollider()->SetScale(Vec2(25.f, 25.f));
 
 				CreateObject(pBullet, GROUP_TYPE::BULLET_PLAYER);
+
+				// 플레이어 슈팅 이펙트 재생
+				CObject* pPlayer = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Player" + std::to_wstring(pbulletPacket->playerID));
+				((CPlayer*)pPlayer)->PlayShootingEffect();
 			}
 			// 있으면 업데이트
 			else {

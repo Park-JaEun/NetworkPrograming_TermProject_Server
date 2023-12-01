@@ -53,36 +53,38 @@ void CreateFloor(const Vec2& _vPos)
 	CreateObject(pFloorObj, GROUP_TYPE::FLOOR);
 }
 
-void CreateBunny(const Vec2& _vPos)
+void CreateBunny(const Vec2& _vPos, int id)
 {
 	CItem* pBunnyItemObj = new CItem;
 
-	pBunnyItemObj->SetName(L"Bunny");
+	pBunnyItemObj->SetName(L"Bunny" + std::to_wstring(id));
 	pBunnyItemObj->SetPos(_vPos);
 	pBunnyItemObj->SetFirstPos(_vPos);
 	pBunnyItemObj->SetScale(Vec2(25.f, 25.f));
+	pBunnyItemObj->SetType(ITEM_TYPE::BUNNY);
 
 	pBunnyItemObj->CreateCollider();
 	pBunnyItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));
 	pBunnyItemObj->GetCollider()->SetOffsetPos(Vec2(12.5f, 12.5f));
 
-	CreateObject(pBunnyItemObj, GROUP_TYPE::ITEM);
+	CreateObject(pBunnyItemObj, GROUP_TYPE::ITEM_RABBIT);
 }
 
-void CreateCookie(const Vec2& _vPos)
+void CreateCookie(const Vec2& _vPos, int id)
 {
 	CItem* pCookieItemObj = new CItem;
 
-	pCookieItemObj->SetName(L"Cookie");
+	pCookieItemObj->SetName(L"Cookie" + std::to_wstring(id));
 	pCookieItemObj->SetPos(_vPos);
 	pCookieItemObj->SetFirstPos(_vPos);
 	pCookieItemObj->SetScale(Vec2(25.f, 25.f));
+	pCookieItemObj->SetType(ITEM_TYPE::COOKIE);
 
 	pCookieItemObj->CreateCollider();
 	pCookieItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));
 	pCookieItemObj->GetCollider()->SetOffsetPos(Vec2(12.5f, 12.5f));
 
-	CreateObject(pCookieItemObj, GROUP_TYPE::ITEM);
+	CreateObject(pCookieItemObj, GROUP_TYPE::ITEM_COOKIE);
 }
 
 void DeleteObject(CObject* _pObj)

@@ -6,8 +6,8 @@ class CObject;
 void CreateObject(CObject* _pObj, GROUP_TYPE _eGroup);
 void CreateMonster(const Vec2& _vPos);
 void CreateFloor(const Vec2& _vPos);
-void CreateBunny(const Vec2& _vPos);
-void CreateCookie(const Vec2& _vPos);
+void CreateBunny(const Vec2& _vPos, int id);
+void CreateCookie(const Vec2& _vPos, int id);
 
 // 오브젝트 삭제
 void DeleteObject(CObject* _pObj);

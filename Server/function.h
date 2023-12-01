@@ -9,8 +9,8 @@ void CreateBoss();
 void CreateMonster(const Vec2& _vPos);
 void CreateMonsters();
 
-void CreateBunny(const Vec2& _vPos);
-void CreateCookie(const Vec2& _vPos);
+void CreateBunny(const Vec2& _vPos, int id);
+void CreateCookie(const Vec2& _vPos, int id);
 void CreateItems();
 
 // 오브젝트 삭제

@@ -134,15 +134,6 @@ void CPlayer::update()
 		//	m_eState = PLAYER_STATE::IDLE;
 		//}
 
-		if (KEY_TAP(KEY::SPACE)) {
-			// ÃÑ¾Ë ¹ß»ç
-			//int id = CCore::GetInst()->GetID();
-			//CreateBullet(id);
-
-			// ½´ÆÃ ÀÌÆåÆ® Àç»ý
-			m_EffectAnimator->Play(L"Shooting", false);
-			m_EffectAnimator->FindAnimation(L"Shooting")->SetFrame(0);
-		}
 	}
 
 	PlayAnimation();
@@ -944,6 +935,13 @@ void CPlayer::PlayAnimation()
 	}
 
 	
+}
+
+void CPlayer::PlayShootingEffect()
+{
+	// ½´ÆÃ ÀÌÆåÆ® Àç»ý
+	m_EffectAnimator->Play(L"Shooting", false);
+	m_EffectAnimator->FindAnimation(L"Shooting")->SetFrame(0);
 }
 
 void CPlayer::OnCollision(CCollider* _pOther)

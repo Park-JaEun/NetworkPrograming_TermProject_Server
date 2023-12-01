@@ -5,6 +5,7 @@ class CItem :
     public CObject
 {
 private:
+    int             m_iID;
     Vec2            m_vFirstPos;
     float           m_fSpeed;
     float           m_fMaxDistance;
@@ -15,7 +16,10 @@ public:
     void update() override;
 
 public:
+    int GetID() { return m_iID; }
+
     void SetFirstPos(Vec2 _vPos) { m_vFirstPos = _vPos; }
+    void SetID(int _iID) { m_iID = _iID; }
 
 public:
     void OnCollision(CCollider* _pOther) override;

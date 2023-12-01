@@ -6,17 +6,36 @@
 #include "CCamera.h"
 #include "CTimer.h"
 
-CItem::CItem() : m_vFirstPos{Vec2(0.f, 0.f)}, m_fSpeed{50.f}, m_fMaxDistance{20.f}, m_bDir{true}
+CItem::CItem() : m_vFirstPos{Vec2(0.f, 0.f)}, m_fSpeed{50.f}, m_fMaxDistance{20.f}, m_bDir{true}, m_eType{ITEM_TYPE::BUNNY}, m_vPrevPos{Vec2(0.f, 0.f)}, m_bIsExist{true}, m_fTime{0.f}
 {
 	CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Item", L"texture\\items\\items.bmp");
 }
 
 CItem::~CItem()
 {
+	/*if (GetType() == ITEM_TYPE::BUNNY) {
+		std::cout << "Bunny Item Destroy" << std::endl;
+	}
+	
+	if (GetType() == ITEM_TYPE::COOKIE) {
+		std::cout << "Cookie Item Destroy" << std::endl;
+	}*/
 }
 
 void CItem::update()
 {
+	// 이전 위치와 현재 위치가 변화가 없는 시간이 3초가 넘으면 존재하지 않는다고 판단
+	if ((int)m_vPrevPos.y == (int)GetPos().y) {
+		m_fTime += DT;
+		if (m_fTime > 0.3f) {
+			m_bIsExist = false;
+		}
+	}
+	else {
+		m_fTime = 0.f;
+		m_vPrevPos = GetPos();
+	}
+
 }
 
 void CItem::render(HDC _dc)
@@ -26,7 +45,7 @@ void CItem::render(HDC _dc)
 	Vec2 vScale = GetScale();
 	Vec2 vRenderPos = CCamera::GetInst()->GetRenderPos(vPos);
 
-	if (GetName() == L"Bunny") {
+	if (GetType() == ITEM_TYPE::BUNNY && m_bIsExist) {
 		TransparentBlt(_dc,
 			(int)vRenderPos.x,
 			(int)vRenderPos.y,
@@ -39,7 +58,7 @@ void CItem::render(HDC _dc)
 			25,
 			RGB(255, 0, 255));
 	}
-	else if (GetName() == L"Cookie") {
+	else if (GetType() == ITEM_TYPE::COOKIE && m_bIsExist) {
 		TransparentBlt(_dc,
 			(int)vRenderPos.x,
 			(int)vRenderPos.y,

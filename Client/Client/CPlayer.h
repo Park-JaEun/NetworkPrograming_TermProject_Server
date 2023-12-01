@@ -36,6 +36,7 @@ public:
     void PlusBunnyCount() { ++m_iBunnyCount; }
     void PlusCookieCount() { ++m_iCookieCount; }
     void PlusKillCount() { ++m_iKillCount; }
+    void PlayShootingEffect();
 
     void update() override;
     void render(HDC _dc) override;
@@ -50,6 +51,7 @@ private:
     void CreateHyein();
 
     void PlayAnimation();
+  
 
 public:
     void OnCollision(CCollider* _pOther) override;

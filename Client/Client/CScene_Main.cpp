@@ -211,40 +211,30 @@ void CScene_Main::Enter()
 	/////////////////
 	// Item Object //
 	/////////////////
-	CreateBunny(Vec2(710.f, -83.f - 25.f));
-	CreateBunny(Vec2(1350.f, -140.f - 25.f));
-	CreateBunny(Vec2(1355.f, 60.f - 25.f));
-	CreateBunny(Vec2(2165.f, -40.f - 25.f));
-	CreateBunny(Vec2(2855.f, 60.f - 25.f));
-	CreateBunny(Vec2(3375.f, -140.f - 25.f));
-	CreateBunny(Vec2(3925.f, -140.f - 25.f));
-	CreateBunny(Vec2(3660.f, 80.f - 25.f));
-	CreateBunny(Vec2(4195.f, 60.f - 25.f));
-	CreateBunny(Vec2(4480.f, 60.f - 25.f));
-	CreateBunny(Vec2(4340.f, -40.f - 25.f));
-	CreateBunny(Vec2(4480.f, -140.f - 25.f));
-	CreateBunny(Vec2(4195.f, -140.f - 25.f));
+	CreateBunny(Vec2(710.f, -83.f - 25.f), 0);
+	CreateBunny(Vec2(1350.f, -140.f - 25.f), 1);
+	CreateBunny(Vec2(1355.f, 60.f - 25.f), 2);
+	CreateBunny(Vec2(2165.f, -40.f - 25.f), 3);
+	CreateBunny(Vec2(2855.f, 60.f - 25.f), 4);
+	CreateBunny(Vec2(3375.f, -140.f - 25.f), 5);
+	CreateBunny(Vec2(3925.f, -140.f - 25.f), 6);
+	CreateBunny(Vec2(3660.f, 80.f - 25.f), 7);
+	CreateBunny(Vec2(4195.f, 60.f - 25.f), 8);
+	CreateBunny(Vec2(4480.f, 60.f - 25.f), 9);
+	CreateBunny(Vec2(4340.f, -40.f - 25.f), 10);
+	CreateBunny(Vec2(4480.f, -140.f - 25.f), 11);
+	CreateBunny(Vec2(4195.f, -140.f - 25.f), 12);
 
-	CreateCookie(Vec2(880.f, -80.f - 25.f));
-	CreateCookie(Vec2(760.f, 100.f - 25.f));
-	CreateCookie(Vec2(1525.f, -40.f - 25.f));
-	CreateCookie(Vec2(2095.f, -150.f - 25.f));
-	CreateCookie(Vec2(2215.f, 60.f - 25.f));
-	CreateCookie(Vec2(2975.f, -40.f - 25.f));
-	CreateCookie(Vec2(3093.f, -140.f - 25.f));
-	CreateCookie(Vec2(3660.f, -40.f - 25.f));
-	CreateCookie(Vec2(5065.f, 0.f - 25.f));
+	CreateCookie(Vec2(880.f, -80.f - 25.f), 0);
+	CreateCookie(Vec2(760.f, 100.f - 25.f), 1);
+	CreateCookie(Vec2(1525.f, -40.f - 25.f), 2);
+	CreateCookie(Vec2(2095.f, -150.f - 25.f), 3);
+	CreateCookie(Vec2(2215.f, 60.f - 25.f), 4);
+	CreateCookie(Vec2(2975.f, -40.f - 25.f), 5);
+	CreateCookie(Vec2(3093.f, -140.f - 25.f), 6);
+	CreateCookie(Vec2(3660.f, -40.f - 25.f), 7);
+	CreateCookie(Vec2(5065.f, 0.f - 25.f), 8);
 	/////////////////
-
-
-	// 충돌 그룹 지정
-	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::MONSTER);
-	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_PLAYER, GROUP_TYPE::MONSTER);
-	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_PLAYER, GROUP_TYPE::BOSS);
-	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_BOSS, GROUP_TYPE::PLAYER);
-	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_MONSTER, GROUP_TYPE::PLAYER);
-	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::MISSILE_BOSS, GROUP_TYPE::PLAYER);
-	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::ITEM, GROUP_TYPE::PLAYER);
 
 	// Camera Look 지정
 	//CCamera::GetInst()->SetLookAt(Vec2(5060.f, 0.f));
