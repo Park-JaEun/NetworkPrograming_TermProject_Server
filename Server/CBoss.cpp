@@ -4,6 +4,19 @@
 #include "CTimer.h"
 #include "CCollider.h"
 #include "CObjectMgr.h"
+#include <random>
+
+int bossBulletId = 0;
+
+// 완전 랜덤 난수
+int GetRandomNumber()
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<int> uid(0, 1);
+
+	return uid(gen);
+}
 
 CBoss::CBoss() : m_iHP(50), m_vFirstPos{}, m_fSpeed(50.f), m_fMaxDistance(15.f),
 m_bIsAppear(false), m_bHaveToAppear(false), m_fAttackTime(0.f),
@@ -64,18 +77,19 @@ void CBoss::update()
 
 			// 1초마다 한 번씩 2개의 패턴 중 랜덤으로 공격
 			if (m_fAttackTime >= 1.f) {
-				int iRand = rand() % 2;
+				int iRand = GetRandomNumber();
 
-				/*switch (iRand) {
+				switch (iRand) {
 				case 0:
-					CreateMissile();
+					//CreateMissile();
 					break;
 				case 1:
-					CreateMissile();
+					//CreateMissile();
 					CreateFanBullet();
 					break;
-				}*/
+				}
 
+				std::cout << "보스 발사" << std::endl;
 				m_fAttackTime = 0.f;	// 공격 후 공격 시간 초기화
 			}
 			else
@@ -92,8 +106,9 @@ void CBoss::CreateFanBullet()
 	int iCount = 0;
 
 	for (int i = 0; i < 15; ++i) {
-		int iRand = rand() % 2;
+		int iRand = GetRandomNumber();
 
+		// 총알	3개 중 1개는 생성하지 않음
 		if (iRand == 0 && iCount < 3) {
 			++iCount;
 			continue;
@@ -102,11 +117,13 @@ void CBoss::CreateFanBullet()
 		CBullet* pBullet = new CBullet;
 
 		pBullet->SetName(L"Boss Bullet");
-		pBullet->SetSpeed(200.f);
+		pBullet->SetSpeed(100.f);
 		pBullet->SetPos(vBulletPos);
 		pBullet->SetFirstPos(vBulletPos);
 		pBullet->SetDir(DIR_LEFT);
 		pBullet->SetDegree(59.0f + i / 10.f);
+		pBullet->SetID(bossBulletId++);
+		pBullet->SetPlayerID(4);
 		pBullet->CreateCollider();
 		pBullet->GetCollider()->SetScale(Vec2(8.f, 8.f));
 

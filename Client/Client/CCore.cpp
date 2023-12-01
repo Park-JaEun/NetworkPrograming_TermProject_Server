@@ -427,6 +427,65 @@ void CCore::TestSendKeyInput()
 			}
 		}
 	}
+
+	// 보스 투사체 정보 받기
+	SC_BULLET_PACKET* pBossBulletPacket = reinterpret_cast<SC_BULLET_PACKET*>(buf);
+
+	// 보스 투사체 수 받기
+	int bossBulletCount = 0;
+	retval = recv(sock, reinterpret_cast<char*>(&bossBulletCount), sizeof(bossBulletCount), MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
+
+	if (bossBulletCount != 0) {
+		// 정보 받기
+		for (int i = 0; i < bossBulletCount; ++i) {
+			retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+			retval = recv(sock, buf, size, MSG_WAITALL);
+			if (retval == SOCKET_ERROR) {
+				err_display("recv()");
+				closesocket(sock);
+				WSACleanup();
+				return;
+			}
+
+			// vecBossBullet 안에 똑같은 이름의 오브젝트가 있는지 확인
+			CObject* pBullet = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"BossBullet" + std::to_wstring(pBossBulletPacket->bulletID));
+
+			if (pBullet == nullptr) {
+				// 없으면 새로 생성
+				pBullet = new CBullet;
+				pBullet->SetName(L"BossBullet" + std::to_wstring(pBossBulletPacket->bulletID));
+				pBullet->SetPos(pBossBulletPacket->bulletPos);
+				((CBullet*)pBullet)->SetFirstPos(pBossBulletPacket->bulletPos);
+				((CBullet*)pBullet)->SetDir(pBossBulletPacket->bulletDir);
+				((CBullet*)pBullet)->SetDegree(pBossBulletPacket->bulletDegree);
+				((CBullet*)pBullet)->SetSpeed(100.f);
+
+				pBullet->CreateCollider();
+				((CBullet*)pBullet)->CreateAnimator(GROUP_TYPE::BULLET_BOSS);
+
+				pBullet->GetCollider()->SetScale(Vec2(8.f, 8.f));
+
+				CreateObject(pBullet, GROUP_TYPE::BULLET_BOSS);
+			}
+			// 있으면 업데이트
+			else {
+				if (pBossBulletPacket->bulletIsDead) {
+					// 삭제된 아이템은 클라이언트 내에서 삭제
+					DeleteObject(pBullet);
+				}
+				else {
+					// 삭제되지 않은 아이템들은 업데이트
+					pBullet->SetPos(pBossBulletPacket->bulletPos);
+				}
+			}
+		}
+	}
 }
 
 void CCore::progress()

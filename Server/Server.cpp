@@ -561,6 +561,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					bulletPacket.bulletPos		= ((CBullet*)pBullet)->GetPos();
 					bulletPacket.bulletIsDead	= ((CBullet*)pBullet)->IsDead();
 					bulletPacket.bulletDir		= ((CBullet*)pBullet)->GetDir();
+					bulletPacket.bulletDegree	= 0.f;
 
 					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 					retval = send(client_sock, reinterpret_cast<char*>(&bulletPacket), size, 0);
@@ -597,6 +598,44 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					bulletPacket.bulletPos		= ((CBullet*)pBullet)->GetPos();
 					bulletPacket.bulletIsDead	= ((CBullet*)pBullet)->IsDead();
 					bulletPacket.bulletDir		= ((CBullet*)pBullet)->GetDir();
+					bulletPacket.bulletDegree	= 0.f;
+
+					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+					retval = send(client_sock, reinterpret_cast<char*>(&bulletPacket), size, 0);
+					if (retval == SOCKET_ERROR) {
+						err_display("send()");
+						break;
+					}
+				}
+			}
+		}
+
+		// 보스 투사체 정보 송신
+		{
+			std::lock_guard<std::mutex> lock{ g_mutex };
+			const std::vector<CObject*>& vecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_BOSS);
+
+			SC_BULLET_PACKET bulletPacket;
+			bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
+			size = sizeof(SC_BULLET_PACKET);
+
+			// 클라이언트에게 보스 투사체 수 전송
+			int bulletCount = vecBullet.size();
+			retval = send(client_sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
+			}
+
+			if (bulletCount != 0) {
+				// 클라이언트에게 보스 투사체 정보 보내기
+				for (CObject* pBullet : vecBullet) {
+					bulletPacket.playerID		= ((CBullet*)pBullet)->GetPlayerID();
+					bulletPacket.bulletID		= ((CBullet*)pBullet)->GetID();
+					bulletPacket.bulletPos		= ((CBullet*)pBullet)->GetPos();
+					bulletPacket.bulletIsDead	= ((CBullet*)pBullet)->IsDead();
+					bulletPacket.bulletDir		= ((CBullet*)pBullet)->GetDir();
+					bulletPacket.bulletDegree	= ((CBullet*)pBullet)->GetDegree();
 
 					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 					retval = send(client_sock, reinterpret_cast<char*>(&bulletPacket), size, 0);
@@ -660,9 +699,8 @@ void init()
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::ITEM_COOKIE, GROUP_TYPE::PLAYER);
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_PLAYER, GROUP_TYPE::MONSTER);
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_MONSTER, GROUP_TYPE::PLAYER);
-	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_PLAYER, GROUP_TYPE::BOSS);
+	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_PLAYER, GROUP_TYPE::BOSS);
 	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_BOSS, GROUP_TYPE::PLAYER);
-	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_MONSTER, GROUP_TYPE::PLAYER);
 	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::MISSILE_BOSS, GROUP_TYPE::PLAYER);
 }
 

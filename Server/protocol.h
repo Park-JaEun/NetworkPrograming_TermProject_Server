@@ -92,6 +92,7 @@ struct SC_BULLET_PACKET {
 	int bulletID;		// 투사체 id (2023. 12. 01 수정)
 	Vec2 bulletPos;		// 투사체 위치 (2023. 11. 30 수정)
 	float bulletDir;	// 투사체 방향 (2023. 12. 01 수정)
+	float bulletDegree;	// 투사체 각도 (2023. 12. 01 수정)
 	bool bulletIsDead;	// 투사체 생존 여부 (2023. 11. 30 수정)
 };
 
