@@ -11,7 +11,6 @@ private:
     float           m_fMaxDistance;
     float           m_fTime;
     bool            m_bDir;
-    bool            m_bIsExist;
     ITEM_TYPE	    m_eType;
 
     CLONE(CItem)

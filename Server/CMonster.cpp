@@ -5,7 +5,10 @@
 #include "CTimer.h"
 #include "CCollider.h"
 
-CMonster::CMonster() : m_fSpeed(50.f), m_vFirstPos{}, m_fMaxDistance(50.f), m_bDir(DIR_RIGHT), m_iHP(3), m_eState(MONSTER_STATE::MOVE)
+int monsterBulletId = 0;
+
+CMonster::CMonster() : m_fSpeed(50.f), m_vFirstPos{}, m_fMaxDistance(50.f), m_bDir(DIR_RIGHT), 
+					   m_iHP(3), m_eState(MONSTER_STATE::MOVE), m_fAttackCoolTime(0.f)
 {
 }
 
@@ -17,7 +20,7 @@ void CMonster::update()
 {
 	Vec2 vCurPos = GetPos();
 
-	// HP가 0이하가 되면 죽는 애니메이션 재생후 삭제
+	// HP가 0이하가 되면 삭제
 	if (m_iHP <= 0) {
 		if (m_eState != MONSTER_STATE::DIE) {
 			m_eState = MONSTER_STATE::DIE;
@@ -39,9 +42,17 @@ void CMonster::update()
 				m_eState = MONSTER_STATE::MOVE;
 		}
 
-		// 공격하고 있을 때
+		// 공격하고 있을 때 1초에 한번씩 총알 발사
 		if (m_eState == MONSTER_STATE::ATTACK) {
-			//CreateBullet();
+			m_fAttackCoolTime += DT;
+
+			if (m_fAttackCoolTime > 0.6f) {
+				CreateBullet(3, monsterBulletId++);
+				m_fAttackCoolTime = 0.f;
+			}
+		}
+		else {
+			m_fAttackCoolTime = 0.f;
 		}
 
 		// 움직이고 있을 때
@@ -82,15 +93,17 @@ void CMonster::update()
 	SetPos(vCurPos);
 }
 
-void CMonster::CreateBullet()
+void CMonster::CreateBullet(int id, int bulletId)
 {
 	Vec2 vBulletPos = GetPos();
 
 	CBullet* pBullet = new CBullet;
 
-	pBullet->SetName(L"Monster Bullet");
+	pBullet->SetName(L"MonsterBullet");
 	pBullet->SetPos(vBulletPos);
 	pBullet->SetFirstPos(vBulletPos);
+	pBullet->SetID(bulletId);
+	pBullet->SetPlayerID(id);
 
 	if (m_bDir == DIR_RIGHT)
 		pBullet->SetDir(DIR_RIGHT);
@@ -98,6 +111,7 @@ void CMonster::CreateBullet()
 		pBullet->SetDir(DIR_LEFT);
 
 	pBullet->CreateCollider();
+
 	pBullet->SetSpeed(700.f);
 	pBullet->GetCollider()->SetScale(Vec2(18.f, 18.f));
 

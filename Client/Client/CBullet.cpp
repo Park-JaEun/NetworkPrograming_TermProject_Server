@@ -11,7 +11,9 @@
 #include "CAnimator.h"
 #include "CResourceMgr.h"
 
-CBullet::CBullet() : m_fDir(1.f), m_fSpeed(200.f), m_bIsDown(false), m_fDegree(0.f), m_vFirstPos(Vec2(0.f, 0.f))
+CBullet::CBullet() : m_fDir(1.f), m_fSpeed(200.f), m_bIsDown(false), 
+					 m_fDegree(0.f), m_vFirstPos(Vec2(0.f, 0.f)), m_vPrevPos(Vec2(0.f, 0.f)),
+				     m_fDeadTime(0.f)
 {
 }
 
@@ -21,6 +23,18 @@ CBullet::~CBullet()
 
 void CBullet::update()
 {
+	// 이전 위치와 현재 위치가 변화가 없는 시간이 3초가 넘으면 존재하지 않는다고 판단
+	if ((int)m_vPrevPos.x == (int)GetPos().x) {
+		m_fDeadTime += DT;
+		if (m_fDeadTime > 0.5f) {
+			DeleteObject(this);
+		}
+	}
+	else {
+		m_fDeadTime = 0.f;
+		m_vPrevPos = GetPos();
+	}
+
 	GetAnimator()->update();
 }
 

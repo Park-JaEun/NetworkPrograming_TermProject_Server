@@ -10,6 +10,7 @@ private:
     float           m_fMaxDistance;
     bool            m_bDir;
     int             m_iHP;
+    float		    m_fAttackCoolTime;
     MONSTER_STATE   m_eState;
 
     CLONE(CMonster)
@@ -28,7 +29,7 @@ public:
     void SetState(MONSTER_STATE _eState) { m_eState = _eState; }
 
 private:
-    void CreateBullet();
+    void CreateBullet(int id, int bulletId);
     bool IsInSight(Vec2 _vPos, float _fDistance, const std::wstring& _strName);
 
 public:

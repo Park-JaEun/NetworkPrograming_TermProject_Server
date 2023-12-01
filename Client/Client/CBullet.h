@@ -8,8 +8,10 @@ private:
     float   m_fDir;     // 방향
     float   m_fSpeed;   // 속도
     float   m_fDegree;  // 각도
+    float   m_fDeadTime;    // 시간
     bool    m_bIsDown;  // 아래로 내려가는 총알인지
     Vec2    m_vFirstPos;    // 처음 위치
+    Vec2    m_vPrevPos;     // 이전 위치
 
     CLONE(CBullet)
 public:

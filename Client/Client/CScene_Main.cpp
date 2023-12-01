@@ -399,18 +399,43 @@ void CScene_Main::update()
 {
 	CScene::update();
 
+	int id = CCore::GetInst()->GetID();
+
 	// 플레이어 x위치가 5060보다 크거나 같으면, 카메라를 5060으로 고정
-	CObject* pPlayer = FindObject(L"Player");
+	CObject* pPlayer = FindObject(L"Player" + std::to_wstring(id));
 	if (pPlayer == nullptr)
 		return;
+	
+	CObject* pOtherPlayer1{};
+	CObject* pOtherPlayer2{};
+
+	// 본인과 id가 다른 플레이어들도 불러온다.
+	for (int i = 0; i < MAX_PLAYER; ++i) {
+		if (i == id)
+			continue;
+
+		pOtherPlayer1 = FindObject(L"Player" + std::to_wstring(i));
+		if (pOtherPlayer1 == nullptr)
+			continue;
+
+		pOtherPlayer2 = FindObject(L"Player" + std::to_wstring(i));
+		if (pOtherPlayer2 == nullptr)
+			continue;
+	}
 
 	CBoss* pBoss = (CBoss*)FindObject(L"Boss");
 	if (pBoss == nullptr)
 		return;
 	
 	Vec2 vPlayerPos = pPlayer->GetPos();
+	Vec2 vOtherPlayerPos1 = pOtherPlayer1->GetPos();
+	Vec2 vOtherPlayerPos2 = pOtherPlayer2->GetPos();
 
-	if (vPlayerPos.x >= 5060.f && CCamera::GetInst()->GetTarget() == pPlayer) {
+	if (vPlayerPos.x >= 5060.f &&
+		vOtherPlayerPos1.x >= 5060.f &&
+		vOtherPlayerPos2.x >= 5060.f &&
+		CCamera::GetInst()->GetTarget() == pPlayer) {
+
 		CCamera::GetInst()->SetLookAt(Vec2(5060.f, 0.f));
 		CCamera::GetInst()->SetTarget(nullptr);
 		SetIsBoss(true);

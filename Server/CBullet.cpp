@@ -64,7 +64,13 @@ void CBullet::EnterCollision(CCollider* _pOther)
 		DeleteObject(this);
 	}
 
-	if (pOtherObj->GetName() == L"Player") {
+	if (pOtherObj->GetName() == L"Player0") {
+		DeleteObject(this);
+	}
+	else if (pOtherObj->GetName() == L"Player1") {
+		DeleteObject(this);
+	}
+	else if (pOtherObj->GetName() == L"Player2") {
 		DeleteObject(this);
 	}
 }

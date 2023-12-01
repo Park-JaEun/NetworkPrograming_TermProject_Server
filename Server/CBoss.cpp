@@ -66,7 +66,7 @@ void CBoss::update()
 			if (m_fAttackTime >= 1.f) {
 				int iRand = rand() % 2;
 
-				switch (iRand) {
+				/*switch (iRand) {
 				case 0:
 					CreateMissile();
 					break;
@@ -74,7 +74,7 @@ void CBoss::update()
 					CreateMissile();
 					CreateFanBullet();
 					break;
-				}
+				}*/
 
 				m_fAttackTime = 0.f;	// 공격 후 공격 시간 초기화
 			}
