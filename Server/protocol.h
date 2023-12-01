@@ -80,7 +80,9 @@ struct SC_MONSTER_PACKET {
 // 보스 정보 수신 관련 패킷
 struct SC_BOSS_PACKET {
 	char type;		// 패킷 타입
-	CBoss  boss;	// 보스 정보
+	// 보스 정보
+	Vec2 bossPos;					// 보스 위치 (2023. 12. 01 수정)
+	BOSS_STATE bossState;			// 보스 상태 (2023. 12. 01 수정)
 };
 
 // 투사체 정보 수신 관련 패킷

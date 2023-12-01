@@ -31,6 +31,7 @@ public:
     void SetFirstPos(Vec2 _vPos) { m_vFirstPos = _vPos; }
     void SetHaveToAppear(bool _bHaveToAppear) { m_bHaveToAppear = _bHaveToAppear; }
     void SetIsAppear(bool _bIsAppear) { m_bIsAppear = _bIsAppear; }
+    void SetState(BOSS_STATE _eState) { m_eState = _eState; }
 
 private:
     void CreateFanBullet();

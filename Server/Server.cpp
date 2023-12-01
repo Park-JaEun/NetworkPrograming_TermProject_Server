@@ -26,6 +26,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	int size;							// 패킷 사이즈
 	bool isAllReady{ false };			// 모든 클라이언트가 준비 상태인지 확인
 	bool isAllInit{ false };			// 모든 클라이언트가 초기화 상태인지 확인
+	bool isBoss{ false };				// 보스 생성 여부
 	CObject* pCharacter = new CPlayer;
 
 	// 접속한 클라이언트 정보 저장
@@ -271,9 +272,9 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					if (pKeyInputPacket->inputs[i].key == KEY::UP && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
 						vDummyPos = Vec2(vCurPos.x, vCurPos.y - speed * DT);
 
-						if (IsInWorld(vDummyPos))
+						if (IsInWorld(vDummyPos) && !isBoss)
 							vCurPos.y -= speed * DT;
-						else if (IsInBossRoom(vDummyPos))
+						else if (IsInBossRoom(vDummyPos) && isBoss)
 							vCurPos.y -= speed * DT;
 
 						((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
@@ -286,9 +287,9 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					if (pKeyInputPacket->inputs[i].key == KEY::DOWN && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
 						vDummyPos = Vec2(vCurPos.x, vCurPos.y + speed * DT);
 
-						if (IsInWorld(vDummyPos))
+						if (IsInWorld(vDummyPos) && !isBoss)
 							vCurPos.y += speed * DT;
-						else if (IsInBossRoom(vDummyPos))
+						else if (IsInBossRoom(vDummyPos) && isBoss)
 							vCurPos.y += speed * DT;
 
 						((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
@@ -301,9 +302,9 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					if (pKeyInputPacket->inputs[i].key == KEY::LEFT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
 						vDummyPos = Vec2(vCurPos.x - speed * DT, vCurPos.y);
 
-						if (IsInWorld(vDummyPos))
+						if (IsInWorld(vDummyPos) && !isBoss)
 							vCurPos.x -= speed * DT;
-						else if (IsInBossRoom(vDummyPos))
+						else if (IsInBossRoom(vDummyPos) && isBoss)
 							vCurPos.x -= speed * DT;
 
 						((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
@@ -319,9 +320,9 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					if (pKeyInputPacket->inputs[i].key == KEY::RIGHT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
 						vDummyPos = Vec2(vCurPos.x + speed * DT, vCurPos.y);
 
-						if (IsInWorld(vDummyPos))
+						if (IsInWorld(vDummyPos) && !isBoss)
 							vCurPos.x += speed * DT;
-						else if (IsInBossRoom(vDummyPos))
+						else if (IsInBossRoom(vDummyPos) && isBoss)
 							vCurPos.x += speed * DT;
 
 						((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
@@ -404,6 +405,66 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 				retval = send(client_sock, reinterpret_cast<char*>(&monsterPacket), size, 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					break;
+				}
+			}
+		}
+
+		// 보스 정보 송신, 보스 정보는 모든 플레이어의 x좌표 위치가 5060.f 이상이면 보스 생성
+		{
+			// 모든 플레이어의 x좌표 위치가 5060.f 이상이면 isBoss를 true로 변경
+			std::lock_guard<std::mutex> lock{ g_mutex };
+			if (!isBoss) {
+				for (int i = 0; i < MAX_PLAYER; ++i) {
+					CObject* pPlayer = CObjectMgr::GetInst()->FindObject(L"Player" + std::to_wstring(i));
+
+					if (pPlayer->GetPos().x < 5060.f) {
+						isBoss = false;
+						break;
+					}
+					else
+						isBoss = true;
+				}
+
+				if (isBoss) {
+					// 보스 출현
+					CObject* pBoss = CObjectMgr::GetInst()->FindObject(L"Boss");
+					((CBoss*)pBoss)->SetHaveToAppear(true);
+					((CBoss*)pBoss)->SetState(BOSS_STATE::IDLE);
+					std::cout << "보스 출현" << std::endl;
+				}
+				else {
+					SC_BOSS_PACKET bossPacket;
+					bossPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BOSS);
+					size = sizeof(SC_BOSS_PACKET);
+
+					bossPacket.bossPos	 = Vec2(0.f, 0.f);
+					bossPacket.bossState = BOSS_STATE::NOT_APPEAR;
+
+					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+					retval = send(client_sock, reinterpret_cast<char*>(&bossPacket), size, 0);
+					if (retval == SOCKET_ERROR) {
+						err_display("send()");
+						break;
+					}
+				}
+			}
+
+			// 보스 정보 송신 (위치, 상태)
+			if (isBoss) {
+				CObject* pBoss = CObjectMgr::GetInst()->FindObject(L"Boss");
+
+				SC_BOSS_PACKET bossPacket;
+				bossPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BOSS);
+				size = sizeof(SC_BOSS_PACKET);
+
+				bossPacket.bossPos	 = pBoss->GetPos();
+				bossPacket.bossState = ((CBoss*)pBoss)->GetState();
+
+				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+				retval = send(client_sock, reinterpret_cast<char*>(&bossPacket), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
 					break;
@@ -546,7 +607,6 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				}
 			}
 		}
-
 	}
 
 	std::cout << "\n[TCP 서버] 클라이언트 접속 종료: IP 주소=" << addr << ", 포트 번호=" << ntohs(clientaddr.sin_port) << ", 닉네임=" << nick_name << std::endl;

@@ -422,24 +422,20 @@ void CScene_Main::update()
 		if (pOtherPlayer2 == nullptr)
 			continue;
 	}
-
-	CBoss* pBoss = (CBoss*)FindObject(L"Boss");
-	if (pBoss == nullptr)
-		return;
 	
 	Vec2 vPlayerPos = pPlayer->GetPos();
 	Vec2 vOtherPlayerPos1 = pOtherPlayer1->GetPos();
 	Vec2 vOtherPlayerPos2 = pOtherPlayer2->GetPos();
 
 	if (vPlayerPos.x >= 5060.f &&
-		vOtherPlayerPos1.x >= 5060.f &&
-		vOtherPlayerPos2.x >= 5060.f &&
+		/*vOtherPlayerPos1.x >= 5060.f &&
+		vOtherPlayerPos2.x >= 5060.f &&*/
 		CCamera::GetInst()->GetTarget() == pPlayer) {
 
 		CCamera::GetInst()->SetLookAt(Vec2(5060.f, 0.f));
 		CCamera::GetInst()->SetTarget(nullptr);
-		SetIsBoss(true);
-		pBoss->SetHaveToAppear(true);
+		//SetIsBoss(true);
+		//pBoss->SetHaveToAppear(true);
 	}
 
 	// TODO: Player Life가 0이 되면, GameOver

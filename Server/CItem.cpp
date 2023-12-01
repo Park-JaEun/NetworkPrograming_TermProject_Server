@@ -60,7 +60,6 @@ void CItem::EnterCollision(CCollider* _pOther)
 	for (int i = 0; i < MAX_PLAYER; ++i) {
 		if (pOtherObj->GetName() == L"Player" + std::to_wstring(i)) {
 			DeleteObject(this);
-			std::cout<<"플레이어 "<<i<<"와 충돌!!!!!!!!!!!!!"<<std::endl;
 
 			if (GetName() == L"Bunny")
 				((CPlayer*)pOtherObj)->PlusBunnyCount();

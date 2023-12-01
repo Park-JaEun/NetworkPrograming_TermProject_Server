@@ -209,6 +209,25 @@ void CCore::TestSendKeyInput()
 		((CMonster*)pMonster)->SetState(pMonsterPacket->monsterState);
 	}
 
+	// 보스 정보 받기
+	SC_BOSS_PACKET* pBossPacket = reinterpret_cast<SC_BOSS_PACKET*>(buf);
+
+	CObject* pBoss = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Boss");
+	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+	retval = recv(sock, buf, size, MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
+
+	// 보스가 나타났으면, 업데이트
+	if (pBossPacket->bossState != BOSS_STATE::NOT_APPEAR) {
+		pBoss->SetPos(pBossPacket->bossPos);
+		((CBoss*)pBoss)->SetState(pBossPacket->bossState);
+	}
+
 	// 토끼 아이템 정보 받기
 	SC_RABBIT_ITEM_PACKET* pRabbitItemPacket = reinterpret_cast<SC_RABBIT_ITEM_PACKET*>(buf);
 

@@ -83,6 +83,7 @@ enum class MONSTER_STATE
 
 enum class BOSS_STATE
 {
+	NOT_APPEAR,	// 2023. 12. 01 ¼öÁ¤
 	IDLE,
 	ATTACK,
 	DIE,
