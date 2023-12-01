@@ -243,9 +243,73 @@ void CCore::TestSendKeyInput()
 		}
 	}
 
+	//// 플레이어 투사체 정보 받기
+	//SC_BULLET_PACKET* pbulletPacket = reinterpret_cast<SC_BULLET_PACKET*>(buf);
+	//const std::vector<CObject*>& vecPlayerBullet = CSceneMgr::GetInst()->GetCurScene()->GetGroupObject(GROUP_TYPE::BULLET_PLAYER);
+
+	//// 플레이어 투사체 수 받기
+	//int bulletCount = 0;
+	//retval = recv(sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), MSG_WAITALL);
+	//if (retval == SOCKET_ERROR) {
+	//	err_display("recv()");
+	//	closesocket(sock);
+	//	WSACleanup();
+	//	return;
+	//}
+
+	//if (bulletCount != 0) {
+	//	// 정보 받기
+	//	for (int i = 0; i < bulletCount; ++i) {
+	//		retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+	//		retval = recv(sock, buf, size, MSG_WAITALL);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("recv()");
+	//			closesocket(sock);
+	//			WSACleanup();
+	//			return;
+	//		}
+
+	//		// vecPlayerBullet 안에 똑같은 이름의 오브젝트가 있는지 확인
+	//		CObject* pBullet = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Player" + std::to_wstring(pbulletPacket->playerID) + L"Bullet" + std::to_wstring(pbulletPacket->bulletID));
+
+	//		if (pBullet == nullptr) {
+	//			// 없으면 새로 생성
+	//			pBullet = new CBullet;
+	//			pBullet->SetName(L"Player" + std::to_wstring(pbulletPacket->playerID) + L"Bullet" + std::to_wstring(pbulletPacket->bulletID));
+	//			pBullet->SetPos(pbulletPacket->bulletPos);
+	//			((CBullet*)pBullet)->SetFirstPos(pbulletPacket->bulletPos);
+	//			((CBullet*)pBullet)->SetDir(pbulletPacket->bulletDir);
+	//			((CBullet*)pBullet)->SetSpeed(700.f);
+
+	//			pBullet->CreateCollider();
+	//			((CBullet*)pBullet)->CreateAnimator(pbulletPacket->playerID);
+
+	//			pBullet->GetCollider()->SetScale(Vec2(25.f, 25.f));
+
+	//			CreateObject(pBullet, GROUP_TYPE::BULLET_PLAYER);
+	//		}
+	//		// 있으면 업데이트
+	//		else {
+	//			if (pbulletPacket->bulletIsDead) {
+	//				// 삭제된 아이템은 클라이언트 내에서 삭제
+	//				DeleteObject(vecPlayerBullet[i]);
+	//			}
+	//			else {
+	//				// 삭제되지 않은 아이템들은 업데이트
+	//				vecPlayerBullet[i]->SetPos(pbulletPacket->bulletPos);
+	//			}
+	//		}
+	//	}
+	//}
+
+	// 위 플레이어 투사체 정보 받기는 EventMgr에서 삭제될 때, 액세스 위반 오류가 발생한다.
+	// 액세스 위반 오류가 나지 않도록 전체 코드를 기반으로 알맞게 고쳐줘.
+	// 이 부분은 너가 고쳐야 할 부분이야.
+	// 이 부분을 고치면, 플레이어 투사체 정보를 받는 부분은 다음과 같이 바뀌어야 해.
+	// 이 부분을 고치면, 플레이어 투사체 정보를 받는 부분은 다음과 같이 바뀌어야 해.
+
 	// 플레이어 투사체 정보 받기
 	SC_BULLET_PACKET* pbulletPacket = reinterpret_cast<SC_BULLET_PACKET*>(buf);
-	const std::vector<CObject*>& vecPlayerBullet = CSceneMgr::GetInst()->GetCurScene()->GetGroupObject(GROUP_TYPE::BULLET_PLAYER);
 
 	// 플레이어 투사체 수 받기
 	int bulletCount = 0;
@@ -292,15 +356,16 @@ void CCore::TestSendKeyInput()
 			else {
 				if (pbulletPacket->bulletIsDead) {
 					// 삭제된 아이템은 클라이언트 내에서 삭제
-					DeleteObject(vecPlayerBullet[i]);
+					DeleteObject(pBullet);
 				}
 				else {
 					// 삭제되지 않은 아이템들은 업데이트
-					vecPlayerBullet[i]->SetPos(pbulletPacket->bulletPos);
+					pBullet->SetPos(pbulletPacket->bulletPos);
 				}
 			}
 		}
 	}
+
 
 }
 
