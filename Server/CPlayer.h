@@ -43,8 +43,7 @@ public:
 
     void update() override;
 
-private:
-    void CreateBullet();
+    void CreateBullet(int id);
 
 public:
     void OnCollision(CCollider* _pOther) override;

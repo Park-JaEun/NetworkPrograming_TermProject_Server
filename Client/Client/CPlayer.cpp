@@ -16,6 +16,7 @@
 #include "CAnimator.h"
 #include "CCollider.h"
 #include "CAnimation.h"
+#include "CCore.h"
 
 CPlayer::CPlayer() : m_bDir(DIR_RIGHT), m_eState(PLAYER_STATE::IDLE), 
 					 m_EffectAnimator(nullptr), m_fSpeed(300.f), m_iHP(3), m_iLife(3),
@@ -133,20 +134,15 @@ void CPlayer::update()
 		//	m_eState = PLAYER_STATE::IDLE;
 		//}
 
-		//if (KEY_TAP(KEY::SPACE)) {
-		//	// ÃÑ¾Ë ¹ß»ç
-		//	CreateBullet();
+		if (KEY_TAP(KEY::SPACE)) {
+			// ÃÑ¾Ë ¹ß»ç
+			int id = CCore::GetInst()->GetID();
+			CreateBullet(id);
 
-		//	// ½´ÆÃ ÀÌÆåÆ® Àç»ý
-		//	m_EffectAnimator->Play(L"Shooting", false);
-		//	m_EffectAnimator->FindAnimation(L"Shooting")->SetFrame(0);
-		//}
-
-
-
-
-
-
+			// ½´ÆÃ ÀÌÆåÆ® Àç»ý
+			m_EffectAnimator->Play(L"Shooting", false);
+			m_EffectAnimator->FindAnimation(L"Shooting")->SetFrame(0);
+		}
 	}
 
 	PlayAnimation();
@@ -242,13 +238,13 @@ void CPlayer::render(HDC _dc)
 	componentRender(_dc);
 }
 
-void CPlayer::CreateBullet()
+void CPlayer::CreateBullet(int id)
 {
 	Vec2 vBulletPos = GetPos();
 
 	CBullet* pBullet = new CBullet;
 
-	pBullet->SetName(L"Player Bullet");
+	pBullet->SetName(L"Player" + std::to_wstring(id) + L" Bullet");
 	pBullet->SetPos(vBulletPos);
 	pBullet->SetFirstPos(vBulletPos);
 	pBullet->SetScale(Vec2(14.f, 13.f));

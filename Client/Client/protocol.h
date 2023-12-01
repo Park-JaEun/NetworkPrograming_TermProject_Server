@@ -60,6 +60,7 @@ struct SC_GAME_CLEAR_PACKET {
 struct SC_PLAYER_PACKET {
 	char type;			// 패킷 타입
 	// 플레이어 정보
+	int playerID;					// 플레이어 id (2023. 12. 01 수정)
 	Vec2 playerPos;					// 플레이어 위치
 	PLAYER_STATE playerState;		// 플레이어 상태
 	bool playerDir;					// 플레이어 방향

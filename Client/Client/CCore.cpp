@@ -154,8 +154,6 @@ void CCore::CommunicationToServer()
 	////////////
 	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 	retval = recv(sock, buf, size, MSG_WAITALL);
-
-	// 오류 처리
 	if (retval == SOCKET_ERROR) {
 		err_display("recv()");
 		closesocket(sock);
@@ -286,7 +284,7 @@ void CCore::TestSendKeyInput()
 	// recv() //
 	////////////
 	
-	// 내 정보 받기
+	// 플레이어들 정보 받기
 	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 	retval = recv(sock, buf, size, MSG_WAITALL);
 	if (retval == SOCKET_ERROR) {
@@ -296,15 +294,15 @@ void CCore::TestSendKeyInput()
 		return;
 	}
 
-	SC_PLAYER_PACKET* sc_p = reinterpret_cast<SC_PLAYER_PACKET*>(buf);
+	SC_PLAYER_PACKET* pPlayerPacket = reinterpret_cast<SC_PLAYER_PACKET*>(buf);
 
 	CScene* pCurScene = CSceneMgr::GetInst()->GetCurScene();
-	CPlayer* pPlayer = (CPlayer*)pCurScene->FindObject(L"Player");
-	pPlayer->SetPos(sc_p->playerPos);
-	pPlayer->SetState(sc_p->playerState);
-	pPlayer->SetDir(sc_p->playerDir);
+	CPlayer* pPlayer = (CPlayer*)pCurScene->FindObject(L"Player" + std::to_wstring(pPlayerPacket->playerID));
+	
+	pPlayer->SetPos(pPlayerPacket->playerPos);
+	pPlayer->SetState(pPlayerPacket->playerState);
+	pPlayer->SetDir(pPlayerPacket->playerDir);
 
-	// Player 2 정보 받기
 	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 	retval = recv(sock, buf, size, MSG_WAITALL);
 	if (retval == SOCKET_ERROR) {
@@ -314,12 +312,11 @@ void CCore::TestSendKeyInput()
 		return;
 	}
 
-	CPlayer* pPlayer2 = (CPlayer*)pCurScene->FindObject(L"Player2");
-	pPlayer2->SetPos(sc_p->playerPos);
-	pPlayer2->SetState(sc_p->playerState);
-	pPlayer2->SetDir(sc_p->playerDir);
+	pPlayer = (CPlayer*)pCurScene->FindObject(L"Player" + std::to_wstring(pPlayerPacket->playerID));
+	pPlayer->SetPos(pPlayerPacket->playerPos);
+	pPlayer->SetState(pPlayerPacket->playerState);
+	pPlayer->SetDir(pPlayerPacket->playerDir);
 
-	// Player 3 정보 받기
 	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 	retval = recv(sock, buf, size, MSG_WAITALL);
 	if (retval == SOCKET_ERROR) {
@@ -329,13 +326,14 @@ void CCore::TestSendKeyInput()
 		return;
 	}
 
-	CPlayer* pPlayer3 = (CPlayer*)pCurScene->FindObject(L"Player3");
-	pPlayer3->SetPos(sc_p->playerPos);
-	pPlayer3->SetState(sc_p->playerState);
-	pPlayer3->SetDir(sc_p->playerDir);
+	pPlayer = (CPlayer*)pCurScene->FindObject(L"Player" + std::to_wstring(pPlayerPacket->playerID));
+	pPlayer->SetPos(pPlayerPacket->playerPos);
+	pPlayer->SetState(pPlayerPacket->playerState);
+	pPlayer->SetDir(pPlayerPacket->playerDir);
 
 	// 몬스터 정보 받기
-	SC_MONSTER_PACKET* sc_m = reinterpret_cast<SC_MONSTER_PACKET*>(buf);
+	SC_MONSTER_PACKET* pMonsterPacket = reinterpret_cast<SC_MONSTER_PACKET*>(buf);
+
 	const std::vector<CObject*>& vecMonster = CSceneMgr::GetInst()->GetCurScene()->GetGroupObject(GROUP_TYPE::MONSTER);
 	for (CObject* pMonster : vecMonster) {
 		retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
@@ -347,16 +345,16 @@ void CCore::TestSendKeyInput()
 			return;
 		}
 
-		pMonster->SetPos(sc_m->monsterPos);
-		((CMonster*)pMonster)->SetDir(sc_m->monsterDir);
-		((CMonster*)pMonster)->SetState(sc_m->monsterState);
+		pMonster->SetPos(pMonsterPacket->monsterPos);
+		((CMonster*)pMonster)->SetDir(pMonsterPacket->monsterDir);
+		((CMonster*)pMonster)->SetState(pMonsterPacket->monsterState);
 	}
 
 	// 아이템 정보 받기
-	SC_ITEM_PACKET* sc_i = reinterpret_cast<SC_ITEM_PACKET*>(buf);
+	SC_ITEM_PACKET* pItemPacket = reinterpret_cast<SC_ITEM_PACKET*>(buf);
 	const std::vector<CObject*>& vecItem = CSceneMgr::GetInst()->GetCurScene()->GetGroupObject(GROUP_TYPE::ITEM);
-	
-	// 서버로부터 아이템 수 받기
+
+	// 아이템 수 받기
 	int itemCount = 0;
 	retval = recv(sock, reinterpret_cast<char*>(&itemCount), sizeof(itemCount), MSG_WAITALL);
 	if (retval == SOCKET_ERROR) {
@@ -366,7 +364,7 @@ void CCore::TestSendKeyInput()
 		return;
 	}
 
-	// 서버로부터 아이템 정보 받기
+	// 정보 받기
 	for (int i = 0; i < itemCount; ++i) {
 		retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 		retval = recv(sock, buf, size, MSG_WAITALL);
@@ -376,14 +374,14 @@ void CCore::TestSendKeyInput()
 			WSACleanup();
 			return;
 		}
-		
-		if (sc_i->itemIsDead) {	
+
+		if (pItemPacket->itemIsDead) {
 			// 삭제된 아이템은 클라이언트 내에서 삭제
 			DeleteObject(vecItem[i]);
 		}
-		else {	
+		else {
 			// 삭제되지 않은 아이템들은 업데이트
-			vecItem[i]->SetPos(sc_i->itemPos);
+			vecItem[i]->SetPos(pItemPacket->itemPos);
 		}
 	}
 }

@@ -41,7 +41,7 @@ public:
     void render(HDC _dc) override;
 
 private:
-    void CreateBullet();
+    void CreateBullet(int id);
 
     void CreateMinji();
     void CreateHannie();

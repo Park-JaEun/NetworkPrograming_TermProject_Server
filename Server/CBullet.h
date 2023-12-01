@@ -11,6 +11,7 @@ private:
 
     CLONE(CBullet)
 public:
+    float GetDir() { return m_fDir; }
     float GetDegree() { return m_fDegree; }
     Vec2 GetFirstPos() { return m_vFirstPos; }
 
