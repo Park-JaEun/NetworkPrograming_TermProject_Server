@@ -6,8 +6,10 @@ class CMonster :
 {
 private:
     Vec2            m_vFirstPos;
+    Vec2 		    m_vPrevPos;
     float           m_fSpeed;
     float           m_fMaxDistance;
+    float           m_fDieTime;
     bool            m_bDir;
     int             m_iHP;
     MONSTER_STATE   m_eState;

@@ -23,19 +23,23 @@ private:
 
     CLONE(CPlayer)
 public:
-    CHARACTER_TYPE GetType() { return m_eType; }
-    int GetLife() { return m_iLife; }
-    int GetBunnyCount() { return m_iBunnyCount; }
-    int GetCookieCount() { return m_iCookieCount; }
-    int GetKillCount() { return m_iKillCount; }
+    const CHARACTER_TYPE GetType()    { return m_eType; }
+    const int GetLife()               { return m_iLife; }
+    const int GetBunnyCount()         { return m_iBunnyCount; }
+    const int GetCookieCount()        { return m_iCookieCount; }
+    const int GetKillCount()          { return m_iKillCount; }
+    const bool GetIsGameOver()        { return m_bIsGameOver; }
 
     void SetType(CHARACTER_TYPE _eType) { m_eType = _eType; }
-    void SetState(PLAYER_STATE state) { m_eState = state; }
-    void SetDir(bool dir) { m_bDir = dir; }
+    void SetState(PLAYER_STATE state)   { m_eState = state; }
+    void SetDir(bool dir)               { m_bDir = dir; }
+    void SetLife(int life)              { m_iLife = life; }
+    void SetHP(int hp)                  { m_iHP = hp; }
+    void SetBunnyCount(int count)       { m_iBunnyCount = count; }
+    void SetCookieCount(int count)      { m_iCookieCount = count; }
+    void SetKillCount(int count)        { m_iKillCount = count; }
+    void SetIsGameOver(bool isGameOver) { m_bIsGameOver = isGameOver; }
 
-    void PlusBunnyCount() { ++m_iBunnyCount; }
-    void PlusCookieCount() { ++m_iCookieCount; }
-    void PlusKillCount() { ++m_iKillCount; }
     void PlayShootingEffect();
 
     void update() override;

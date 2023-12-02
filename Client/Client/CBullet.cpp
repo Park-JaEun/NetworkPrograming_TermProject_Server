@@ -23,10 +23,10 @@ CBullet::~CBullet()
 
 void CBullet::update()
 {
-	// 이전 위치와 현재 위치가 변화가 없는 시간이 3초가 넘으면 존재하지 않는다고 판단
+	// 이전 위치와 현재 위치가 변화가 없는 시간이 0.1초가 넘으면 존재하지 않는다고 판단
 	if ((int)m_vPrevPos.x == (int)GetPos().x) {
 		m_fDeadTime += DT;
-		if (m_fDeadTime > 0.5f) {
+		if (m_fDeadTime > 0.1f) {
 			DeleteObject(this);
 		}
 	}

@@ -144,23 +144,27 @@ void CCore::TestSendKeyInput()
 	////////////
 	
 	// 플레이어들 정보 받기
-	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
-	retval = recv(sock, buf, size, MSG_WAITALL);
-	if (retval == SOCKET_ERROR) {
-		err_display("recv()");
-		closesocket(sock);
-		WSACleanup();
-		return;
-	}
-
+	CScene* pCurScene = CSceneMgr::GetInst()->GetCurScene();
 	SC_PLAYER_PACKET* pPlayerPacket = reinterpret_cast<SC_PLAYER_PACKET*>(buf);
 
-	CScene* pCurScene = CSceneMgr::GetInst()->GetCurScene();
-	CPlayer* pPlayer = (CPlayer*)pCurScene->FindObject(L"Player" + std::to_wstring(pPlayerPacket->playerID));
-	
-	pPlayer->SetPos(pPlayerPacket->playerPos);
-	pPlayer->SetState(pPlayerPacket->playerState);
-	pPlayer->SetDir(pPlayerPacket->playerDir);
+	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+	retval = recv(sock, buf, size, MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
+	CObject* pPlayer = pCurScene->FindObject(L"Player" + std::to_wstring(pPlayerPacket->playerID));
+
+	((CPlayer*)pPlayer)->SetPos(pPlayerPacket->playerPos);
+	((CPlayer*)pPlayer)->SetState(pPlayerPacket->playerState);
+	((CPlayer*)pPlayer)->SetDir(pPlayerPacket->playerDir);
+	((CPlayer*)pPlayer)->SetLife(pPlayerPacket->playerLife);
+	((CPlayer*)pPlayer)->SetHP(pPlayerPacket->playerHP);
+	((CPlayer*)pPlayer)->SetBunnyCount(pPlayerPacket->playerBunnyCount);
+	((CPlayer*)pPlayer)->SetCookieCount(pPlayerPacket->playerCookieCount);
+	((CPlayer*)pPlayer)->SetKillCount(pPlayerPacket->playerKillCount);
 
 	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 	retval = recv(sock, buf, size, MSG_WAITALL);
@@ -170,11 +174,16 @@ void CCore::TestSendKeyInput()
 		WSACleanup();
 		return;
 	}
+	pPlayer = pCurScene->FindObject(L"Player" + std::to_wstring(pPlayerPacket->playerID));
 
-	pPlayer = (CPlayer*)pCurScene->FindObject(L"Player" + std::to_wstring(pPlayerPacket->playerID));
-	pPlayer->SetPos(pPlayerPacket->playerPos);
-	pPlayer->SetState(pPlayerPacket->playerState);
-	pPlayer->SetDir(pPlayerPacket->playerDir);
+	((CPlayer*)pPlayer)->SetPos(pPlayerPacket->playerPos);
+	((CPlayer*)pPlayer)->SetState(pPlayerPacket->playerState);
+	((CPlayer*)pPlayer)->SetDir(pPlayerPacket->playerDir);
+	((CPlayer*)pPlayer)->SetLife(pPlayerPacket->playerLife);
+	((CPlayer*)pPlayer)->SetHP(pPlayerPacket->playerHP);
+	((CPlayer*)pPlayer)->SetBunnyCount(pPlayerPacket->playerBunnyCount);
+	((CPlayer*)pPlayer)->SetCookieCount(pPlayerPacket->playerCookieCount);
+	((CPlayer*)pPlayer)->SetKillCount(pPlayerPacket->playerKillCount);
 
 	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 	retval = recv(sock, buf, size, MSG_WAITALL);
@@ -184,29 +193,56 @@ void CCore::TestSendKeyInput()
 		WSACleanup();
 		return;
 	}
-
 	pPlayer = (CPlayer*)pCurScene->FindObject(L"Player" + std::to_wstring(pPlayerPacket->playerID));
-	pPlayer->SetPos(pPlayerPacket->playerPos);
-	pPlayer->SetState(pPlayerPacket->playerState);
-	pPlayer->SetDir(pPlayerPacket->playerDir);
+
+	((CPlayer*)pPlayer)->SetPos(pPlayerPacket->playerPos);
+	((CPlayer*)pPlayer)->SetState(pPlayerPacket->playerState);
+	((CPlayer*)pPlayer)->SetDir(pPlayerPacket->playerDir);
+	((CPlayer*)pPlayer)->SetLife(pPlayerPacket->playerLife);
+	((CPlayer*)pPlayer)->SetHP(pPlayerPacket->playerHP);
+	((CPlayer*)pPlayer)->SetBunnyCount(pPlayerPacket->playerBunnyCount);
+	((CPlayer*)pPlayer)->SetCookieCount(pPlayerPacket->playerCookieCount);
+	((CPlayer*)pPlayer)->SetKillCount(pPlayerPacket->playerKillCount);
 
 	// 몬스터 정보 받기
 	SC_MONSTER_PACKET* pMonsterPacket = reinterpret_cast<SC_MONSTER_PACKET*>(buf);
 
-	const std::vector<CObject*>& vecMonster = CSceneMgr::GetInst()->GetCurScene()->GetGroupObject(GROUP_TYPE::MONSTER);
-	for (CObject* pMonster : vecMonster) {
-		retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
-		retval = recv(sock, buf, size, MSG_WAITALL);
-		if (retval == SOCKET_ERROR) {
-			err_display("recv()");
-			closesocket(sock);
-			WSACleanup();
-			return;
-		}
+	// 몬스터 수 받기
+	int monsterCount = 0;
+	retval = recv(sock, reinterpret_cast<char*>(&monsterCount), sizeof(monsterCount), MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(sock);
+		WSACleanup();
+		return;
+	}
 
-		pMonster->SetPos(pMonsterPacket->monsterPos);
-		((CMonster*)pMonster)->SetDir(pMonsterPacket->monsterDir);
-		((CMonster*)pMonster)->SetState(pMonsterPacket->monsterState);
+	if (monsterCount != 0) {
+		// 정보 받기
+		for (int i = 0; i < monsterCount; ++i) {
+			retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+			retval = recv(sock, buf, size, MSG_WAITALL);
+			if (retval == SOCKET_ERROR) {
+				err_display("recv()");
+				closesocket(sock);
+				WSACleanup();
+				return;
+			}
+
+			// vecMonster 안에 똑같은 이름의 오브젝트 불러오기
+			CObject* pMonster = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Monster" + std::to_wstring(pMonsterPacket->monsterID));
+
+			if (pMonsterPacket->monsterIsDead) {
+				// 삭제된 몬스터는 클라이언트 내에서 삭제
+				DeleteObject(pMonster);
+			}
+			else {
+				// 삭제되지 않은 몬스터들은 업데이트
+				pMonster->SetPos(pMonsterPacket->monsterPos);
+				((CMonster*)pMonster)->SetState(pMonsterPacket->monsterState);
+				((CMonster*)pMonster)->SetDir(pMonsterPacket->monsterDir);
+			}
+		}
 	}
 
 	// 보스 정보 받기

@@ -32,117 +32,11 @@ CPlayer::~CPlayer()
 
 void CPlayer::update()
 {
-	// 게임 오버시 return
-	if (m_bIsGameOver)
-		return;
-
-	Vec2 vPos = GetPos();
-	Vec2 vDummyPos{};
-	CScene_Main* pMainScene = (CScene_Main*)CSceneMgr::GetInst()->GetCurScene();
-	bool bIsBoss = pMainScene->GetIsBoss();
-	
-	if (m_iHP <= 0) {
-		if (m_eState != PLAYER_STATE::DIE) {
-			m_eState = PLAYER_STATE::DIE;
-		}
-
-		// 1.5초뒤 아래로 추락
-		if (m_fDieTime >= 1.5f && m_fDieTime <= 4.5)
-			vPos.y += DT * 50.f * 3;
-		else
-			m_fDieTime += DT;
-
-		// 3초뒤 부활
-		if (!m_bIsGameOver && m_iLife >= 1 && m_fResurrectTime >= 3.0f && m_fDieTime >= 1.5f) {
-			m_iLife -= 1;
-			if (m_iLife == 0) {
-				m_bIsGameOver = true;
-				return;
-			}
-			m_iHP = 3;
-			m_fDieTime = 0.f;
-			m_fResurrectTime = 0.f;
-			m_eState = PLAYER_STATE::IDLE;
-			vPos.y = 0.f;
-		}
-		else if (m_fDieTime >= 1.5f) {
-			m_fResurrectTime += DT;
-		}
-	}
-	else {
-		// 상
-		//if (KEY_HOLD(KEY::UP)) {
-		//	vDummyPos = Vec2(vPos.x, vPos.y - m_fSpeed * DT);
-
-		//	if (IsInWorld(vDummyPos) && !bIsBoss)
-		//		vPos.y -= m_fSpeed * DT;
-		//	else if (IsInBossRoom(vDummyPos) && bIsBoss)
-		//		vPos.y -= m_fSpeed * DT;
-
-		//	m_eState = PLAYER_STATE::RUN;
-		//}
-		//if (KEY_AWAY(KEY::UP)) {
-		//	m_eState = PLAYER_STATE::IDLE;
-		//}
-
-		//// 하
-		//if (KEY_HOLD(KEY::DOWN)) {
-		//	vDummyPos = Vec2(vPos.x, vPos.y + m_fSpeed * DT);
-
-		//	if (IsInWorld(vDummyPos) && !bIsBoss)
-		//		vPos.y += m_fSpeed * DT;
-		//	else if (IsInBossRoom(vDummyPos) && bIsBoss)
-		//		vPos.y += m_fSpeed * DT;
-
-		//	m_eState = PLAYER_STATE::RUN;
-		//}
-		//if (KEY_AWAY(KEY::DOWN)) {
-		//	m_eState = PLAYER_STATE::IDLE;
-		//}
-
-		//// 좌
-		//if (KEY_HOLD(KEY::LEFT)) {
-		//	vDummyPos = Vec2(vPos.x - m_fSpeed * DT, vPos.y);
-
-		//	if (IsInWorld(vDummyPos) && !bIsBoss)
-		//		vPos.x -= m_fSpeed * DT;
-		//	else if (IsInBossRoom(vDummyPos) && bIsBoss)
-		//		vPos.x -= m_fSpeed * DT;
-
-		//	m_eState = PLAYER_STATE::RUN;
-		//	if (m_bDir != DIR_LEFT)
-		//		m_bDir = DIR_LEFT;
-		//}
-		//if (KEY_AWAY(KEY::LEFT)) {
-		//	m_eState = PLAYER_STATE::IDLE;
-		//}
-
-		//// 우
-		//if (KEY_HOLD(KEY::RIGHT)) {
-		//	vDummyPos = Vec2(vPos.x + m_fSpeed * DT, vPos.y);
-
-		//	if (IsInWorld(vDummyPos) && !bIsBoss)
-		//		vPos.x += m_fSpeed * DT;
-		//	else if (IsInBossRoom(vDummyPos) && bIsBoss)
-		//		vPos.x += m_fSpeed * DT;
-
-		//	m_eState = PLAYER_STATE::RUN;
-		//	if (m_bDir != DIR_RIGHT)
-		//		m_bDir = DIR_RIGHT;
-		//}
-		//if (KEY_AWAY(KEY::RIGHT)) {
-		//	m_eState = PLAYER_STATE::IDLE;
-		//}
-
-	}
-
 	PlayAnimation();
 
 	if (m_EffectAnimator != nullptr)
-		m_EffectAnimator->update();
-
-	SetPos(vPos);				// 위치 업데이트
-	GetAnimator()->update();	// 애니메이터 업데이트
+		m_EffectAnimator->update();	// 이펙트 애니메이터 업데이트
+	GetAnimator()->update();		// 애니메이터 업데이트
 }
 
 void CPlayer::render(HDC _dc)
@@ -150,83 +44,87 @@ void CPlayer::render(HDC _dc)
 	if (m_EffectAnimator != nullptr)
 		m_EffectAnimator->render(_dc);
 
-	// HP Bar UI 그리기
-	CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"HP", L"texture\\ui\\hp.bmp");
-	for (int i = 0; i < m_iHP; ++i) {
-		TransparentBlt(_dc,
-			24 + 18 * i,
-			382,
-			18,
-			18,
-			pTexture->GetDC(),
-			0,
-			9,
-			12,
-			9,
-			RGB(255, 0, 255));
-	}
-
-	// Life UI 그리기
-	pTexture = CResourceMgr::GetInst()->LoadTexture(L"Life", L"texture\\ui\\life.bmp");
-	for (int i = 0; i < m_iLife; ++i) {
-		TransparentBlt(_dc,
-			26 * i,
-			20,
-			26,
-			20,
-			pTexture->GetDC(),
-			0,
-			10,
-			13,
-			10,
-			RGB(255, 0, 255));
-	}
-
-	// 스코어 Text
-	// 폰트 파일 경로
-	const TCHAR* fontPath = TEXT("resource\\font\\PixelBook.ttf");
-
-	// 폰트 리소스 추가
-	if (AddFontResourceEx(fontPath, FR_PRIVATE, 0) > 0) {
-		// 투명 배경 설정
-		SetBkMode(_dc, TRANSPARENT);
-
-		// 글씨	색 설정
-		SetTextColor(_dc, RGB(0, 0, 0));
-
-		// LOGFONT 구조체 설정
-		LOGFONT lf;
-		memset(&lf, 0, sizeof(LOGFONT));
-		lstrcpy(lf.lfFaceName, L"Pixel Book");
-		lf.lfHeight = 30;  // 폰트 크기 설정
-		lf.lfWeight = 50;  // 폰트 두께 설정
-
-
-		// 폰트 생성
-		HFONT hFont = CreateFontIndirect(&lf);
-		SelectObject(_dc, hFont);
-
-		// 토끼 수 Text 적기
-		std::wstring str = L"X " + std::to_wstring(m_iBunnyCount);
-		TextOut(_dc, 580, 308, str.c_str(), str.length());
-
-		// 쿠키 수 Text 적기
-		str = L"X " + std::to_wstring(m_iCookieCount);
-		TextOut(_dc, 580, 338, str.c_str(), str.length());
-
-		// 킬 수 Text 적기
-		str = L"X " + std::to_wstring(m_iKillCount);
-		TextOut(_dc, 580, 368, str.c_str(), str.length());
-
-		// 폰트 제거
-		DeleteObject(hFont);
-	}
-
-	// 리소스 정리
-	RemoveFontResourceEx(fontPath, FR_PRIVATE, 0);
-
 	// 컴포넌트 그리기(충돌체, 애니메이션)
 	componentRender(_dc);
+
+	int id = CCore::GetInst()->GetID();
+
+	if (GetName() == L"Player" + std::to_wstring(id)) {
+		// HP Bar UI 그리기
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"HP", L"texture\\ui\\hp.bmp");
+		for (int i = 0; i < m_iHP; ++i) {
+			TransparentBlt(_dc,
+				24 + 18 * i,
+				382,
+				18,
+				18,
+				pTexture->GetDC(),
+				0,
+				9,
+				12,
+				9,
+				RGB(255, 0, 255));
+		}
+
+		// Life UI 그리기
+		pTexture = CResourceMgr::GetInst()->LoadTexture(L"Life", L"texture\\ui\\life.bmp");
+		for (int i = 0; i < m_iLife; ++i) {
+			TransparentBlt(_dc,
+				26 * i,
+				20,
+				26,
+				20,
+				pTexture->GetDC(),
+				0,
+				10,
+				13,
+				10,
+				RGB(255, 0, 255));
+		}
+
+		// 스코어 Text
+		// 폰트 파일 경로
+		const TCHAR* fontPath = TEXT("resource\\font\\PixelBook.ttf");
+
+		// 폰트 리소스 추가
+		if (AddFontResourceEx(fontPath, FR_PRIVATE, 0) > 0) {
+			// 투명 배경 설정
+			SetBkMode(_dc, TRANSPARENT);
+
+			// 글씨	색 설정
+			SetTextColor(_dc, RGB(0, 0, 0));
+
+			// LOGFONT 구조체 설정
+			LOGFONT lf;
+			memset(&lf, 0, sizeof(LOGFONT));
+			lstrcpy(lf.lfFaceName, L"Pixel Book");
+			lf.lfHeight = 30;  // 폰트 크기 설정
+			lf.lfWeight = 50;  // 폰트 두께 설정
+
+
+			// 폰트 생성
+			HFONT hFont = CreateFontIndirect(&lf);
+			SelectObject(_dc, hFont);
+
+			// 토끼 수 Text 적기
+			std::wstring str = L"X " + std::to_wstring(m_iBunnyCount);
+			TextOut(_dc, 580, 308, str.c_str(), str.length());
+
+			// 쿠키 수 Text 적기
+			str = L"X " + std::to_wstring(m_iCookieCount);
+			TextOut(_dc, 580, 338, str.c_str(), str.length());
+
+			// 킬 수 Text 적기
+			str = L"X " + std::to_wstring(m_iKillCount);
+			TextOut(_dc, 580, 368, str.c_str(), str.length());
+
+			// 폰트 제거
+			DeleteObject(hFont);
+		}
+
+		// 리소스 정리
+		RemoveFontResourceEx(fontPath, FR_PRIVATE, 0);
+	}
 }
 
 void CPlayer::CreateBullet(int id)
@@ -950,17 +848,6 @@ void CPlayer::OnCollision(CCollider* _pOther)
 
 void CPlayer::EnterCollision(CCollider* _pOther)
 {
-	CObject* pOtherObj = _pOther->GetObj();
-
-	if (pOtherObj->GetName() == L"Monster Bullet") {
-		//if(m_iHP > 0)
-		//	--m_iHP;
-	}
-
-	if (pOtherObj->GetName() == L"Boss Bullet" || pOtherObj->GetName() == L"Boss Missile") {
-		//if (m_iHP > 0)
-		//	--m_iHP;
-	}
 }
 
 void CPlayer::ExitCollision(CCollider* _pOther)

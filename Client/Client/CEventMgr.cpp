@@ -20,8 +20,9 @@ CEventMgr::~CEventMgr()
 void CEventMgr::update()
 {
 	// 삭제 예정 오브젝트들 삭제
-	for (CObject* pDeadObj : m_vecDead)
+	for (CObject* pDeadObj : m_vecDead) {
 		delete pDeadObj;
+	}
 
 	// clear
 	if (!m_vecDead.empty())

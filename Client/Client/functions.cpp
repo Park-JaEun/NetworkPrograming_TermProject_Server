@@ -22,11 +22,11 @@ void CreateObject(CObject* _pObj, GROUP_TYPE _eGroup)
 	ADDEVENT(event);
 }
 
-void CreateMonster(const Vec2& _vPos)
+void CreateMonster(const Vec2& _vPos, int id)
 {
 	CObject* pMonsterObj = new CMonster;
 
-	pMonsterObj->SetName(L"Monster");
+	pMonsterObj->SetName(L"Monster" + std::to_wstring(id));
 	pMonsterObj->SetPos(_vPos);
 	((CMonster*)pMonsterObj)->SetFirstPos(pMonsterObj->GetPos()); // SetFirstPos를 사용할 수 있도록 CMonster로 캐스팅
 

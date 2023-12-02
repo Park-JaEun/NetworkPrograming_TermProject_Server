@@ -4,7 +4,8 @@
 #include "CTimer.h"
 
 
-CItem::CItem() : m_vFirstPos{ Vec2(0.f, 0.f) }, m_fSpeed{ 50.f }, m_fMaxDistance{ 20.f }, m_bDir{ true }
+CItem::CItem() : m_vFirstPos{ Vec2(0.f, 0.f) }, m_fSpeed{ 50.f }, m_fMaxDistance{ 20.f }, 
+				 m_bDir{ true }, m_eGroupType{ GROUP_TYPE::DEFAULT }
 {
 }
 
@@ -61,9 +62,9 @@ void CItem::EnterCollision(CCollider* _pOther)
 		if (pOtherObj->GetName() == L"Player" + std::to_wstring(i)) {
 			DeleteObject(this);
 
-			if (GetName() == L"Bunny")
+			if (GetGroupType() == GROUP_TYPE::ITEM_RABBIT)
 				((CPlayer*)pOtherObj)->PlusBunnyCount();
-			else if (GetName() == L"Cookie")
+			else if (GetGroupType() == GROUP_TYPE::ITEM_COOKIE)
 				((CPlayer*)pOtherObj)->PlusCookieCount();
 		}
 	}

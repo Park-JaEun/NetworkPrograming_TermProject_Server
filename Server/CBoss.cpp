@@ -77,19 +77,7 @@ void CBoss::update()
 
 			// 1초마다 한 번씩 2개의 패턴 중 랜덤으로 공격
 			if (m_fAttackTime >= 1.f) {
-				int iRand = GetRandomNumber();
-
-				switch (iRand) {
-				case 0:
-					//CreateMissile();
-					break;
-				case 1:
-					//CreateMissile();
-					CreateFanBullet();
-					break;
-				}
-
-				std::cout << "보스 발사" << std::endl;
+				CreateFanBullet();
 				m_fAttackTime = 0.f;	// 공격 후 공격 시간 초기화
 			}
 			else
@@ -105,7 +93,7 @@ void CBoss::CreateFanBullet()
 	Vec2 vBulletPos = GetPos();
 	int iCount = 0;
 
-	for (int i = 0; i < 15; ++i) {
+	for (int i = 0; i < 5; ++i) {
 		int iRand = GetRandomNumber();
 
 		// 총알	3개 중 1개는 생성하지 않음
@@ -123,6 +111,7 @@ void CBoss::CreateFanBullet()
 		pBullet->SetDir(DIR_LEFT);
 		pBullet->SetDegree(59.0f + i / 10.f);
 		pBullet->SetID(bossBulletId++);
+		pBullet->SetGroupType(GROUP_TYPE::BULLET_BOSS);
 		pBullet->SetPlayerID(4);
 		pBullet->CreateCollider();
 		pBullet->GetCollider()->SetScale(Vec2(8.f, 8.f));

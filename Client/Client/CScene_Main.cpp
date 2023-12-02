@@ -181,31 +181,26 @@ void CScene_Main::Enter()
 	////////////////////
 	// Monster Object //
 	////////////////////
-	CreateMonster(Vec2(800.f, -90.f));
-	CreateMonster(Vec2(910.f, 50.f));
-
-	CreateMonster(Vec2(1440.f, -150.f));
-	CreateMonster(Vec2(1440.f, 50.f));
-	CreateMonster(Vec2(1440.f, -50.f));
-
-	CreateMonster(Vec2(2010.f, -150.f));
-	CreateMonster(Vec2(2130.f, 50.f));
-	CreateMonster(Vec2(2250.f, -50.f));
-
-	CreateMonster(Vec2(2770.f, 50.f));
-	CreateMonster(Vec2(2890.f, -50.f));
-	CreateMonster(Vec2(3010.f, -150.f));
-
-	CreateMonster(Vec2(3460.f, -150.f));
-	CreateMonster(Vec2(3660.f, -50.f));
-	CreateMonster(Vec2(3660.f, 70.f));
-	CreateMonster(Vec2(3840.f, -150.f));
-
-	CreateMonster(Vec2(4340.f, -50.f));
-	CreateMonster(Vec2(4200.f, -150.f));
-	CreateMonster(Vec2(4200.f, 50.f));
-	CreateMonster(Vec2(4480.f, -150.f));
-	CreateMonster(Vec2(4480.f, 50.f));
+	CreateMonster(Vec2(800.f, -90.f), 0);
+	CreateMonster(Vec2(910.f, 50.f), 1);
+	CreateMonster(Vec2(1440.f, -150.f), 2);
+	CreateMonster(Vec2(1440.f, 50.f), 3);
+	CreateMonster(Vec2(1440.f, -50.f), 4);
+	CreateMonster(Vec2(2010.f, -150.f), 5);
+	CreateMonster(Vec2(2130.f, 50.f), 6);
+	CreateMonster(Vec2(2250.f, -50.f), 7);
+	CreateMonster(Vec2(2770.f, 50.f), 8);
+	CreateMonster(Vec2(2890.f, -50.f), 9);
+	CreateMonster(Vec2(3010.f, -150.f), 10);
+	CreateMonster(Vec2(3460.f, -150.f), 11);
+	CreateMonster(Vec2(3660.f, -50.f), 12);
+	CreateMonster(Vec2(3660.f, 70.f), 13);
+	CreateMonster(Vec2(3840.f, -150.f), 14);
+	CreateMonster(Vec2(4340.f, -50.f), 15);
+	CreateMonster(Vec2(4200.f, -150.f), 16);
+	CreateMonster(Vec2(4200.f, 50.f), 17);
+	CreateMonster(Vec2(4480.f, -150.f), 18);
+	CreateMonster(Vec2(4480.f, 50.f), 19);
 	////////////////////
 
 	/////////////////

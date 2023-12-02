@@ -25,7 +25,7 @@ CItem::~CItem()
 
 void CItem::update()
 {
-	// 이전 위치와 현재 위치가 변화가 없는 시간이 3초가 넘으면 존재하지 않는다고 판단
+	// 이전 위치와 현재 위치가 변화가 없는 시간이 0.5초가 넘으면 존재하지 않는다고 판단
 	if ((int)m_vPrevPos.y == (int)GetPos().y) {
 		m_fTime += DT;
 		if (m_fTime > 0.5f) {

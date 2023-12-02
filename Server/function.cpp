@@ -31,12 +31,14 @@ void CreateBoss()
 	CreateObject(pBossObj, GROUP_TYPE::BOSS);
 }
 
-void CreateMonster(const Vec2& _vPos)
+void CreateMonster(const Vec2& _vPos, int id)
 {
 	CObject* pMonsterObj = new CMonster;
 
-	pMonsterObj->SetName(L"Monster");
+	pMonsterObj->SetName(L"Monster" + std::to_wstring(id));
 	pMonsterObj->SetPos(_vPos);
+	((CMonster*)pMonsterObj)->SetGroupType(GROUP_TYPE::MONSTER);
+	((CMonster*)pMonsterObj)->SetID(id);
 	((CMonster*)pMonsterObj)->SetFirstPos(pMonsterObj->GetPos()); // SetFirstPos를 사용할 수 있도록 CMonster로 캐스팅
 
 	// 충돌체 생성
@@ -51,26 +53,26 @@ void CreateMonster(const Vec2& _vPos)
 void CreateMonsters()
 {
 	// 몬스터 오브젝트들 만들기
-	CreateMonster(Vec2(800.f, -90.f));
-	CreateMonster(Vec2(910.f, 50.f));
-	CreateMonster(Vec2(1440.f, -150.f));
-	CreateMonster(Vec2(1440.f, 50.f));
-	CreateMonster(Vec2(1440.f, -50.f));
-	CreateMonster(Vec2(2010.f, -150.f));
-	CreateMonster(Vec2(2130.f, 50.f));
-	CreateMonster(Vec2(2250.f, -50.f));
-	CreateMonster(Vec2(2770.f, 50.f));
-	CreateMonster(Vec2(2890.f, -50.f));
-	CreateMonster(Vec2(3010.f, -150.f));
-	CreateMonster(Vec2(3460.f, -150.f));
-	CreateMonster(Vec2(3660.f, -50.f));
-	CreateMonster(Vec2(3660.f, 70.f));
-	CreateMonster(Vec2(3840.f, -150.f));
-	CreateMonster(Vec2(4340.f, -50.f));
-	CreateMonster(Vec2(4200.f, -150.f));
-	CreateMonster(Vec2(4200.f, 50.f));
-	CreateMonster(Vec2(4480.f, -150.f));
-	CreateMonster(Vec2(4480.f, 50.f));
+	CreateMonster(Vec2(800.f, -90.f), 0);
+	CreateMonster(Vec2(910.f, 50.f), 1);
+	CreateMonster(Vec2(1440.f, -150.f), 2);
+	CreateMonster(Vec2(1440.f, 50.f), 3);
+	CreateMonster(Vec2(1440.f, -50.f), 4);
+	CreateMonster(Vec2(2010.f, -150.f), 5);
+	CreateMonster(Vec2(2130.f, 50.f), 6);
+	CreateMonster(Vec2(2250.f, -50.f), 7);
+	CreateMonster(Vec2(2770.f, 50.f), 8);
+	CreateMonster(Vec2(2890.f, -50.f), 9);
+	CreateMonster(Vec2(3010.f, -150.f), 10);
+	CreateMonster(Vec2(3460.f, -150.f), 11);
+	CreateMonster(Vec2(3660.f, -50.f), 12);
+	CreateMonster(Vec2(3660.f, 70.f), 13);
+	CreateMonster(Vec2(3840.f, -150.f), 14);
+	CreateMonster(Vec2(4340.f, -50.f), 15);
+	CreateMonster(Vec2(4200.f, -150.f), 16);
+	CreateMonster(Vec2(4200.f, 50.f), 17);
+	CreateMonster(Vec2(4480.f, -150.f), 18);
+	CreateMonster(Vec2(4480.f, 50.f), 19);
 }
 
 void CreateBunny(const Vec2& _vPos, int id)
@@ -82,6 +84,7 @@ void CreateBunny(const Vec2& _vPos, int id)
 	pBunnyItemObj->SetPos(_vPos);
 	pBunnyItemObj->SetFirstPos(_vPos);
 	pBunnyItemObj->SetScale(Vec2(25.f, 25.f));
+	pBunnyItemObj->SetGroupType(GROUP_TYPE::ITEM_RABBIT);
 
 	pBunnyItemObj->CreateCollider();
 	pBunnyItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));
@@ -99,6 +102,7 @@ void CreateCookie(const Vec2& _vPos, int id)
 	pCookieItemObj->SetPos(_vPos);
 	pCookieItemObj->SetFirstPos(_vPos);
 	pCookieItemObj->SetScale(Vec2(25.f, 25.f));
+	pCookieItemObj->SetGroupType(GROUP_TYPE::ITEM_COOKIE);
 
 	pCookieItemObj->CreateCollider();
 	pCookieItemObj->GetCollider()->SetScale(Vec2(25.f, 25.f));

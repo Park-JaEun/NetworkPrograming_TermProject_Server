@@ -64,6 +64,11 @@ struct SC_PLAYER_PACKET {
 	Vec2 playerPos;					// 플레이어 위치
 	PLAYER_STATE playerState;		// 플레이어 상태
 	bool playerDir;					// 플레이어 방향
+	int playerLife;					// 플레이어 목숨 (2023. 12. 02 수정)
+	int playerHP;					// 플레이어 체력 (2023. 12. 02 수정)
+	int playerBunnyCount;			// 플레이어 토끼 획득 개수 (2023. 12. 02 수정)
+	int playerCookieCount;			// 플레이어 쿠키 획득 개수 (2023. 12. 02 수정)
+	int playerKillCount;			// 플레이어 킬 개수 (2023. 12. 02 수정)
 	CHARACTER_TYPE character;		// 캐릭터 (2023. 11. 29 수정)
 };
 
@@ -71,9 +76,11 @@ struct SC_PLAYER_PACKET {
 struct SC_MONSTER_PACKET {
 	char type;			// 패킷 타입
 	// 몬스터 정보	(2023. 11. 30 수정)
-	Vec2 monsterPos;					// 몬스터 위치
+	int monsterID;					// 몬스터 id (2023. 12. 02 수정)
+	Vec2 monsterPos;				// 몬스터 위치
 	MONSTER_STATE monsterState;		// 몬스터 상태
-	bool monsterDir;					// 몬스터 방향
+	bool monsterDir;				// 몬스터 방향
+	bool monsterIsDead;				// 몬스터 생존 여부 (2023. 12. 02 수정)
 };
 
 // 보스 정보 수신 관련 패킷

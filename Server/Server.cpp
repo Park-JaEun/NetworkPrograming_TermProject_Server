@@ -94,7 +94,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		std::lock_guard<std::mutex> lock{ g_mutex };
 		((CPlayer*)pCharacter)->SetType(pSelectPacket->character);
 		((CPlayer*)pCharacter)->SetName(L"Player" + std::to_wstring(player.id));
-		((CPlayer*)pCharacter)->SetPos(Vec2(0.f, 0.f));
+		((CPlayer*)pCharacter)->SetPos(Vec2(5000.f, 0.f));
 		((CPlayer*)pCharacter)->SetDir(DIR_RIGHT);
 		((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
 		((CPlayer*)pCharacter)->CreateCollider();
@@ -259,98 +259,139 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			//받아온 패킷을 키보드 입력 패킷으로 캐스팅
 			CS_KEYBOARD_INPUT_PACKET* pKeyInputPacket = reinterpret_cast<CS_KEYBOARD_INPUT_PACKET*>(buf);
 
-			for (int i = 0; i < pKeyInputPacket->keyCount; ++i) {
-				// NONE이 아닐 때만	처리
-				if (pKeyInputPacket->inputs[i].key != KEY::LAST && pKeyInputPacket->inputs[i].key_state != KEY_STATE::NONE) {
-					// 플레이어 위치 자기것만 수정
-					// 각 플레이어의 위치 업데이트는 각 클라이언트의 스레드에서 배열에 동시접근해서 각자 바꿈
-					Vec2 vCurPos = pCharacter->GetPos();
-					Vec2 vDummyPos{};
-					float speed = ((CPlayer*)pCharacter)->GetSpeed();
+			// 플레이어 체력이 0보다 크고, 게임 오버되지 않았을 때
+			if (((CPlayer*)pCharacter)->GetHP() > 0 && !((CPlayer*)pCharacter)->GetIsGameOver()) {
+				for (int i = 0; i < pKeyInputPacket->keyCount; ++i) {
+					// NONE이 아닐 때만	처리
+					if (pKeyInputPacket->inputs[i].key != KEY::LAST && pKeyInputPacket->inputs[i].key_state != KEY_STATE::NONE) {
+						// 플레이어 위치 자기것만 수정
+						// 각 플레이어의 위치 업데이트는 각 클라이언트의 스레드에서 배열에 동시접근해서 각자 바꿈
+						Vec2 vCurPos = pCharacter->GetPos();
+						Vec2 vDummyPos{};
+						float speed = ((CPlayer*)pCharacter)->GetSpeed();
 
-					// 상
-					if (pKeyInputPacket->inputs[i].key == KEY::UP && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
-						vDummyPos = Vec2(vCurPos.x, vCurPos.y - speed * DT);
+						// 상
+						if (pKeyInputPacket->inputs[i].key == KEY::UP && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
+							vDummyPos = Vec2(vCurPos.x, vCurPos.y - speed * DT);
 
-						if (IsInWorld(vDummyPos) && !isBoss)
-							vCurPos.y -= speed * DT;
-						else if (IsInBossRoom(vDummyPos) && isBoss)
-							vCurPos.y -= speed * DT;
+							if (IsInWorld(vDummyPos) && !isBoss)
+								vCurPos.y -= speed * DT;
+							else if (IsInBossRoom(vDummyPos) && isBoss)
+								vCurPos.y -= speed * DT;
 
-						((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
+						}
+						if (pKeyInputPacket->inputs[i].key == KEY::UP && pKeyInputPacket->inputs[i].key_state == KEY_STATE::AWAY) {
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
+						}
+
+						// 하
+						if (pKeyInputPacket->inputs[i].key == KEY::DOWN && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
+							vDummyPos = Vec2(vCurPos.x, vCurPos.y + speed * DT);
+
+							if (IsInWorld(vDummyPos) && !isBoss)
+								vCurPos.y += speed * DT;
+							else if (IsInBossRoom(vDummyPos) && isBoss)
+								vCurPos.y += speed * DT;
+
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
+						}
+						if (pKeyInputPacket->inputs[i].key == KEY::DOWN && pKeyInputPacket->inputs[i].key_state == KEY_STATE::AWAY) {
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
+						}
+
+						// 좌
+						if (pKeyInputPacket->inputs[i].key == KEY::LEFT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
+							vDummyPos = Vec2(vCurPos.x - speed * DT, vCurPos.y);
+
+							if (IsInWorld(vDummyPos) && !isBoss)
+								vCurPos.x -= speed * DT;
+							else if (IsInBossRoom(vDummyPos) && isBoss)
+								vCurPos.x -= speed * DT;
+
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
+
+							if (((CPlayer*)pCharacter)->GetDir() != DIR_LEFT)
+								((CPlayer*)pCharacter)->SetDir(DIR_LEFT);
+						}
+						if (pKeyInputPacket->inputs[i].key == KEY::LEFT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::AWAY) {
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
+						}
+
+						// 우
+						if (pKeyInputPacket->inputs[i].key == KEY::RIGHT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
+							vDummyPos = Vec2(vCurPos.x + speed * DT, vCurPos.y);
+
+							if (IsInWorld(vDummyPos) && !isBoss)
+								vCurPos.x += speed * DT;
+							else if (IsInBossRoom(vDummyPos) && isBoss)
+								vCurPos.x += speed * DT;
+
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
+
+							if (((CPlayer*)pCharacter)->GetDir() != DIR_RIGHT)
+								((CPlayer*)pCharacter)->SetDir(DIR_RIGHT);
+						}
+						if (pKeyInputPacket->inputs[i].key == KEY::RIGHT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::AWAY) {
+							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
+						}
+
+						if (pKeyInputPacket->inputs[i].key == KEY::SPACE && pKeyInputPacket->inputs[i].key_state == KEY_STATE::TAP) {
+							// 총알 발사
+							((CPlayer*)pCharacter)->CreateBullet(player.id, bulletId++);
+						}
+
+						// 처리한 정보 업데이트
+						((CPlayer*)pCharacter)->SetPos(vCurPos);
 					}
-					if (pKeyInputPacket->inputs[i].key == KEY::UP && pKeyInputPacket->inputs[i].key_state == KEY_STATE::AWAY) {
+				}
+			}
+			else if (((CPlayer*)pCharacter)->GetHP() <= 0) {
+				if(((CPlayer*)pCharacter)->GetState() != PLAYER_STATE::DIE)
+					((CPlayer*)pCharacter)->SetState(PLAYER_STATE::DIE);
+
+				// 1.5초뒤 아래로 추락
+				if (((CPlayer*)pCharacter)->GetDieTime() >= 1.5f && ((CPlayer*)pCharacter)->GetDieTime() <= 4.5)
+					((CPlayer*)pCharacter)->SetPos(Vec2(((CPlayer*)pCharacter)->GetPos().x, ((CPlayer*)pCharacter)->GetPos().y + DT * 50.f * 3));
+				else
+					((CPlayer*)pCharacter)->SetDieTime(((CPlayer*)pCharacter)->GetDieTime() + DT);
+
+				// 아래로 추락했으면 3초후 부활
+				if (!((CPlayer*)pCharacter)->GetIsGameOver() && ((CPlayer*)pCharacter)->GetLife() >= 1 && ((CPlayer*)pCharacter)->GetResurrectTime() >= 3.0f && ((CPlayer*)pCharacter)->GetDieTime() >= 1.5f) {
+					// Life 감소
+					((CPlayer*)pCharacter)->SetLife(((CPlayer*)pCharacter)->GetLife() - 1);
+					
+					// Life가 0이면 게임오버
+					if (((CPlayer*)pCharacter)->GetLife() == 0) {
+						((CPlayer*)pCharacter)->SetIsGameOver(true);
+					}
+					else {
+						// 플레이어 초기화
+						((CPlayer*)pCharacter)->SetHP(3);
+						((CPlayer*)pCharacter)->SetDieTime(0.f);
+						((CPlayer*)pCharacter)->SetResurrectTime(0.f);
 						((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
+						((CPlayer*)pCharacter)->SetPos(Vec2(pCharacter->GetPos().x, 0.f));
 					}
-
-					// 하
-					if (pKeyInputPacket->inputs[i].key == KEY::DOWN && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
-						vDummyPos = Vec2(vCurPos.x, vCurPos.y + speed * DT);
-
-						if (IsInWorld(vDummyPos) && !isBoss)
-							vCurPos.y += speed * DT;
-						else if (IsInBossRoom(vDummyPos) && isBoss)
-							vCurPos.y += speed * DT;
-
-						((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
-					}
-					if (pKeyInputPacket->inputs[i].key == KEY::DOWN && pKeyInputPacket->inputs[i].key_state == KEY_STATE::AWAY) {
-						((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
-					}
-
-					// 좌
-					if (pKeyInputPacket->inputs[i].key == KEY::LEFT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
-						vDummyPos = Vec2(vCurPos.x - speed * DT, vCurPos.y);
-
-						if (IsInWorld(vDummyPos) && !isBoss)
-							vCurPos.x -= speed * DT;
-						else if (IsInBossRoom(vDummyPos) && isBoss)
-							vCurPos.x -= speed * DT;
-
-						((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
-
-						if (((CPlayer*)pCharacter)->GetDir() != DIR_LEFT)
-							((CPlayer*)pCharacter)->SetDir(DIR_LEFT);
-					}
-					if (pKeyInputPacket->inputs[i].key == KEY::LEFT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::AWAY) {
-						((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
-					}
-
-					// 우
-					if (pKeyInputPacket->inputs[i].key == KEY::RIGHT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
-						vDummyPos = Vec2(vCurPos.x + speed * DT, vCurPos.y);
-
-						if (IsInWorld(vDummyPos) && !isBoss)
-							vCurPos.x += speed * DT;
-						else if (IsInBossRoom(vDummyPos) && isBoss)
-							vCurPos.x += speed * DT;
-
-						((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
-
-						if (((CPlayer*)pCharacter)->GetDir() != DIR_RIGHT)
-							((CPlayer*)pCharacter)->SetDir(DIR_RIGHT);
-					}
-					if (pKeyInputPacket->inputs[i].key == KEY::RIGHT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::AWAY) {
-						((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
-					}
-
-					if (pKeyInputPacket->inputs[i].key == KEY::SPACE && pKeyInputPacket->inputs[i].key_state == KEY_STATE::TAP) {
-						// 총알 발사
-						((CPlayer*)pCharacter)->CreateBullet(player.id, bulletId++);
-					}
-
-					// 처리한 정보 업데이트
-					((CPlayer*)pCharacter)->SetPos(vCurPos);
+				}
+				else if (((CPlayer*)pCharacter)->GetDieTime() >= 1.5f) {
+					((CPlayer*)pCharacter)->SetResurrectTime(((CPlayer*)pCharacter)->GetResurrectTime() + DT);
 				}
 			}
 
 			// 플레이어 정보 송신
 			SC_PLAYER_PACKET playerPacket;
-			playerPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
-			playerPacket.playerID = player.id;
-			playerPacket.playerPos = pCharacter->GetPos();
-			playerPacket.playerState = ((CPlayer*)pCharacter)->GetState();
-			playerPacket.playerDir = ((CPlayer*)pCharacter)->GetDir();
+			playerPacket.type				= static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
+			playerPacket.playerID			= player.id;
+			playerPacket.playerPos			= pCharacter->GetPos();
+			playerPacket.playerState		= ((CPlayer*)pCharacter)->GetState();
+			playerPacket.playerDir			= ((CPlayer*)pCharacter)->GetDir();
+			playerPacket.playerHP			= ((CPlayer*)pCharacter)->GetHP();
+			playerPacket.playerLife			= ((CPlayer*)pCharacter)->GetLife();
+			playerPacket.playerBunnyCount	= ((CPlayer*)pCharacter)->GetBunnyCount();
+			playerPacket.playerCookieCount	= ((CPlayer*)pCharacter)->GetCookieCount();
+			playerPacket.playerKillCount	= ((CPlayer*)pCharacter)->GetKillCount();
+			playerPacket.character			= ((CPlayer*)pCharacter)->GetType();
 			size = sizeof(playerPacket);
 
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
@@ -366,12 +407,17 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					CObject* pOtherPlayer = CObjectMgr::GetInst()->FindObject(L"Player" + std::to_wstring(otherPlayerInfo.id));
 
 					SC_PLAYER_PACKET otherPlayerPacket;
-					otherPlayerPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
-					otherPlayerPacket.playerID = otherPlayerInfo.id;
-					otherPlayerPacket.playerPos = pOtherPlayer->GetPos();
-					otherPlayerPacket.playerState = ((CPlayer*)pOtherPlayer)->GetState();
-					otherPlayerPacket.playerDir = ((CPlayer*)pOtherPlayer)->GetDir();
-					otherPlayerPacket.character = ((CPlayer*)pOtherPlayer)->GetType();
+					otherPlayerPacket.type				= static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
+					otherPlayerPacket.playerID			= otherPlayerInfo.id;
+					otherPlayerPacket.playerPos			= pOtherPlayer->GetPos();
+					otherPlayerPacket.playerState		= ((CPlayer*)pOtherPlayer)->GetState();
+					otherPlayerPacket.playerDir			= ((CPlayer*)pOtherPlayer)->GetDir();
+					otherPlayerPacket.playerHP			= ((CPlayer*)pOtherPlayer)->GetHP();
+					otherPlayerPacket.playerLife		= ((CPlayer*)pOtherPlayer)->GetLife();
+					otherPlayerPacket.playerBunnyCount	= ((CPlayer*)pOtherPlayer)->GetBunnyCount();
+					otherPlayerPacket.playerCookieCount	= ((CPlayer*)pOtherPlayer)->GetCookieCount();
+					otherPlayerPacket.playerKillCount	= ((CPlayer*)pOtherPlayer)->GetKillCount();
+					otherPlayerPacket.character			= ((CPlayer*)pOtherPlayer)->GetType();
 					size = sizeof(otherPlayerPacket);
 
 					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
@@ -392,16 +438,26 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		{
 			std::lock_guard<std::mutex> lock{ g_mutex };
 			const std::vector<CObject*>& vecMonster = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::MONSTER);
-			
+
 			SC_MONSTER_PACKET monsterPacket;
 			monsterPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_MONSTER);
 			size = sizeof(SC_MONSTER_PACKET);
 
-			for (const CObject* pMonster : vecMonster) {
-				// 몬스터 정보를 담는다
-				monsterPacket.monsterPos	= ((CMonster*)pMonster)->GetPos();
+			// 몬스터 수 전송
+			int monsterCount = vecMonster.size();
+			retval = send(client_sock, reinterpret_cast<char*>(&monsterCount), sizeof(monsterCount), 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
+			}
+
+			// 몬스터 정보 보내기
+			for (CObject* pMonster : vecMonster) {
+				monsterPacket.monsterID		= ((CMonster*)pMonster)->GetID();
+				monsterPacket.monsterPos	= pMonster->GetPos();
 				monsterPacket.monsterState	= ((CMonster*)pMonster)->GetState();
 				monsterPacket.monsterDir	= ((CMonster*)pMonster)->GetDir();
+				monsterPacket.monsterIsDead = pMonster->IsDead();
 
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 				retval = send(client_sock, reinterpret_cast<char*>(&monsterPacket), size, 0);
@@ -701,7 +757,6 @@ void init()
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_MONSTER, GROUP_TYPE::PLAYER);
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_PLAYER, GROUP_TYPE::BOSS);
 	CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::BULLET_BOSS, GROUP_TYPE::PLAYER);
-	//CCollisionMgr::GetInst()->CheckGroup(GROUP_TYPE::MISSILE_BOSS, GROUP_TYPE::PLAYER);
 }
 
 DWORD WINAPI Progress(LPVOID arg) 

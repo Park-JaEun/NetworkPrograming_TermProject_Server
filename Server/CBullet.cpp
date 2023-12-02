@@ -56,8 +56,11 @@ void CBullet::EnterCollision(CCollider* _pOther)
 {
 	CObject* pOtherObj = _pOther->GetObj();
 
-	if (pOtherObj->GetName() == L"Monster") {
-		DeleteObject(this);
+	// 몬스터와 충돌하면 총알 삭제
+	if (dynamic_cast<CMonster*>(pOtherObj)) {
+		if (((CMonster*)pOtherObj)->GetGroupType() == GROUP_TYPE::MONSTER) {
+			DeleteObject(this);
+		}
 	}
 
 	if (pOtherObj->GetName() == L"Boss") {

@@ -29,92 +29,30 @@ CBoss::~CBoss()
 
 void CBoss::update()
 {
-	// HP가 0이하가 되면 죽는 애니메이션 재생후 삭제
-	if (m_iHP <= 0) {
-		if (m_eState != BOSS_STATE::DIE) {
-			m_eState = BOSS_STATE::DIE;
-			GetAnimator()->Play(L"Boss_Die", true);
+	switch (m_eState)
+	{
+	case BOSS_STATE::IDLE:
+		GetAnimator()->Play(L"Boss_Idle", true);
+		break;
+
+	case BOSS_STATE::ATTACK:
+	{
+		GetAnimator()->Play(L"Boss_Attack", true);
+		if (m_EffectAnimator != nullptr) {
+			m_EffectAnimator->Play(L"Attack_Effect", false);
+			m_EffectAnimator->FindAnimation(L"Attack_Effect")->SetFrame(0);
 		}
-
-		// 3초후 삭제
-		//if (m_fDieTime >= 3.f)
-		//	DeleteObject(this);
-		//else 
-		//	m_fDieTime += DT;
-
-		//// 아래로 추락
-		//vCurPos.y += DT * 50.f * 3;
 	}
-	else {
-		switch (m_eState) 
-		{
-		case BOSS_STATE::IDLE:
-			GetAnimator()->Play(L"Boss_Idle", true);
-			break;
-		case BOSS_STATE::ATTACK:
-			GetAnimator()->Play(L"Boss_Attack", true);
-			break;
-		}
+	break;
 
-		// 보스 등장 애니메이션
-		/*if (m_bHaveToAppear && !m_bIsAppear) {
-			vCurPos.y -= DT * m_fSpeed * 3;
-
-			if (vCurPos.y <= 0.f) {
-				m_bIsAppear = true;
-				SetFirstPos(vCurPos);
-			}
-		}*/
-
-		// 보스 등장후 위아래로 움직이는 애니메이션
-		//if (m_bIsAppear) {
-		//	// 진행 방향으로 이동
-		//	vCurPos.y += DT * m_fSpeed * 1;
-
-		//	// 배회 거리 기준량을 넘었는지 확인
-		//	float fDiff = abs(m_vFirstPos.y - vCurPos.y) - m_fMaxDistance;
-
-		//	if (fDiff > 0.f) {
-		//		// 방향 변경
-		//		m_fSpeed *= -1.f;
-
-		//		// 넘어선 만큼 반대방향으로 이동
-		//		vCurPos.y += DT * m_fSpeed * 1;
-		//	}
-
-		//	// 1초마다 한 번씩 2개의 패턴 중 랜덤으로 공격
-		//	if (m_fAttackTime >= 1.f) {
-		//		
-		//		if (m_EffectAnimator != nullptr) {
-		//			m_EffectAnimator->Play(L"Attack_Effect", false);
-		//			m_EffectAnimator->FindAnimation(L"Attack_Effect")->SetFrame(0);
-		//		}
-
-		//		int iRand = rand() % 2;
-
-		//		switch (iRand) 
-		//		{
-		//		case 0:
-		//			CreateMissile();
-		//			break;
-		//		case 1:
-		//			CreateMissile();
-		//			CreateFanBullet();
-		//			break;
-		//		}
-
-		//		m_fAttackTime = 0.f;	// 공격 후 공격 시간 초기화
-		//	}
-		//	else
-		//		m_fAttackTime += DT;	// 공격 시간 증가
-		//}
-
-		if (m_EffectAnimator != nullptr)
-			m_EffectAnimator->update();
+	case BOSS_STATE::DIE:
+		GetAnimator()->Play(L"Boss_Die", true);
+		break;
 	}
 
-	
-	//SetPos(vCurPos);
+	if (m_EffectAnimator != nullptr)
+		m_EffectAnimator->update();
+
 	GetAnimator()->update();	// 애니메이터 업데이트
 }
 

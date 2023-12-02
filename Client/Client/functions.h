@@ -4,7 +4,7 @@ class CObject;
 
 // 오브젝트 생성
 void CreateObject(CObject* _pObj, GROUP_TYPE _eGroup);
-void CreateMonster(const Vec2& _vPos);
+void CreateMonster(const Vec2& _vPos, int id);
 void CreateFloor(const Vec2& _vPos);
 void CreateBunny(const Vec2& _vPos, int id);
 void CreateCookie(const Vec2& _vPos, int id);

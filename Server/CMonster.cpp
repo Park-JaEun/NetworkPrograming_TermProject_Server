@@ -8,7 +8,7 @@
 int monsterBulletId = 0;
 
 CMonster::CMonster() : m_fSpeed(50.f), m_vFirstPos{}, m_fMaxDistance(50.f), m_bDir(DIR_RIGHT), 
-					   m_iHP(3), m_eState(MONSTER_STATE::MOVE), m_fAttackCoolTime(0.f)
+					   m_iHP(3), m_eState(MONSTER_STATE::MOVE), m_fAttackCoolTime(0.f), m_fDieTime(0.f)
 {
 }
 
@@ -20,14 +20,17 @@ void CMonster::update()
 {
 	Vec2 vCurPos = GetPos();
 
-	// HP가 0이하가 되면 삭제
+	// HP가 0이하가 되면 1초뒤 삭제
 	if (m_iHP <= 0) {
 		if (m_eState != MONSTER_STATE::DIE) {
 			m_eState = MONSTER_STATE::DIE;
-			// TODO: 플레이어 킬 카운트 증가
 		}
+		else {
+			m_fDieTime += DT;
 
-		DeleteObject(this);
+			if (m_fDieTime > 1.f)
+				DeleteObject(this);
+		}
 	}
 	// HP가 0보다 높을 때
 	else {
@@ -99,11 +102,12 @@ void CMonster::CreateBullet(int id, int bulletId)
 
 	CBullet* pBullet = new CBullet;
 
-	pBullet->SetName(L"MonsterBullet");
+	pBullet->SetName(L"Monster Bullet");
 	pBullet->SetPos(vBulletPos);
 	pBullet->SetFirstPos(vBulletPos);
 	pBullet->SetID(bulletId);
 	pBullet->SetPlayerID(id);
+	pBullet->SetGroupType(GROUP_TYPE::BULLET_MONSTER);
 
 	if (m_bDir == DIR_RIGHT)
 		pBullet->SetDir(DIR_RIGHT);
@@ -121,7 +125,6 @@ void CMonster::CreateBullet(int id, int bulletId)
 bool CMonster::IsInSight(Vec2 _vPos, float _fDistance, const std::wstring& _strName)
 {
 	// vPos를 기준으로 _fDistance 거리 안에 _strName 태그를 가진 오브젝트가 있는지 확인
-
 	std::vector<CObject*> vecObject = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::PLAYER);
 
 	for (auto& pObj : vecObject) {
@@ -152,10 +155,20 @@ void CMonster::EnterCollision(CCollider* _pOther)
 {
 	CObject* pOtherObj = _pOther->GetObj();
 
-	if (pOtherObj->GetName() == L"Player Bullet") {
-		// 플레이어 총알과 충돌시 HP 감소
-		if (m_iHP > 0)
-			m_iHP -= 1;
+	if (dynamic_cast<CBullet*>(pOtherObj)) {
+		if (((CBullet*)pOtherObj)->GetGroupType() == GROUP_TYPE::BULLET_PLAYER) {
+			// 플레이어 총알과 충돌시 HP 감소
+			if (m_iHP > 0)
+				m_iHP -= 1;
+
+			// 죽었으면 본인을 죽인 총알의 PlayerID를 받아옴.
+			if (m_iHP == 0) {
+				int killPlayerId = ((CBullet*)pOtherObj)->GetPlayerID();
+
+				CObject* pKillPlayer = CObjectMgr::GetInst()->FindObject(L"Player" + std::to_wstring(killPlayerId));
+				((CPlayer*)pKillPlayer)->PlusKillCount();
+			}
+		}
 	}
 }
 

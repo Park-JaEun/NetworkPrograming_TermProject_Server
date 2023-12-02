@@ -16,7 +16,8 @@
 #include "CAnimator.h"
 #include "CAnimation.h"
 
-CMonster::CMonster() : m_fSpeed(50.f), m_vFirstPos{}, m_fMaxDistance(50.f), m_bDir(DIR_RIGHT), m_iHP(3), m_eState(MONSTER_STATE::MOVE)
+CMonster::CMonster() : m_fSpeed(50.f), m_vFirstPos{}, m_fMaxDistance(50.f), m_bDir(DIR_RIGHT), 
+					   m_iHP(3), m_eState(MONSTER_STATE::MOVE), m_fDieTime(0.f), m_vPrevPos(Vec2(0.f, 0.f))
 {
 }
 
@@ -26,82 +27,18 @@ CMonster::~CMonster()
 
 void CMonster::update()
 {
-	//Vec2 vCurPos = GetPos();
-
-	// HP가 0이하가 되면 죽는 애니메이션 재생후 삭제
-	if (m_iHP <= 0) {
-		//if (m_eState != MONSTER_STATE::DIE) {
-		//	m_eState = MONSTER_STATE::DIE;
-		//	// 플레이어 킬 카운트 증가
-		//	((CPlayer*)CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Player"))->PlusKillCount();
-		//}
-
-		//if (GetAnimator()->FindAnimation(L"Bunny_Die_Left")->IsFinish() || GetAnimator()->FindAnimation(L"Bunny_Die_Right")->IsFinish())
-		//	DeleteObject(this);
-	}
-	// HP가 0보다 높을 때
-	else {
-		// 본인 시야에 플레이어가 있으면 공격
-		//if (IsInSight(GetPos(), 300.f, L"Player")) {
-		//	m_eState = MONSTER_STATE::ATTACK;
-
-		//	if(m_bDir == DIR_RIGHT)
-		//		GetAnimator()->Play(L"Bunny_Attack_Right", false);
-		//	if (m_bDir == DIR_LEFT)
-		//		GetAnimator()->Play(L"Bunny_Attack_Left", false);
-		//}
-		//// 플레이어가 없으면 다시 움직임
-		//else {
-		//	m_eState = MONSTER_STATE::MOVE;
-		//}
-
-		//// 공격하고 있을 때
-		//if (m_eState == MONSTER_STATE::ATTACK) {
-		//	// 공격 애니메이션 재생 후 총알 생성
-		//	if (GetAnimator()->FindAnimation(L"Bunny_Attack_Right")->IsFinish()) {
-		//		CreateBullet();
-		//		GetAnimator()->FindAnimation(L"Bunny_Attack_Right")->SetFrame(0);
-		//	}
-
-		//	if (GetAnimator()->FindAnimation(L"Bunny_Attack_Left")->IsFinish()) {
-		//		CreateBullet();
-		//		GetAnimator()->FindAnimation(L"Bunny_Attack_Left")->SetFrame(0);
-		//	}
-		//}
-
-		//// 움직이고 있을 때
-		//if (m_eState == MONSTER_STATE::MOVE) {
-
-		//	if (m_bDir == DIR_RIGHT) {
-		//		// 진행 방향으로 이동
-		//		vCurPos.x += DT * m_fSpeed * 1;
-
-		//		// 배회 거리 기준량을 넘었는지 확인
-		//		float fDiff = abs(m_vFirstPos.x - vCurPos.x) - m_fMaxDistance;
-
-		//		if (fDiff > 0.f) {
-		//			// 방향 변경
-		//			m_bDir = !m_bDir;
-		//			// 넘어선 만큼 반대방향으로 이동
-		//			vCurPos.x += fDiff * -1;
-		//		}
-		//	}
-
-		//	if (m_bDir == DIR_LEFT) {
-		//		// 진행 방향으로 이동
-		//		vCurPos.x += DT * m_fSpeed * -1;
-
-		//		// 배회 거리 기준량을 넘었는지 확인
-		//		float fDiff = abs(m_vFirstPos.x - vCurPos.x) - m_fMaxDistance;
-
-		//		if (fDiff > 0.f) {
-		//			// 방향 변경
-		//			m_bDir = !m_bDir;
-		//			// 넘어선 만큼 반대방향으로 이동
-		//			vCurPos.x += fDiff * 1;
-		//		}
-		//	}
-		//}
+	// 죽었을 때, 이전 위치와 현재 위치가 변화가 없는 시간이 1.5초가 넘으면 존재하지 않는다고 판단
+	if (m_eState == MONSTER_STATE::DIE) {
+		if ((int)m_vPrevPos.x == (int)GetPos().x) {
+			m_fDieTime += DT;
+			if (m_fDieTime > 1.5f) {
+				DeleteObject(this);
+			}
+		}
+		else {
+			m_fDieTime = 0.f;
+			m_vPrevPos = GetPos();
+		}
 	}
 
 	if (m_bDir == DIR_RIGHT) {
@@ -155,7 +92,6 @@ void CMonster::update()
 		}
 	}
 
-	//SetPos(vCurPos);
 	GetAnimator()->update();	// 애니메이터 업데이트
 }
 
