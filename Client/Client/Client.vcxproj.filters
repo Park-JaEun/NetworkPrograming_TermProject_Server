@@ -110,6 +110,12 @@
     <Filter Include="Engine\03. Managers\SoundMgr">
       <UniqueIdentifier>{51f6ac6d-2dc0-4ab7-8906-b62528309beb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\05. Scene\Scene_Clear">
+      <UniqueIdentifier>{2e27448e-12ed-4cfb-bbff-2b3ea4a1e7bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\05. Scene\Scene_Gameover">
+      <UniqueIdentifier>{80d09d69-1bfd-4414-943f-e5b7ef8c5171}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">

@@ -60,6 +60,8 @@ enum class SCENE_TYPE
 	START,
 	SELECT,
 	MAIN,
+	CLEAR,
+	GAMEOVER,
 
 	END,
 };

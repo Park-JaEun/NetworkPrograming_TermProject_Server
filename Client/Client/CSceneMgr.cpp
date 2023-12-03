@@ -57,6 +57,14 @@ void CSceneMgr::init()
 	m_arrScene[(UINT)SCENE_TYPE::MAIN] = new CScene_Main;
 	m_arrScene[(UINT)SCENE_TYPE::MAIN]->SetName(L"Main Scene");
 
+	// Clear Scene
+	/*m_arrScene[(UINT)SCENE_TYPE::CLEAR] = new CScene_Clear;
+	m_arrScene[(UINT)SCENE_TYPE::CLEAR]->SetName(L"Clear Scene");*/
+
+	// GameOver Scene
+	/*m_arrScene[(UINT)SCENE_TYPE::GAMEOVER] = new CScene_GameOver;
+	m_arrScene[(UINT)SCENE_TYPE::GAMEOVER]->SetName(L"GameOver Scene");*/
+
 	// Ã³À½ ¾À ÁöÁ¤
 	m_pCurScene = m_arrScene[(UINT)SCENE_TYPE::START];
 	m_pCurScene->Enter();
