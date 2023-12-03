@@ -472,6 +472,9 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		{
 			// 모든 플레이어의 x좌표 위치가 5060.f 이상이면 isBoss를 true로 변경
 			std::lock_guard<std::mutex> lock{ g_mutex };
+			const std::vector<CObject*>& vecBoss = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BOSS);
+			CObject* pBoss = CObjectMgr::GetInst()->FindObject(L"Boss");
+
 			if (!isBoss) {
 				for (int i = 0; i < MAX_PLAYER; ++i) {
 					CObject* pPlayer = CObjectMgr::GetInst()->FindObject(L"Player" + std::to_wstring(i));
@@ -486,18 +489,27 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 				if (isBoss) {
 					// 보스 출현
-					CObject* pBoss = CObjectMgr::GetInst()->FindObject(L"Boss");
 					((CBoss*)pBoss)->SetHaveToAppear(true);
 					((CBoss*)pBoss)->SetState(BOSS_STATE::IDLE);
 					std::cout << "보스 출현" << std::endl;
 				}
 				else {
+					// 보스 수 보내기
+					int bossCount = vecBoss.size();
+					retval = send(client_sock, reinterpret_cast<char*>(&bossCount), sizeof(bossCount), 0);
+					if (retval == SOCKET_ERROR) {
+						err_display("send()");
+						break;
+					}
+
+					// 보스 정보 보내기
 					SC_BOSS_PACKET bossPacket;
 					bossPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BOSS);
 					size = sizeof(SC_BOSS_PACKET);
 
-					bossPacket.bossPos	 = Vec2(0.f, 0.f);
+					bossPacket.bossPos = Vec2(0.f, 0.f);
 					bossPacket.bossState = BOSS_STATE::NOT_APPEAR;
+					bossPacket.bossIsDead = false;
 
 					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 					retval = send(client_sock, reinterpret_cast<char*>(&bossPacket), size, 0);
@@ -510,20 +522,30 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 			// 보스 정보 송신 (위치, 상태)
 			if (isBoss) {
-				CObject* pBoss = CObjectMgr::GetInst()->FindObject(L"Boss");
+				// 보스 수 보내기
+				int bossCount = vecBoss.size();
+				retval = send(client_sock, reinterpret_cast<char*>(&bossCount), sizeof(bossCount), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display("send()");
+					break;
+				}
 
+				// 보스 정보 보내기
 				SC_BOSS_PACKET bossPacket;
 				bossPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BOSS);
 				size = sizeof(SC_BOSS_PACKET);
 
-				bossPacket.bossPos	 = pBoss->GetPos();
-				bossPacket.bossState = ((CBoss*)pBoss)->GetState();
+				for (CObject* pBoss : vecBoss) {
+					bossPacket.bossPos		= pBoss->GetPos();
+					bossPacket.bossState	= ((CBoss*)pBoss)->GetState();
+					bossPacket.bossIsDead	= pBoss->IsDead();
 
-				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-				retval = send(client_sock, reinterpret_cast<char*>(&bossPacket), size, 0);
-				if (retval == SOCKET_ERROR) {
-					err_display("send()");
-					break;
+					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+					retval = send(client_sock, reinterpret_cast<char*>(&bossPacket), size, 0);
+					if (retval == SOCKET_ERROR) {
+						err_display("send()");
+						break;
+					}
 				}
 			}
 		}

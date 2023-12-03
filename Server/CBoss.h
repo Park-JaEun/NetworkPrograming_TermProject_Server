@@ -32,7 +32,6 @@ public:
 
 private:
     void CreateFanBullet();
-    void CreateMissile();
 
 public:
     void OnCollision(CCollider* _pOther) override;

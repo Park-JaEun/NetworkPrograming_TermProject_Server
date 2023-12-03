@@ -8,12 +8,11 @@
 
 int bossBulletId = 0;
 
-// 완전 랜덤 난수
-int GetRandomNumber()
+int GetRandomNumber(int min, int max)
 {
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_int_distribution<int> uid(0, 1);
+	std::uniform_int_distribution<int> uid(min, max);
 
 	return uid(gen);
 }
@@ -75,13 +74,17 @@ void CBoss::update()
 				vCurPos.y += DT * m_fSpeed * 1;
 			}
 
-			// 1초마다 한 번씩 2개의 패턴 중 랜덤으로 공격
+			// 1초마다 한 번씩 공격
 			if (m_fAttackTime >= 1.f) {
 				CreateFanBullet();
 				m_fAttackTime = 0.f;	// 공격 후 공격 시간 초기화
+				m_eState = BOSS_STATE::ATTACK;
 			}
-			else
+			else {
+				if(m_eState != BOSS_STATE::IDLE)
+					m_eState = BOSS_STATE::IDLE;
 				m_fAttackTime += DT;	// 공격 시간 증가
+			}
 		}
 	}
 
@@ -91,17 +94,15 @@ void CBoss::update()
 void CBoss::CreateFanBullet()
 {
 	Vec2 vBulletPos = GetPos();
-	int iCount = 0;
+	// 각도 증가량
+	float fDegreeInc;
+
+	if(GetRandomNumber(0, 1))
+		fDegreeInc = 15.f;
+	else
+		fDegreeInc = 20.f;
 
 	for (int i = 0; i < 5; ++i) {
-		int iRand = GetRandomNumber();
-
-		// 총알	3개 중 1개는 생성하지 않음
-		if (iRand == 0 && iCount < 3) {
-			++iCount;
-			continue;
-		}
-
 		CBullet* pBullet = new CBullet;
 
 		pBullet->SetName(L"Boss Bullet");
@@ -109,7 +110,7 @@ void CBoss::CreateFanBullet()
 		pBullet->SetPos(vBulletPos);
 		pBullet->SetFirstPos(vBulletPos);
 		pBullet->SetDir(DIR_LEFT);
-		pBullet->SetDegree(59.0f + i / 10.f);
+		pBullet->SetDegree(150.f + (fDegreeInc * i));
 		pBullet->SetID(bossBulletId++);
 		pBullet->SetGroupType(GROUP_TYPE::BULLET_BOSS);
 		pBullet->SetPlayerID(4);
@@ -120,46 +121,6 @@ void CBoss::CreateFanBullet()
 	}
 }
 
-void CBoss::CreateMissile()
-{
-	// 보스 미사일 발사 함수
-	CObject* pTarget = CObjectMgr::GetInst()->FindObject(L"Player");
-	Vec2 vMissilePos;
-
-	CBullet* pMissile = new CBullet;
-	pMissile->SetName(L"Boss Missile");
-	pMissile->CreateCollider();
-
-	// 1/2 확률로 왼쪽 또는 아래쪽 미사일 생성
-	int iRand = rand() % 2;
-
-	if (iRand == 0) {
-		// 왼쪽일 때, y좌표는 플레이어의 y좌표
-		// x좌표는 자기 자신의 x좌표
-		vMissilePos.x = GetPos().x;
-		vMissilePos.y = pTarget->GetPos().y;
-
-		pMissile->SetSpeed(700.f);
-		pMissile->SetDir(DIR_LEFT);
-		pMissile->GetCollider()->SetScale(Vec2(94.f, 27.f));
-	}
-	else {
-		// 아래일 때, x좌표는 플레이어의 x좌표
-		// y좌표는 맨위
-		vMissilePos.x = pTarget->GetPos().x;
-		vMissilePos.y = -150.f;
-
-		pMissile->SetSpeed(500.f);
-		pMissile->SetDir(DIR_DOWN);
-		pMissile->GetCollider()->SetScale(Vec2(30.f, 94.f));
-	}
-
-	pMissile->SetPos(vMissilePos);
-	pMissile->SetFirstPos(vMissilePos);
-
-	CreateObject(pMissile, GROUP_TYPE::MISSILE_BOSS);
-}
-
 void CBoss::OnCollision(CCollider* _pOther)
 {
 }
@@ -168,10 +129,20 @@ void CBoss::EnterCollision(CCollider* _pOther)
 {
 	CObject* pOtherObj = _pOther->GetObj();
 
-	if (pOtherObj->GetName() == L"Player Bullet") {
-		// 플레이어 총알과 충돌시 HP 감소
-		if (m_iHP > 0)
-			m_iHP -= 1;
+	if (dynamic_cast<CBullet*>(pOtherObj)) {
+		if (((CBullet*)pOtherObj)->GetGroupType() == GROUP_TYPE::BULLET_PLAYER) {
+			// 플레이어 총알과 충돌시 HP 감소
+			if (m_iHP > 0)
+				m_iHP -= 1;
+
+			// 죽었으면 본인을 죽인 총알의 PlayerID를 받아옴.
+			if (m_iHP == 0 && m_eState != BOSS_STATE::DIE) {
+				int killPlayerId = ((CBullet*)pOtherObj)->GetPlayerID();
+
+				CObject* pKillPlayer = CObjectMgr::GetInst()->FindObject(L"Player" + std::to_wstring(killPlayerId));
+				((CPlayer*)pKillPlayer)->PlusKillCount();
+			}
+		}
 	}
 }
 

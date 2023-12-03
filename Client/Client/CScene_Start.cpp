@@ -169,6 +169,7 @@ void CScene_Start::update()
 
 		// 마우스가 StartButton 위에 있는지 확인한다.
 		CUI* pStartButton = (CUI*)FindObject(L"StartButton");
+		CUI* pExitButton = (CUI*)FindObject(L"ExitButton");
 
 		if (pStartButton->GetCollider()->PtInCollider(vMousePos)) {
 			int iLenNickname = GetWindowTextLength(hEditNickname);
@@ -252,6 +253,11 @@ void CScene_Start::update()
 
 			ChangeScene(SCENE_TYPE::SELECT);
 		}
-		
+
+		// 마우스가 ExitButton 위에 있는지 확인한다.
+		if (pExitButton->GetCollider()->PtInCollider(vMousePos)) {
+			// 프로그램 종료
+			PostQuitMessage(0);
+		}
 	}
 }

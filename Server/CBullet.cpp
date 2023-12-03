@@ -17,8 +17,10 @@ void CBullet::update()
 	Vec2 vPos = GetPos();
 
 	if (m_fDegree != 0.f) {
-		vPos.x += DT * m_fSpeed * cosf(m_fDegree);
-		vPos.y += DT * m_fSpeed * sinf(m_fDegree);
+		float fRadian = m_fDegree * 3.141592f / 180.f;
+
+		vPos.x += DT * m_fSpeed * cosf(fRadian);
+		vPos.y += DT * m_fSpeed * sinf(fRadian);
 	}
 	else {
 		if (m_bIsDown)

@@ -53,6 +53,10 @@ int CCore::init(HWND _hWnd, POINT _ptResolution)
 	AdjustWindowRect(&rt, WS_OVERLAPPEDWINDOW, false);
 	SetWindowPos(m_hWnd, nullptr, 100, 100, rt.right - rt.left, rt.bottom - rt.top, 0);
 
+	// 윈도우를 크기를 변경할 수 없고, 최대화 버튼을 없애도록 만든다.
+	SetWindowLong(m_hWnd, GWL_STYLE, GetWindowLong(m_hWnd, GWL_STYLE) & ~WS_SIZEBOX);
+	SetWindowLong(m_hWnd, GWL_STYLE, GetWindowLong(m_hWnd, GWL_STYLE) & ~WS_MAXIMIZEBOX);
+
 	// 윈도우에 그림을 그려줄 DC를 만들기
 	m_hDC = GetDC(m_hWnd);
 
@@ -248,9 +252,9 @@ void CCore::TestSendKeyInput()
 	// 보스 정보 받기
 	SC_BOSS_PACKET* pBossPacket = reinterpret_cast<SC_BOSS_PACKET*>(buf);
 
-	CObject* pBoss = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Boss");
-	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
-	retval = recv(sock, buf, size, MSG_WAITALL);
+	// 보스 수 받기
+	int bossCount = 0;
+	retval = recv(sock, reinterpret_cast<char*>(&bossCount), sizeof(bossCount), MSG_WAITALL);
 	if (retval == SOCKET_ERROR) {
 		err_display("recv()");
 		closesocket(sock);
@@ -258,11 +262,55 @@ void CCore::TestSendKeyInput()
 		return;
 	}
 
-	// 보스가 나타났으면, 업데이트
-	if (pBossPacket->bossState != BOSS_STATE::NOT_APPEAR) {
-		pBoss->SetPos(pBossPacket->bossPos);
-		((CBoss*)pBoss)->SetState(pBossPacket->bossState);
+	// 보스 정보 받기
+	if (bossCount != 0) {
+		retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+		retval = recv(sock, buf, size, MSG_WAITALL);
+		if (retval == SOCKET_ERROR) {
+			err_display("recv()");
+			closesocket(sock);
+			WSACleanup();
+			return;
+		}
+
+		// vecBoss 안에 똑같은 이름의 오브젝트 불러오기
+		CObject* pBoss = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Boss");
+		if (pBossPacket->bossState != BOSS_STATE::NOT_APPEAR) {
+			if (pBossPacket->bossIsDead) {
+				// 삭제된 보스는 클라이언트 내에서 삭제
+				DeleteObject(pBoss);
+			}
+			else {
+				// 삭제되지 않은 보스들은 업데이트
+				pBoss->SetPos(pBossPacket->bossPos);
+				((CBoss*)pBoss)->SetState(pBossPacket->bossState);
+			}
+		}
 	}
+
+
+	//CObject* pBoss = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Boss");
+
+	//if (pBoss != nullptr) {
+	//	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+	//	retval = recv(sock, buf, size, MSG_WAITALL);
+	//	if (retval == SOCKET_ERROR) {
+	//		err_display("recv()");
+	//		closesocket(sock);
+	//		WSACleanup();
+	//		return;
+	//	}
+
+	//	// 보스가 나타났으면, 업데이트
+	//	
+	//		if (pBossPacket->bossIsDead) {
+	//			DeleteObject(pBoss);
+	//		}
+	//		else {
+	//			pBoss->SetPos(pBossPacket->bossPos);
+	//			((CBoss*)pBoss)->SetState(pBossPacket->bossState);
+	//		}
+	//}
 
 	// 토끼 아이템 정보 받기
 	SC_RABBIT_ITEM_PACKET* pRabbitItemPacket = reinterpret_cast<SC_RABBIT_ITEM_PACKET*>(buf);

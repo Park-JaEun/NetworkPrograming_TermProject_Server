@@ -162,7 +162,7 @@ void CMonster::EnterCollision(CCollider* _pOther)
 				m_iHP -= 1;
 
 			// Á×¾úÀ¸¸é º»ÀÎÀ» Á×ÀÎ ÃÑ¾ËÀÇ PlayerID¸¦ ¹Þ¾Æ¿È.
-			if (m_iHP == 0) {
+			if (m_iHP == 0 && m_eState != MONSTER_STATE::DIE) {
 				int killPlayerId = ((CBullet*)pOtherObj)->GetPlayerID();
 
 				CObject* pKillPlayer = CObjectMgr::GetInst()->FindObject(L"Player" + std::to_wstring(killPlayerId));

@@ -33,7 +33,6 @@ CPlayer::~CPlayer()
 void CPlayer::update()
 {
 	PlayAnimation();
-
 	if (m_EffectAnimator != nullptr)
 		m_EffectAnimator->update();	// 이펙트 애니메이터 업데이트
 	GetAnimator()->update();		// 애니메이터 업데이트
