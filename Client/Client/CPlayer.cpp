@@ -21,8 +21,7 @@
 CPlayer::CPlayer() : m_bDir(DIR_RIGHT), m_eState(PLAYER_STATE::IDLE), 
 					 m_EffectAnimator(nullptr), m_fSpeed(300.f), m_iHP(3), m_iLife(3),
 					 m_fDieTime(0.f), m_fResurrectTime(0.f), m_bIsGameOver(false), 
-					 m_iKillCount(0), m_iBunnyCount(0), m_iCookieCount(0), m_bPrevDir(DIR_RIGHT),
-					 m_vPrevPos(Vec2(0.f, 0.f))
+					 m_iKillCount(0), m_iBunnyCount(0), m_iCookieCount(0)
 {
 }
 
@@ -34,6 +33,7 @@ CPlayer::~CPlayer()
 void CPlayer::update()
 {
 	PlayAnimation();
+<<<<<<< HEAD
 
 	if (m_EffectAnimator != nullptr)
 		m_EffectAnimator->update();	// ÀÌÆåÆ® ¾Ö´Ï¸ŞÀÌÅÍ ¾÷µ¥ÀÌÆ®
@@ -50,6 +50,11 @@ void CPlayer::update()
 	// ÀÌÀü À§Ä¡ ÀúÀå
 	if (m_vPrevPos != GetPos())
 		m_vPrevPos = GetPos();
+=======
+	if (m_EffectAnimator != nullptr)
+		m_EffectAnimator->update();	// ÀÌÆåÆ® ¾Ö´Ï¸ŞÀÌÅÍ ¾÷µ¥ÀÌÆ®
+	GetAnimator()->update();		// ¾Ö´Ï¸ŞÀÌÅÍ ¾÷µ¥ÀÌÆ®
+>>>>>>> parent of 68322ae ([ê³µí†µ] í”Œë ˆì´ì–´ ìœ„ì¹˜ ì˜ˆì¸¡ê³¼ ë³´ê°„ ì¶”ê°€, ëª¨ë“  í´ë¼ì´ì–¸íŠ¸ í‚¤ì…ë ¥ ë™ê¸°í™” êµ¬í˜„)
 }
 
 void CPlayer::render(HDC _dc)
@@ -848,6 +853,7 @@ void CPlayer::PlayAnimation()
 	
 }
 
+<<<<<<< HEAD
 void CPlayer::PredictPlayerPos()
 {
 	// ¸¶Áö¸· ¹æÇâÀ» »ç¿ëÇÏ¿© ÇÃ·¹ÀÌ¾îÀÇ À§Ä¡ ¿¹Ãø
@@ -883,6 +889,8 @@ void CPlayer::InterpolatePos()
 	SetPos(interpolatePos);
 }
 
+=======
+>>>>>>> parent of 68322ae ([ê³µí†µ] í”Œë ˆì´ì–´ ìœ„ì¹˜ ì˜ˆì¸¡ê³¼ ë³´ê°„ ì¶”ê°€, ëª¨ë“  í´ë¼ì´ì–¸íŠ¸ í‚¤ì…ë ¥ ë™ê¸°í™” êµ¬í˜„)
 void CPlayer::PlayShootingEffect()
 {
 	// ½´ÆÃ ÀÌÆåÆ® Àç»ı

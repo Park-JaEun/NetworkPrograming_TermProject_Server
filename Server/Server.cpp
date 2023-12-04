@@ -30,9 +30,6 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	bool isGameOver{ false };			// °ÔÀÓ ¿À¹ö ¿©ºÎ
 	bool IsGameClear{ false };			// °ÔÀÓ Å¬¸®¾î ¿©ºÎ
 	CObject* pCharacter = new CPlayer;
-	auto lastInputTime = std::chrono::high_resolution_clock::now(); // ¸¶Áö¸· ÀÔ·Â ½Ã°£
-	auto lastFireTime = std::chrono::high_resolution_clock::now(); // ¸¶Áö¸· ¹ß»ç ½Ã°£
-	const float fireRate = 0.5f; // ¹ß»ç °£°İ
 
 	// Á¢¼ÓÇÑ Å¬¶óÀÌ¾ğÆ® Á¤º¸ ÀúÀå
 	addrlen = sizeof(clientaddr);
@@ -261,14 +258,6 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 		{
 			std::lock_guard<std::mutex> lock{ g_mutex };
-
-			// ÇöÀç ½Ã°£ ±â·Ï
-			auto now = std::chrono::high_resolution_clock::now();
-
-			// deltaTime °è»ê (ÀÌÀü ÀÔ·ÂºÎÅÍ ÇöÀç±îÁöÀÇ ½Ã°£ Â÷ÀÌ)
-			float deltaTime = std::chrono::duration<float>(now - lastInputTime).count();
-			lastInputTime = now; // ¸¶Áö¸· ÀÔ·Â ½Ã°£ ¾÷µ¥ÀÌÆ®
-
 			//¹Ş¾Æ¿Â ÆĞÅ¶À» Å°º¸µå ÀÔ·Â ÆĞÅ¶À¸·Î Ä³½ºÆÃ
 			CS_KEYBOARD_INPUT_PACKET* pKeyInputPacket = reinterpret_cast<CS_KEYBOARD_INPUT_PACKET*>(buf);
 
@@ -285,12 +274,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 						// »ó
 						if (pKeyInputPacket->inputs[i].key == KEY::UP && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
-							vDummyPos = Vec2(vCurPos.x, vCurPos.y - speed * deltaTime);
+							vDummyPos = Vec2(vCurPos.x, vCurPos.y - speed * DT);
 
 							if (IsInWorld(vDummyPos) && !isBoss)
-								vCurPos.y -= speed * deltaTime;
+								vCurPos.y -= speed * DT;
 							else if (IsInBossRoom(vDummyPos) && isBoss)
-								vCurPos.y -= speed * deltaTime;
+								vCurPos.y -= speed * DT;
 
 							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
 						}
@@ -300,12 +289,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 						// ÇÏ
 						if (pKeyInputPacket->inputs[i].key == KEY::DOWN && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
-							vDummyPos = Vec2(vCurPos.x, vCurPos.y + speed * deltaTime);
+							vDummyPos = Vec2(vCurPos.x, vCurPos.y + speed * DT);
 
 							if (IsInWorld(vDummyPos) && !isBoss)
-								vCurPos.y += speed * deltaTime;
+								vCurPos.y += speed * DT;
 							else if (IsInBossRoom(vDummyPos) && isBoss)
-								vCurPos.y += speed * deltaTime;
+								vCurPos.y += speed * DT;
 
 							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
 						}
@@ -315,12 +304,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 						// ÁÂ
 						if (pKeyInputPacket->inputs[i].key == KEY::LEFT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
-							vDummyPos = Vec2(vCurPos.x - speed * deltaTime, vCurPos.y);
+							vDummyPos = Vec2(vCurPos.x - speed * DT, vCurPos.y);
 
 							if (IsInWorld(vDummyPos) && !isBoss)
-								vCurPos.x -= speed * deltaTime;
+								vCurPos.x -= speed * DT;
 							else if (IsInBossRoom(vDummyPos) && isBoss)
-								vCurPos.x -= speed * deltaTime;
+								vCurPos.x -= speed * DT;
 
 							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
 
@@ -333,12 +322,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 						// ¿ì
 						if (pKeyInputPacket->inputs[i].key == KEY::RIGHT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
-							vDummyPos = Vec2(vCurPos.x + speed * deltaTime, vCurPos.y);
+							vDummyPos = Vec2(vCurPos.x + speed * DT, vCurPos.y);
 
 							if (IsInWorld(vDummyPos) && !isBoss)
-								vCurPos.x += speed * deltaTime;
+								vCurPos.x += speed * DT;
 							else if (IsInBossRoom(vDummyPos) && isBoss)
-								vCurPos.x += speed * deltaTime;
+								vCurPos.x += speed * DT;
 
 							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
 
@@ -350,12 +339,17 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 						}
 
 						if (pKeyInputPacket->inputs[i].key == KEY::SPACE && pKeyInputPacket->inputs[i].key_state == KEY_STATE::TAP) {
+<<<<<<< HEAD
 							float timeSinceLastFire = std::chrono::duration<float>(now - lastFireTime).count();
 							if (timeSinceLastFire >= fireRate) {
 								// ÃÑ¾Ë ¹ß»ç
 ((CPlayer*)pCharacter)->CreateBullet(player.id, bulletId++);
 lastFireTime = now; // ¸¶Áö¸· ¹ß»ç ½Ã°£ ¾÷µ¥ÀÌÆ®
 							}
+=======
+							// ÃÑ¾Ë ¹ß»ç
+							((CPlayer*)pCharacter)->CreateBullet(player.id, bulletId++);
+>>>>>>> parent of 68322ae ([ê³µí†µ] í”Œë ˆì´ì–´ ìœ„ì¹˜ ì˜ˆì¸¡ê³¼ ë³´ê°„ ì¶”ê°€, ëª¨ë“  í´ë¼ì´ì–¸íŠ¸ í‚¤ì…ë ¥ ë™ê¸°í™” êµ¬í˜„)
 						}
 
 						// Ã³¸®ÇÑ Á¤º¸ ¾÷µ¥ÀÌÆ®

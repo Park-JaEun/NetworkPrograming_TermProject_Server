@@ -16,12 +16,10 @@ private:
     float           m_fDieTime;         // ÇÃ·¹ÀÌ¾î »ç¸Á ½Ã°£
     float           m_fResurrectTime;   // ÇÃ·¹ÀÌ¾î ºÎÈ° ½Ã°£
     bool            m_bDir;             // ÇÃ·¹ÀÌ¾î ¹æÇâ
-    bool			m_bPrevDir;         // ÇÃ·¹ÀÌ¾î ÀÌÀü ¹æÇâ
     bool			m_bIsGameOver;      // ÇÃ·¹ÀÌ¾î °ÔÀÓ¿À¹ö ¿©ºÎ
     PLAYER_STATE    m_eState;           // ÇÃ·¹ÀÌ¾î »óÅÂ
     CHARACTER_TYPE  m_eType;            // ÇÃ·¹ÀÌ¾î Å¸ÀÔ
     CAnimator*      m_EffectAnimator;   // ÀÌÆåÆ® ¾Ö´Ï¸ŞÀÌÅÍ
-    Vec2			m_vPrevPos;         // ÇÃ·¹ÀÌ¾î ÀÌÀü À§Ä¡
 
     CLONE(CPlayer)
 public:
@@ -31,7 +29,6 @@ public:
     const int GetCookieCount()        { return m_iCookieCount; }
     const int GetKillCount()          { return m_iKillCount; }
     const bool GetIsGameOver()        { return m_bIsGameOver; }
-    const Vec2 GetPrevPos()           { return m_vPrevPos; }
 
     void SetType(CHARACTER_TYPE _eType) { m_eType = _eType; }
     void SetState(PLAYER_STATE state)   { m_eState = state; }
@@ -58,9 +55,13 @@ private:
     void CreateHyein();
 
     void PlayAnimation();
+<<<<<<< HEAD
 
     void PredictPlayerPos();  // ÇÃ·¹ÀÌ¾î »çÀÌµå ½ºÅ©·Ñ¸µ ¿¹Ãø
     void InterpolatePos();    // ÇÃ·¹ÀÌ¾î »çÀÌµå ½ºÅ©·Ñ¸µ º¸°£
+=======
+  
+>>>>>>> parent of 68322ae ([ê³µí†µ] í”Œë ˆì´ì–´ ìœ„ì¹˜ ì˜ˆì¸¡ê³¼ ë³´ê°„ ì¶”ê°€, ëª¨ë“  í´ë¼ì´ì–¸íŠ¸ í‚¤ì…ë ¥ ë™ê¸°í™” êµ¬í˜„)
 
 public:
     void OnCollision(CCollider* _pOther) override;
