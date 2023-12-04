@@ -2,6 +2,8 @@
 #include "CObjectMgr.h"
 #include "CObject.h"
 
+std::mutex g_mutex_object;
+
 CObjectMgr::CObjectMgr()
 {
 }
@@ -25,6 +27,8 @@ void CObjectMgr::update()
 
 void CObjectMgr::DeleteDeadObject()
 {
+	std::lock_guard<std::mutex> lock{ g_mutex_object };
+
 	for (std::vector<CObject*>& _vecObj : m_arrVecObj) {
 
 		auto pObjIter = _vecObj.begin();

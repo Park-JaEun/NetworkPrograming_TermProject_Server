@@ -8,7 +8,8 @@
 
 #include <thread>
 
-std::mutex g_mutex;
+std::mutex g_mutex_server;
+
 int clientId = 0;		// 클라이언트 id 초기값 0
 int bulletId = 0;		// 투사체 id 초기값 0
 
@@ -55,7 +56,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	// PlayerInfo 인스턴스를 생성하여 ClientInfo 벡터에 추가
 	PlayerInfo player;
 	{
-		std::lock_guard<std::mutex> lock{ g_mutex };		// 뮤텍스 잠금
+		std::lock_guard<std::mutex> lock{ g_mutex_server };		// 뮤텍스 잠금
 		player.nickname = nick_name;						// 클라이언트 닉네임 저장
 		player.portnumber = ntohs(clientaddr.sin_port);		// 네트워크 바이트 순서에서 호스트 바이트 순서로 변환
 		player.id = clientId++;								// 클라이언트 ID 할당
@@ -96,7 +97,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 	SELECT_CHARACTER_PACKET* pSelectPacket = reinterpret_cast<SELECT_CHARACTER_PACKET*>(buf);
 	{
-		std::lock_guard<std::mutex> lock{ g_mutex };
+		std::lock_guard<std::mutex> lock{ g_mutex_server };
 		((CPlayer*)pCharacter)->SetType(pSelectPacket->character);
 		((CPlayer*)pCharacter)->SetName(L"Player" + std::to_wstring(player.id));
 		((CPlayer*)pCharacter)->SetPos(Vec2(0.f, 0.f));
@@ -136,7 +137,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 	// 클라이언트가 3명 들어와있고, 모두 준비 상태일 경우 플레이어들에게 초기화 신호 패킷 전송
 	while (1) {
-		std::lock_guard<std::mutex> lock{ g_mutex };	// 뮤텍스 잠금
+		std::lock_guard<std::mutex> lock{ g_mutex_server };	// 뮤텍스 잠금
 		isAllReady = true;
 
 		for (const PlayerInfo& info : ClientInfo) {
@@ -199,14 +200,14 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 	CS_INIT_FINISH_PACKET* initFinishPacket = reinterpret_cast<CS_INIT_FINISH_PACKET*>(buf);
 	{
-		std::lock_guard<std::mutex> lock{ g_mutex };	// 뮤텍스 잠금
+		std::lock_guard<std::mutex> lock{ g_mutex_server };	// 뮤텍스 잠금
 		ClientInfo[player.id].isInit = true;			// 클라이언트 초기화 상태 true로 변경
 		std::cout << "[Player" << player.id << "] 스테이지 초기화 완료" << std::endl;
 	}
 
 	// 모든 클라이언트가 초기화를 완료하면 플레이어들에게 게임 시작 신호 패킷 전송
 	while (1) {
-		std::lock_guard<std::mutex> lock{ g_mutex };
+		std::lock_guard<std::mutex> lock{ g_mutex_server };
 		isAllInit = true;
 
 		for (const PlayerInfo& info : ClientInfo) {
@@ -260,7 +261,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			break;
 
 		{
-			std::lock_guard<std::mutex> lock{ g_mutex };
+			std::lock_guard<std::mutex> lock{ g_mutex_server };
 
 			// 현재 시간 기록
 			auto now = std::chrono::high_resolution_clock::now();
@@ -453,7 +454,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 		// 모든 플레이어의 Life가 0이면 게임 오버
 		{
-			std::lock_guard<std::mutex> lock{ g_mutex };
+			std::lock_guard<std::mutex> lock{ g_mutex_server };
 			const std::vector<CObject*>& vecPlayer = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::PLAYER);
 
 			int deadPlayerCount = 0;
@@ -470,7 +471,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 		// 몬스터 정보 송신
 		{
-			std::lock_guard<std::mutex> lock{ g_mutex };
+			std::lock_guard<std::mutex> lock{ g_mutex_server };
 			const std::vector<CObject*>& vecMonster = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::MONSTER);
 
 			SC_MONSTER_PACKET monsterPacket;
@@ -505,7 +506,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		// 보스 정보 송신, 보스 정보는 모든 플레이어의 x좌표 위치가 5060.f 이상이면 보스 생성
 		{
 			// 모든 플레이어의 x좌표 위치가 5060.f 이상이면 isBoss를 true로 변경
-			std::lock_guard<std::mutex> lock{ g_mutex };
+			std::lock_guard<std::mutex> lock{ g_mutex_server };
 			const std::vector<CObject*>& vecBoss = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BOSS);
 			CObject* pBoss = CObjectMgr::GetInst()->FindObject(L"Boss");
 
@@ -574,7 +575,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					bossPacket.bossState	= ((CBoss*)pBoss)->GetState();
 					bossPacket.bossIsDead	= pBoss->IsDead();
 					
-					// 보스가 죽었으면 게임 클리어
+					// 보스가 죽었으면 게임 클리어//////////////
 					if (pBoss->IsDead()) {
 						IsGameClear = true;
 					}
@@ -591,25 +592,29 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 		// 토끼 아이템 정보 송신
 		{
-			std::lock_guard<std::mutex> lock{ g_mutex };
-			const std::vector<CObject*>& vecRabbitItem = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::ITEM_RABBIT);
-
-			SC_RABBIT_ITEM_PACKET rabbitItemPacket;
-			rabbitItemPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_RABBIT_ITEM);
-			size = sizeof(SC_RABBIT_ITEM_PACKET);
+			// 락을 사용하여 공유 자원 접근을 동기화
+			std::vector<CObject*> copiedVecRabbitItem;
+			{
+				std::lock_guard<std::mutex> lock{ g_mutex_server };
+				copiedVecRabbitItem = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::ITEM_RABBIT);
+			} // 락이 여기에서 해제됨
 
 			// 토끼 아이템 수 전송
-			int rabbitItemCount = vecRabbitItem.size();
+			int rabbitItemCount = copiedVecRabbitItem.size();
 			retval = send(client_sock, reinterpret_cast<char*>(&rabbitItemCount), sizeof(rabbitItemCount), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
-				break;
+				break; // 또는 적절한 에러 처리
 			}
 
 			// 토끼 아이템 정보 보내기
-			for (CObject* pRabbitItem : vecRabbitItem) {
-				rabbitItemPacket.itemID		= ((CItem*)pRabbitItem)->GetID();
-				rabbitItemPacket.itemPos	= ((CItem*)pRabbitItem)->GetPos();
+			for (CObject* pRabbitItem : copiedVecRabbitItem) {
+				SC_RABBIT_ITEM_PACKET rabbitItemPacket;
+				rabbitItemPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_RABBIT_ITEM);
+				size = sizeof(SC_RABBIT_ITEM_PACKET);
+
+				rabbitItemPacket.itemID = ((CItem*)pRabbitItem)->GetID();
+				rabbitItemPacket.itemPos = ((CItem*)pRabbitItem)->GetPos();
 				rabbitItemPacket.itemIsDead = pRabbitItem->IsDead();
 
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
@@ -623,15 +628,17 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 		// 쿠키 아이템 정보 송신
 		{
-			std::lock_guard<std::mutex> lock{ g_mutex };
-			const std::vector<CObject*>& vecCookieItem = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::ITEM_COOKIE);
+			// 공유 자원 복사를 위한 로컬 변수 선언
+			std::vector<CObject*> copiedVecCookieItem;
 
-			SC_COOKIE_ITEM_PACKET cookieItemPacket;
-			cookieItemPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_COOKIE_ITEM);
-			size = sizeof(SC_COOKIE_ITEM_PACKET);
+			// 락을 사용하여 공유 자원에 접근
+			{
+				std::lock_guard<std::mutex> lock{ g_mutex_server };
+				copiedVecCookieItem = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::ITEM_COOKIE); // 공유 자원 복사
+			}
 
 			// 쿠키 아이템 수 전송
-			int cookieItemCount = vecCookieItem.size();
+			int cookieItemCount = copiedVecCookieItem.size();
 			retval = send(client_sock, reinterpret_cast<char*>(&cookieItemCount), sizeof(cookieItemCount), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
@@ -639,9 +646,13 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			}
 
 			// 쿠키 아이템 정보 보내기
-			for (CObject* pCookieItem : vecCookieItem) {
-				cookieItemPacket.itemID		= ((CItem*)pCookieItem)->GetID();
-				cookieItemPacket.itemPos	= ((CItem*)pCookieItem)->GetPos();
+			for (CObject* pCookieItem : copiedVecCookieItem) {
+				SC_COOKIE_ITEM_PACKET cookieItemPacket;
+				cookieItemPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_COOKIE_ITEM);
+				size = sizeof(SC_COOKIE_ITEM_PACKET);
+
+				cookieItemPacket.itemID = ((CItem*)pCookieItem)->GetID();
+				cookieItemPacket.itemPos = ((CItem*)pCookieItem)->GetPos();
 				cookieItemPacket.itemIsDead = pCookieItem->IsDead();
 
 				retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
@@ -655,15 +666,16 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 		// 플레이어 투사체 정보 송신
 		{
-			std::lock_guard<std::mutex> lock{ g_mutex };
-			const std::vector<CObject*>& vecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_PLAYER);
+			std::vector<CObject*> copiedVecBullet;
 
-			SC_BULLET_PACKET bulletPacket;
-			bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
-			size = sizeof(SC_BULLET_PACKET);
+			// 락을 사용하여 공유 자원 복사
+			{
+				std::lock_guard<std::mutex> lock{ g_mutex_server };
+				copiedVecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_PLAYER);
+			}
 
 			// 클라이언트에게 플레이어 투사체 수 전송
-			int bulletCount = vecBullet.size();
+			int bulletCount = copiedVecBullet.size();
 			retval = send(client_sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
@@ -672,13 +684,17 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 			if (bulletCount != 0) {
 				// 클라이언트에 플레이어 투사체 정보 보내기
-				for (CObject* pBullet : vecBullet) {
-					bulletPacket.playerID		= ((CBullet*)pBullet)->GetPlayerID();	// 발사한 플레이어 id
-					bulletPacket.bulletID		= ((CBullet*)pBullet)->GetID();
-					bulletPacket.bulletPos		= ((CBullet*)pBullet)->GetPos();
-					bulletPacket.bulletIsDead	= ((CBullet*)pBullet)->IsDead();
-					bulletPacket.bulletDir		= ((CBullet*)pBullet)->GetDir();
-					bulletPacket.bulletDegree	= 0.f;
+				for (CObject* pBullet : copiedVecBullet) {
+					SC_BULLET_PACKET bulletPacket;
+					bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
+					size = sizeof(SC_BULLET_PACKET);
+
+					bulletPacket.playerID = ((CBullet*)pBullet)->GetPlayerID();
+					bulletPacket.bulletID = ((CBullet*)pBullet)->GetID();
+					bulletPacket.bulletPos = ((CBullet*)pBullet)->GetPos();
+					bulletPacket.bulletIsDead = ((CBullet*)pBullet)->IsDead();
+					bulletPacket.bulletDir = ((CBullet*)pBullet)->GetDir();
+					bulletPacket.bulletDegree = 0.f;
 
 					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 					retval = send(client_sock, reinterpret_cast<char*>(&bulletPacket), size, 0);
@@ -692,15 +708,16 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 		// 몬스터 투사체 정보 송신
 		{
-			std::lock_guard<std::mutex> lock{ g_mutex };
-			const std::vector<CObject*>& vecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_MONSTER);
+			std::vector<CObject*> copiedVecBullet;
 
-			SC_BULLET_PACKET bulletPacket;
-			bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
-			size = sizeof(SC_BULLET_PACKET);
+			// 락을 사용하여 공유 자원에 대한 접근을 동기화
+			{
+				std::lock_guard<std::mutex> lock{ g_mutex_server };
+				copiedVecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_MONSTER); // 공유 자원 복사
+			}
 
 			// 클라이언트에게 몬스터 투사체 수 전송
-			int bulletCount = vecBullet.size();
+			int bulletCount = copiedVecBullet.size();
 			retval = send(client_sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
@@ -709,13 +726,17 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 			if (bulletCount != 0) {
 				// 클라이언트에 몬스터 투사체 정보 보내기
-				for (CObject* pBullet : vecBullet) {
-					bulletPacket.playerID		= ((CBullet*)pBullet)->GetPlayerID();	// 발사한 플레이어 id
-					bulletPacket.bulletID		= ((CBullet*)pBullet)->GetID();
-					bulletPacket.bulletPos		= ((CBullet*)pBullet)->GetPos();
-					bulletPacket.bulletIsDead	= ((CBullet*)pBullet)->IsDead();
-					bulletPacket.bulletDir		= ((CBullet*)pBullet)->GetDir();
-					bulletPacket.bulletDegree	= 0.f;
+				for (CObject* pBullet : copiedVecBullet) {
+					SC_BULLET_PACKET bulletPacket;
+					bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
+					size = sizeof(SC_BULLET_PACKET);
+
+					bulletPacket.playerID = ((CBullet*)pBullet)->GetPlayerID();
+					bulletPacket.bulletID = ((CBullet*)pBullet)->GetID();
+					bulletPacket.bulletPos = ((CBullet*)pBullet)->GetPos();
+					bulletPacket.bulletIsDead = ((CBullet*)pBullet)->IsDead();
+					bulletPacket.bulletDir = ((CBullet*)pBullet)->GetDir();
+					bulletPacket.bulletDegree = 0.f;
 
 					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 					retval = send(client_sock, reinterpret_cast<char*>(&bulletPacket), size, 0);
@@ -729,15 +750,16 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 		// 보스 투사체 정보 송신
 		{
-			std::lock_guard<std::mutex> lock{ g_mutex };
-			const std::vector<CObject*>& vecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_BOSS);
+			std::vector<CObject*> copiedVecBullet;
 
-			SC_BULLET_PACKET bulletPacket;
-			bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
-			size = sizeof(SC_BULLET_PACKET);
+			// 락을 사용하여 공유 자원에 대한 접근을 동기화
+			{
+				std::lock_guard<std::mutex> lock{ g_mutex_server };
+				copiedVecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_BOSS); // 공유 자원 복사
+			}
 
 			// 클라이언트에게 보스 투사체 수 전송
-			int bulletCount = vecBullet.size();
+			int bulletCount = copiedVecBullet.size();
 			retval = send(client_sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), 0);
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
@@ -746,13 +768,17 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 			if (bulletCount != 0) {
 				// 클라이언트에게 보스 투사체 정보 보내기
-				for (CObject* pBullet : vecBullet) {
-					bulletPacket.playerID		= ((CBullet*)pBullet)->GetPlayerID();
-					bulletPacket.bulletID		= ((CBullet*)pBullet)->GetID();
-					bulletPacket.bulletPos		= ((CBullet*)pBullet)->GetPos();
-					bulletPacket.bulletIsDead	= ((CBullet*)pBullet)->IsDead();
-					bulletPacket.bulletDir		= ((CBullet*)pBullet)->GetDir();
-					bulletPacket.bulletDegree	= ((CBullet*)pBullet)->GetDegree();
+				for (CObject* pBullet : copiedVecBullet) {
+					SC_BULLET_PACKET bulletPacket;
+					bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
+					size = sizeof(SC_BULLET_PACKET);
+
+					bulletPacket.playerID = ((CBullet*)pBullet)->GetPlayerID();
+					bulletPacket.bulletID = ((CBullet*)pBullet)->GetID();
+					bulletPacket.bulletPos = ((CBullet*)pBullet)->GetPos();
+					bulletPacket.bulletIsDead = ((CBullet*)pBullet)->IsDead();
+					bulletPacket.bulletDir = ((CBullet*)pBullet)->GetDir();
+					bulletPacket.bulletDegree = ((CBullet*)pBullet)->GetDegree();
 
 					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 					retval = send(client_sock, reinterpret_cast<char*>(&bulletPacket), size, 0);
@@ -764,6 +790,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			}
 		}
 
+		//////////
 		// 게임 클리어 상태면 게임 클리어 패킷 전송
 		if (IsGameClear && !isGameOver) {
 			SC_GAME_CLEAR_PACKET clearPacket;
@@ -817,7 +844,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 	// 클라이언트 벡터에서 해당 클라이언트 정보 삭제
 	{
-		std::lock_guard<std::mutex> lock{ g_mutex };
+		std::lock_guard<std::mutex> lock{ g_mutex_server };
 		ClientInfo.erase(std::remove_if(ClientInfo.begin(), ClientInfo.end(), [&](const PlayerInfo& info) {
 			return info.id == player.id;
 		}), ClientInfo.end());
@@ -872,7 +899,7 @@ DWORD WINAPI Progress(LPVOID arg)
 	while (1) {
 		//Sleep(100 / 60);	// 600fps
 		std::this_thread::sleep_for(std::chrono::milliseconds(100 / 60));
-		std::lock_guard<std::mutex> lock{ g_mutex };
+		//std::lock_guard<std::mutex> lock{ g_mutex };
 
 		// 매니징 여기에서 처리
 		// 타이머
@@ -943,7 +970,7 @@ int main(int argc, char* argv[])
 		}
 
 		// 클라이언트를 별도의 스레드에서 처리
-		std::lock_guard<std::mutex> lock{ g_mutex };
+		std::lock_guard<std::mutex> lock{ g_mutex_server };
 		HANDLE hThread = CreateThread(NULL, 0, ProcessClient, (LPVOID)client_sock, 0, NULL);
 
 		if (hThread == NULL)
