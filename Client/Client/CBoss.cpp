@@ -29,9 +29,6 @@ CBoss::~CBoss()
 
 void CBoss::update()
 {
-	PredictBossPos();	// 예측
-	InterpolatePos();	// 보간
-
 	switch (m_eState)
 	{
 	case BOSS_STATE::IDLE:
@@ -57,6 +54,10 @@ void CBoss::update()
 		m_EffectAnimator->update();
 
 	GetAnimator()->update();	// 애니메이터 업데이트
+
+	PredictBossPos();	// 예측
+	InterpolatePos();	// 보간
+
 	m_vPrevPos = GetPos();
 }
 

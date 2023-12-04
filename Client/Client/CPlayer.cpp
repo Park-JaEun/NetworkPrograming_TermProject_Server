@@ -33,15 +33,15 @@ CPlayer::~CPlayer()
 
 void CPlayer::update()
 {
-	PredictPlayerPos();		// 예측
-	InterpolatePos();		// 보간
-
 	PlayAnimation();
 
 	if (m_EffectAnimator != nullptr)
 		m_EffectAnimator->update();	// 이펙트 애니메이터 업데이트
 
 	GetAnimator()->update();		// 애니메이터 업데이트
+
+	PredictPlayerPos();		// 예측
+	InterpolatePos();		// 보간
 
 	// 이전 방향 저장
 	if (m_bDir != m_bPrevDir)
