@@ -585,7 +585,6 @@ void CCore::progress()
 	CCamera::GetInst()->update();
 
 	CSceneMgr::GetInst()->update();
-	//CCollisionMgr::GetInst()->update();
 
 	///////////////
 	// Rendering //

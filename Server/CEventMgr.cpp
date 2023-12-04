@@ -18,8 +18,10 @@ CEventMgr::~CEventMgr()
 void CEventMgr::update()
 {
 	// 삭제 예정 오브젝트들 삭제
-	for (CObject* pDeadObj : m_vecDead)
-		delete pDeadObj;
+	for (CObject* pDeadObj : m_vecDead) {
+		pDeadObj = nullptr;
+		//delete pDeadObj;
+	}
 
 	// clear
 	if (!m_vecDead.empty())
@@ -58,10 +60,10 @@ void CEventMgr::Process(const tEvent& _event)
 
 		CObject* pDeadObj = (CObject*)_event.lParam;
 
-		if (!pDeadObj->IsDead())		// 살아 있으면 삭제 예정 상태로 만듬
+		if (!pDeadObj->IsDead()) {	// 살아 있으면 삭제 예정 상태로 만듬
 			pDeadObj->SetDead();
-
-		m_vecDead.push_back(pDeadObj);	// dead 벡터에 넣음
+			m_vecDead.push_back(pDeadObj);	// dead 벡터에 넣음
+		}
 	}
 	break;
 

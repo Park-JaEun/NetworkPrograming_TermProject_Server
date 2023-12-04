@@ -33,10 +33,14 @@ CObject::CObject(const CObject& _origin)
 
 CObject::~CObject()
 {
-	if (m_pCollider != nullptr)
+	if (m_pCollider != nullptr) {
 		delete m_pCollider;
-	if (m_pAnimator != nullptr)
+		m_pCollider = nullptr;
+	}
+	if (m_pAnimator != nullptr) {
 		delete m_pAnimator;
+		m_pAnimator = nullptr;
+	}
 }
 
 void CObject::finalUpdate()

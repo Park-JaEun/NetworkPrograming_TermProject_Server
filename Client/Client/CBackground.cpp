@@ -6,6 +6,8 @@
 #include "CAnimator.h"
 #include "CAnimation.h"
 #include "CTimer.h"
+#include "CSceneMgr.h"
+#include "CScene_Clear.h"
 
 CBackground::CBackground()
 {
@@ -87,34 +89,39 @@ void CBackground::render(HDC _dc)
 						900,
 						RGB(255, 0, 255));
 	}
-	else if (GetName() == L"Clear Background") {
-		static float fDelay = 0.f;
-		static int iCurFrame = 0;
+	else if (GetName() == L"Clear Animation") {
+		CScene* pScene = CSceneMgr::GetInst()->GetCurScene();
+		
+		if (((CScene_Clear*)pScene)->GetClearAniEnd() == false) {
+			static float fDelay = 0.f;
+			static int iCurFrame = 0;
 
-		// 0.05초마다 한 프레임씩 넘어가도록
-		if (fDelay > 0.05f) {
-			++iCurFrame;
-			fDelay = 0.f;
+			// 0.05초마다 한 프레임씩 넘어가도록
+			if (fDelay > 0.05f) {
+				++iCurFrame;
+				fDelay = 0.f;
+			}
+
+			CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Clear Animation Texture", L"texture\\background\\CLEAR.bmp");
+
+			TransparentBlt(_dc,
+				0,
+				0,
+				(int)GetScale().x,
+				(int)GetScale().y,
+				pTexture->GetDC(),
+				0,
+				0 + (240 * iCurFrame),
+				426,
+				240,
+				RGB(255, 0, 255));
+
+			if (iCurFrame == 110) {
+				((CScene_Clear*)pScene)->SetClearAniEnd();
+			}
+
+			fDelay += DT;
 		}
-
-		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Clear Background Texture", L"texture\\background\\CLEAR.bmp");
-
-		TransparentBlt(_dc,
-			0,
-			0,
-			(int)GetScale().x,
-			(int)GetScale().y,
-			pTexture->GetDC(),
-			0,
-			0 + (240 * iCurFrame),
-			426,
-			240,
-			RGB(255, 0, 255));
-
-		if (iCurFrame == 110)
-			iCurFrame = 0;
-
-		fDelay += DT;
 	}
 	
 }
@@ -190,9 +197,9 @@ void CBackground::CreateAnimator()
 
 		SetAnimator(pAnimator);
 	}
-	else if (GetName() == L"Clear Background") {
+	else if (GetName() == L"Clear Animation") {
 		// Texture 로딩하기
-		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Clear Background Texture", L"texture\\background\\CLEAR.bmp");
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Clear Animation Texture", L"texture\\background\\CLEAR.bmp");
 	}
 }
 

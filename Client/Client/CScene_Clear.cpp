@@ -3,7 +3,7 @@
 #include "CCore.h"
 #include "CBackground.h"
 
-CScene_Clear::CScene_Clear()
+CScene_Clear::CScene_Clear() : m_bClearAniEnd{ false }
 {
 }
 
@@ -24,15 +24,15 @@ void CScene_Clear::Enter()
 	///////////////////////
 	// Background Object //
 	///////////////////////
-	CObject* pBGObj = new CBackground;
-	pBGObj->SetName(L"Clear Background");
-	pBGObj->SetPos(Vec2(0.f, 0.f));
-	pBGObj->SetScale(Vec2(vResolution.x, vResolution.y));
+	CObject* pClearAniObj = new CBackground;
+	pClearAniObj->SetName(L"Clear Animation");
+	pClearAniObj->SetPos(Vec2(0.f, 0.f));
+	pClearAniObj->SetScale(Vec2(vResolution.x, vResolution.y));
 
 	// 애니메이터 생성
-	pBGObj->CreateAnimator();
+	pClearAniObj->CreateAnimator();
 
-	CreateObject(pBGObj, GROUP_TYPE::BACKGROUND);
+	CreateObject(pClearAniObj, GROUP_TYPE::BACKGROUND);
 	///////////////////////
 }
 
