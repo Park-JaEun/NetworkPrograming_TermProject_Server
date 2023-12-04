@@ -14,6 +14,7 @@
 #include "CCollider.h"
 #include "CPlayer.h"
 
+#include <thread>
 
 CCore::CCore() :
 	m_hWnd(nullptr), m_ptResolution{}, m_hDC(nullptr),
@@ -572,12 +573,31 @@ void CCore::TestSendKeyInput()
 	}
 }
 
+void CCore::StartCommunicationThread() {
+	m_bIsStart = true; // 시작 여부 플래그 설정
+
+	// 스레드 생성 및 실행
+	std::thread communicationThread(&CCore::CommunicationThreadFunc, this);
+	communicationThread.detach(); // 스레드를 detach하여 별도로 실행되게 함
+}
+
+// 별도 스레드에서 실행될 함수
+void CCore::CommunicationThreadFunc() {
+	while (m_bIsStart) {
+		// TestSendKeyInput 함수 실행
+		TestSendKeyInput();
+
+		// 일정 시간 간격으로 함수 실행을 반복하도록 sleep
+		//std::this_thread::sleep_for(std::chrono::milliseconds(100)); // 100ms 간격으로 실행하도록 설정 (원하는 시간으로 변경 가능)
+	}
+}
+
 void CCore::progress()
 {
 	// 소켓이 연결되어 있으면 통신
-	if (m_sock != INVALID_SOCKET && m_bIsStart) {
-		TestSendKeyInput();
-	}
+	//if (m_sock != INVALID_SOCKET && m_bIsStart) {
+	//	TestSendKeyInput();
+	//}
 
 	// Managers Update
 	CTimer::GetInst()->update();
