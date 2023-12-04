@@ -572,12 +572,28 @@ void CCore::TestSendKeyInput()
 	}
 }
 
+DWORD WINAPI TestSendKeyInputThread(LPVOID lpParam) {
+	CCore* pCore = reinterpret_cast<CCore*>(lpParam);
+	if (pCore != nullptr) {
+		pCore->TestSendKeyInput(); // 1번 코드 실행
+	}
+	return 0;
+}
+
 void CCore::progress()
 {
 	// 소켓이 연결되어 있으면 통신
 	if (m_sock != INVALID_SOCKET && m_bIsStart) {
-		TestSendKeyInput();
+		//if (this != nullptr) {
+			HANDLE hThread = CreateThread(NULL, 0, TestSendKeyInputThread, NULL, 0, NULL);
+			// 스레드 생성에 실패했을 경우 처리
+			if (hThread == NULL) {
+				// 실패 처리 로직 추가
+				return ;
+			}
+		//}
 	}
+
 
 	// Managers Update
 	CTimer::GetInst()->update();

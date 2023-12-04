@@ -26,9 +26,11 @@ private:
 public:
 	int init(HWND _hWnd, POINT _ptResolution);
 	void CreateBrushPen();
-	void CommunicationToServer();
+	//void CommunicationToServer();
 	void TestSendKeyInput();
 	void progress();
+
+	//DWORD WINAPI ProcessClient(LPVOID arg);
 
 public:
 	HWND GetMainHwnd()					{ return m_hWnd; }
