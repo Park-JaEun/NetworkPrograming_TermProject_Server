@@ -19,7 +19,7 @@
 CBoss::CBoss() :  m_iHP(50), m_vFirstPos{}, m_fSpeed(50.f), m_fMaxDistance(15.f), 
 				  m_bIsAppear(false), m_bHaveToAppear(false), m_fAttackTime(0.f), 
 				  m_eState(BOSS_STATE::NOT_APPEAR), m_EffectAnimator(nullptr), m_fDegree(0.f),
-				  m_fDieTime(0.f)
+				  m_fDieTime(0.f), m_vPrevPos(Vec2(0.f, 0.f))
 {
 }
 
@@ -29,6 +29,9 @@ CBoss::~CBoss()
 
 void CBoss::update()
 {
+	PredictBossPos();	// 예측
+	InterpolatePos();	// 보간
+
 	switch (m_eState)
 	{
 	case BOSS_STATE::IDLE:
@@ -54,6 +57,7 @@ void CBoss::update()
 		m_EffectAnimator->update();
 
 	GetAnimator()->update();	// 애니메이터 업데이트
+	m_vPrevPos = GetPos();
 }
 
 void CBoss::render(HDC _dc)
@@ -125,6 +129,44 @@ void CBoss::CreateAnimator()
 	pAnimator->Play(L"Boss_Idle", true);	// 현재 애니메이션 지정
 
 	SetAnimator(pAnimator);
+}
+
+void CBoss::PredictBossPos()
+{
+	// 마지막 방향을 사용하여 보스의 위치 예측
+	Vec2 vPos = GetPos();
+
+	// 전 x좌표보다 현재 x좌표가 더 크다면
+	if (vPos.x > m_vPrevPos.x)
+	{
+		vPos.x += m_fSpeed * DT;
+	}
+	else if (vPos.x < m_vPrevPos.x)
+	{
+		vPos.x -= m_fSpeed * DT;
+	}
+
+	// 전 y좌표보다 현재 y좌표가 더 크다면
+	if (vPos.y > m_vPrevPos.y)
+	{
+		vPos.y += m_fSpeed * DT;
+	}
+	else if (vPos.y < m_vPrevPos.y)
+	{
+		vPos.y -= m_fSpeed * DT;
+	}
+
+	SetPos(vPos);
+}
+
+void CBoss::InterpolatePos()
+{
+	Vec2 vPos = GetPos();
+	Vec2 vPrevPos = m_vPrevPos;
+
+	Vec2 interpolatePos = Lerp(vPrevPos, vPos, DT * 10.f);
+
+	SetPos(interpolatePos);
 }
 
 void CBoss::CreateFanBullet()

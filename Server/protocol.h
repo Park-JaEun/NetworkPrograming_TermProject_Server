@@ -21,6 +21,7 @@ enum class SC_PACKET_TYPE {
 	SC_GAME_START,
 	SC_GAME_OVER,
 	SC_GAME_CLEAR,
+	SC_GAME_PROGRESS,
 	SC_PLAYER,
 	SC_MONSTER,
 	SC_BOSS,
@@ -54,6 +55,11 @@ struct SC_GAME_OVER_PACKET {
 
 // 게임 클리어 신호 관련 패킷
 struct SC_GAME_CLEAR_PACKET {
+	char type; // 패킷 타입
+};
+
+// 게임 진행중 신호 관련 패킷 (2023. 12. 04 수정)
+struct SC_GAME_PROGRESS_PACKET {
 	char type; // 패킷 타입
 };
 
@@ -124,8 +130,7 @@ struct SC_COOKIE_ITEM_PACKET {
 struct SC_RANK_PACKET {
 	char type;						// 패킷 타입
 	int id[MAX_PLAYER];				// 플레이어 id
-	int score[MAX_PLAYER];			// 플레이어 score
-	char name[BUFSIZE][MAX_PLAYER];	// 플레이어 별명
+	int score[MAX_PLAYER];			// 플레이어 score0
 };
 #pragma pack(pop) // 정렬 설정을 이전 상태(기본값)로 되돌림
 
@@ -163,7 +168,6 @@ struct CS_KEYBOARD_INPUT_PACKET {
 		KEY_STATE key_state;
 	} inputs[MAX_KEYS]; // MAX_KEYS는 동시에 처리할 수 있는 최대 키 입력 수
 };
-
 
 // 로비 버튼 선택 수신 관련 패킷
 struct CS_SELECT_LOBBY_PACKET {

@@ -14,6 +14,7 @@ private:
     float		    m_fDieTime;   
     float           m_fDegree;
     Vec2			m_vFirstPos;
+    Vec2			m_vPrevPos;
     bool            m_bHaveToAppear;
     bool			m_bIsAppear;
     BOSS_STATE		m_eState;
@@ -32,6 +33,9 @@ public:
     void SetHaveToAppear(bool _bHaveToAppear) { m_bHaveToAppear = _bHaveToAppear; }
     void SetIsAppear(bool _bIsAppear) { m_bIsAppear = _bIsAppear; }
     void SetState(BOSS_STATE _eState) { m_eState = _eState; }
+
+    void PredictBossPos();
+    void InterpolatePos();
 
 private:
     void CreateFanBullet();

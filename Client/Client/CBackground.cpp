@@ -123,6 +123,28 @@ void CBackground::render(HDC _dc)
 			fDelay += DT;
 		}
 	}
+	else if (GetName() == L"Ranking Board") {
+		CScene* pScene = CSceneMgr::GetInst()->GetCurScene();
+
+		if (((CScene_Clear*)pScene)->GetClearAniEnd() == true) {
+			CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Ranking Board Texture", L"texture\\background\\blackboard.bmp");
+
+			TransparentBlt(_dc,
+								0,
+								0,
+								(int)GetScale().x,
+								(int)GetScale().y,
+								pTexture->GetDC(),
+								0,
+								0,
+								1600,
+								900,
+								RGB(255, 0, 255));
+
+
+			//CTexture* pPlayerTexture0;
+		}
+	}
 	
 }
 
@@ -200,6 +222,9 @@ void CBackground::CreateAnimator()
 	else if (GetName() == L"Clear Animation") {
 		// Texture 로딩하기
 		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Clear Animation Texture", L"texture\\background\\CLEAR.bmp");
+	}
+	else if (GetName() == L"Ranking Board") {
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Ranking Board Texture", L"texture\\background\\blackboard.bmp");
 	}
 }
 

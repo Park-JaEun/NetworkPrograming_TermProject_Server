@@ -33,6 +33,16 @@ CPlayer::~CPlayer()
 
 void CPlayer::update()
 {
+	PredictPlayerPos();		// 예측
+	InterpolatePos();		// 보간
+
+	PlayAnimation();
+
+	if (m_EffectAnimator != nullptr)
+		m_EffectAnimator->update();	// 이펙트 애니메이터 업데이트
+
+	GetAnimator()->update();		// 애니메이터 업데이트
+
 	// 이전 방향 저장
 	if (m_bDir != m_bPrevDir)
 		m_bPrevDir = m_bDir;
@@ -40,14 +50,6 @@ void CPlayer::update()
 	// 이전 위치 저장
 	if (m_vPrevPos != GetPos())
 		m_vPrevPos = GetPos();
-
-	PredictPlayerState();	// 예측
-	InterpolateState();		// 보간
-
-	PlayAnimation();
-	if (m_EffectAnimator != nullptr)
-		m_EffectAnimator->update();	// 이펙트 애니메이터 업데이트
-	GetAnimator()->update();		// 애니메이터 업데이트
 }
 
 void CPlayer::render(HDC _dc)
@@ -846,16 +848,30 @@ void CPlayer::PlayAnimation()
 	
 }
 
-void CPlayer::PredictPlayerState()
+void CPlayer::PredictPlayerPos()
 {
-	// 마지막으로  방향을 사용하여 플레이어의 위치 예측
+	// 마지막 방향을 사용하여 플레이어의 위치 예측
 	Vec2 vPos = GetPos();
-	Vec2 predictPos = Vec2(vPos.x + m_bPrevDir * m_fSpeed * DT, vPos.y + m_bPrevDir * m_fSpeed * DT);
 
-	SetPos(predictPos);
+	if(m_bPrevDir == DIR_LEFT)
+		vPos.x -= m_fSpeed * DT;
+	else if(m_bPrevDir == DIR_RIGHT)
+		vPos.x += m_fSpeed * DT;
+
+	// 전 y좌표보다 현재 y좌표가 더 크다면
+	if (vPos.y > m_vPrevPos.y)
+	{
+		vPos.y += m_fSpeed * DT;
+	}
+	else if (vPos.y < m_vPrevPos.y)
+	{
+		vPos.y -= m_fSpeed * DT;
+	}
+
+	SetPos(vPos);
 }
 
-void CPlayer::InterpolateState()
+void CPlayer::InterpolatePos()
 {
 	// 보간 로직
 	// 이전 포지션과 현재 포지션 상태 사이를 보간

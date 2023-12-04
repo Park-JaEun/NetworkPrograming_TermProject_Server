@@ -17,7 +17,7 @@ int GetRandomNumber(int min, int max)
 	return uid(gen);
 }
 
-CBoss::CBoss() : m_iHP(50), m_vFirstPos{}, m_fSpeed(50.f), m_fMaxDistance(15.f),
+CBoss::CBoss() : m_iHP(10), m_vFirstPos{}, m_fSpeed(50.f), m_fMaxDistance(15.f),
 m_bIsAppear(false), m_bHaveToAppear(false), m_fAttackTime(0.f),
 m_eState(BOSS_STATE::IDLE), m_fDegree(0.f),
 m_fDieTime(0.f)
@@ -39,8 +39,9 @@ void CBoss::update()
 		}
 
 		// 3초후 삭제
-		if (m_fDieTime >= 3.f)
+		if (m_fDieTime >= 3.f) {
 			DeleteObject(this);
+		}
 		else
 			m_fDieTime += DT;
 

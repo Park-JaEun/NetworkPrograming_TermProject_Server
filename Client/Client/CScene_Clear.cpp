@@ -33,6 +33,16 @@ void CScene_Clear::Enter()
 	pClearAniObj->CreateAnimator();
 
 	CreateObject(pClearAniObj, GROUP_TYPE::BACKGROUND);
+
+	// 순위 칠판
+	CObject* pRankingBoard = new CBackground;
+	pRankingBoard->SetName(L"Ranking Board");
+	pRankingBoard->SetScale(Vec2(vResolution.x, vResolution.y));
+
+	// 애니메이터 생성
+	pRankingBoard->CreateAnimator();
+
+	CreateObject(pRankingBoard, GROUP_TYPE::BACKGROUND);
 	///////////////////////
 }
 

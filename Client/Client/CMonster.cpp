@@ -27,19 +27,8 @@ CMonster::~CMonster()
 
 void CMonster::update()
 {
-	// 죽었을 때, 이전 위치와 현재 위치가 변화가 없는 시간이 1.5초가 넘으면 존재하지 않는다고 판단
-	if (m_eState == MONSTER_STATE::DIE) {
-		if ((int)m_vPrevPos.x == (int)GetPos().x) {
-			m_fDieTime += DT;
-			if (m_fDieTime > 1.5f) {
-				DeleteObject(this);
-			}
-		}
-		else {
-			m_fDieTime = 0.f;
-			m_vPrevPos = GetPos();
-		}
-	}
+	PredictMonsterPos();	// 예측
+	InterpolatePos();		// 보간
 
 	if (m_bDir == DIR_RIGHT) {
 		switch (m_eState)
@@ -93,6 +82,20 @@ void CMonster::update()
 	}
 
 	GetAnimator()->update();	// 애니메이터 업데이트
+
+	// 죽었을 때, 이전 위치와 현재 위치가 변화가 없는 시간이 1.5초가 넘으면 존재하지 않는다고 판단
+	if (m_eState == MONSTER_STATE::DIE) {
+		if ((int)m_vPrevPos.x == (int)GetPos().x) {
+			m_fDieTime += DT;
+			if (m_fDieTime > 1.5f) {
+				DeleteObject(this);
+			}
+		}
+		else {
+			m_fDieTime = 0.f;
+			m_vPrevPos = GetPos();
+		}
+	}
 }
 
 void CMonster::render(HDC _dc)
@@ -248,6 +251,46 @@ bool CMonster::IsInSight(Vec2 _vPos, float _fDistance, const std::wstring& _strN
 		}
 	}
 	return false;
+}
+
+void CMonster::PredictMonsterPos()
+{
+	// 마지막 방향을 사용하여 몬스터의 위치 예측
+	Vec2 vPos = GetPos();
+
+	// 전 x좌표보다 현재 x좌표가 더 크다면
+	if (vPos.x > m_vPrevPos.x)
+	{
+		vPos.x += m_fSpeed * DT;
+	}
+	else if (vPos.x < m_vPrevPos.x)
+	{
+		vPos.x -= m_fSpeed * DT;
+	}
+
+	// 전 y좌표보다 현재 y좌표가 더 크다면
+	if (vPos.y > m_vPrevPos.y)
+	{
+		vPos.y += m_fSpeed * DT;
+	}
+	else if (vPos.y < m_vPrevPos.y)
+	{
+		vPos.y -= m_fSpeed * DT;
+	}
+
+	SetPos(vPos);
+}
+
+void CMonster::InterpolatePos()
+{
+	// 보간 로직
+	// 이전 포지션과 현재 포지션 상태 사이를 보간
+	Vec2 vPos = GetPos();
+	Vec2 vPrevPos = m_vPrevPos;
+
+	Vec2 interpolatePos = Lerp(vPrevPos, vPos, DT * 10.f);
+
+	SetPos(interpolatePos);
 }
 
 void CMonster::OnCollision(CCollider* _pOther)

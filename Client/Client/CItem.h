@@ -24,6 +24,9 @@ public:
     void SetFirstPos(Vec2 _vPos) { m_vFirstPos = _vPos; }
     void SetType(ITEM_TYPE _eType) { m_eType = _eType; }
 
+    void PredictItemPos();
+    void InterpolatePos();
+
 public:
     void OnCollision(CCollider* _pOther) override;
     void EnterCollision(CCollider* _pOther) override;

@@ -25,6 +25,9 @@ CItem::~CItem()
 
 void CItem::update()
 {
+	PredictItemPos();	// 예측
+	InterpolatePos();	// 보간
+
 	// 이전 위치와 현재 위치가 변화가 없는 시간이 0.5초가 넘으면 존재하지 않는다고 판단
 	if ((int)m_vPrevPos.y == (int)GetPos().y) {
 		m_fTime += DT;
@@ -36,7 +39,6 @@ void CItem::update()
 		m_fTime = 0.f;
 		m_vPrevPos = GetPos();
 	}
-
 }
 
 void CItem::render(HDC _dc)
@@ -76,6 +78,44 @@ void CItem::render(HDC _dc)
 	componentRender(_dc);
 }
 
+
+void CItem::PredictItemPos()
+{
+	// 마지막 방향을 사용하여 아이템의 위치 예측
+	Vec2 vPos = GetPos();
+
+	// 전 x좌표보다 현재 x좌표가 더 크다면
+	if (vPos.x > m_vPrevPos.x)
+	{
+		vPos.x += m_fSpeed * DT;
+	}
+	else if (vPos.x < m_vPrevPos.x)
+	{
+		vPos.x -= m_fSpeed * DT;
+	}
+
+	// 전 y좌표보다 현재 y좌표가 더 크다면
+	if (vPos.y > m_vPrevPos.y)
+	{
+		vPos.y += m_fSpeed * DT;
+	}
+	else if (vPos.y < m_vPrevPos.y)
+	{
+		vPos.y -= m_fSpeed * DT;
+	}
+
+	SetPos(vPos);
+}
+
+void CItem::InterpolatePos()
+{
+	Vec2 vPos = GetPos();
+	Vec2 vPrevPos = m_vPrevPos;
+
+	Vec2 interpolatePos = Lerp(vPrevPos, vPos, DT * 10.f);
+
+	SetPos(interpolatePos);
+}
 
 void CItem::OnCollision(CCollider* _pOther)
 {

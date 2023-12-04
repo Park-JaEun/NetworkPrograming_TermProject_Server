@@ -24,9 +24,11 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	int retval;							// 리턴값
 	int addrlen;						// 주소 길이
 	int size;							// 패킷 사이즈
-	bool isAllReady{ false };			// 모든 클라이언트가 준비 상태인지 확인
-	bool isAllInit{ false };			// 모든 클라이언트가 초기화 상태인지 확인
+	bool isAllReady{ false };			// 모든 클라이언트가 준비 상태인지 확인		(캐릭터 선택 완료)
+	bool isAllInit{ false };			// 모든 클라이언트가 초기화 상태인지 확인	(스테이지 초기화 완료)
 	bool isBoss{ false };				// 보스 생성 여부
+	bool isGameOver{ false };			// 게임 오버 여부
+	bool IsGameClear{ false };			// 게임 클리어 여부
 	CObject* pCharacter = new CPlayer;
 	auto lastInputTime = std::chrono::high_resolution_clock::now(); // 마지막 입력 시간
 	auto lastFireTime = std::chrono::high_resolution_clock::now(); // 마지막 발사 시간
@@ -351,8 +353,8 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 							float timeSinceLastFire = std::chrono::duration<float>(now - lastFireTime).count();
 							if (timeSinceLastFire >= fireRate) {
 								// 총알 발사
-								((CPlayer*)pCharacter)->CreateBullet(player.id, bulletId++);
-								lastFireTime = now; // 마지막 발사 시간 업데이트
+((CPlayer*)pCharacter)->CreateBullet(player.id, bulletId++);
+lastFireTime = now; // 마지막 발사 시간 업데이트
 							}
 						}
 
@@ -362,7 +364,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				}
 			}
 			else if (((CPlayer*)pCharacter)->GetHP() <= 0) {
-				if(((CPlayer*)pCharacter)->GetState() != PLAYER_STATE::DIE)
+				if (((CPlayer*)pCharacter)->GetState() != PLAYER_STATE::DIE)
 					((CPlayer*)pCharacter)->SetState(PLAYER_STATE::DIE);
 
 				// 1.5초뒤 아래로 추락
@@ -375,7 +377,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				if (!((CPlayer*)pCharacter)->GetIsGameOver() && ((CPlayer*)pCharacter)->GetLife() >= 1 && ((CPlayer*)pCharacter)->GetResurrectTime() >= 3.0f && ((CPlayer*)pCharacter)->GetDieTime() >= 1.5f) {
 					// Life 감소
 					((CPlayer*)pCharacter)->SetLife(((CPlayer*)pCharacter)->GetLife() - 1);
-					
+
 					// Life가 0이면 게임오버
 					if (((CPlayer*)pCharacter)->GetLife() == 0) {
 						((CPlayer*)pCharacter)->SetIsGameOver(true);
@@ -396,17 +398,17 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 			// 플레이어 정보 송신
 			SC_PLAYER_PACKET playerPacket;
-			playerPacket.type				= static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
-			playerPacket.playerID			= player.id;
-			playerPacket.playerPos			= pCharacter->GetPos();
-			playerPacket.playerState		= ((CPlayer*)pCharacter)->GetState();
-			playerPacket.playerDir			= ((CPlayer*)pCharacter)->GetDir();
-			playerPacket.playerHP			= ((CPlayer*)pCharacter)->GetHP();
-			playerPacket.playerLife			= ((CPlayer*)pCharacter)->GetLife();
-			playerPacket.playerBunnyCount	= ((CPlayer*)pCharacter)->GetBunnyCount();
-			playerPacket.playerCookieCount	= ((CPlayer*)pCharacter)->GetCookieCount();
-			playerPacket.playerKillCount	= ((CPlayer*)pCharacter)->GetKillCount();
-			playerPacket.character			= ((CPlayer*)pCharacter)->GetType();
+			playerPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
+			playerPacket.playerID = player.id;
+			playerPacket.playerPos = pCharacter->GetPos();
+			playerPacket.playerState = ((CPlayer*)pCharacter)->GetState();
+			playerPacket.playerDir = ((CPlayer*)pCharacter)->GetDir();
+			playerPacket.playerHP = ((CPlayer*)pCharacter)->GetHP();
+			playerPacket.playerLife = ((CPlayer*)pCharacter)->GetLife();
+			playerPacket.playerBunnyCount = ((CPlayer*)pCharacter)->GetBunnyCount();
+			playerPacket.playerCookieCount = ((CPlayer*)pCharacter)->GetCookieCount();
+			playerPacket.playerKillCount = ((CPlayer*)pCharacter)->GetKillCount();
+			playerPacket.character = ((CPlayer*)pCharacter)->GetType();
 			size = sizeof(playerPacket);
 
 			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
@@ -422,17 +424,17 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					CObject* pOtherPlayer = CObjectMgr::GetInst()->FindObject(L"Player" + std::to_wstring(otherPlayerInfo.id));
 
 					SC_PLAYER_PACKET otherPlayerPacket;
-					otherPlayerPacket.type				= static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
-					otherPlayerPacket.playerID			= otherPlayerInfo.id;
-					otherPlayerPacket.playerPos			= pOtherPlayer->GetPos();
-					otherPlayerPacket.playerState		= ((CPlayer*)pOtherPlayer)->GetState();
-					otherPlayerPacket.playerDir			= ((CPlayer*)pOtherPlayer)->GetDir();
-					otherPlayerPacket.playerHP			= ((CPlayer*)pOtherPlayer)->GetHP();
-					otherPlayerPacket.playerLife		= ((CPlayer*)pOtherPlayer)->GetLife();
-					otherPlayerPacket.playerBunnyCount	= ((CPlayer*)pOtherPlayer)->GetBunnyCount();
-					otherPlayerPacket.playerCookieCount	= ((CPlayer*)pOtherPlayer)->GetCookieCount();
-					otherPlayerPacket.playerKillCount	= ((CPlayer*)pOtherPlayer)->GetKillCount();
-					otherPlayerPacket.character			= ((CPlayer*)pOtherPlayer)->GetType();
+					otherPlayerPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_PLAYER);
+					otherPlayerPacket.playerID = otherPlayerInfo.id;
+					otherPlayerPacket.playerPos = pOtherPlayer->GetPos();
+					otherPlayerPacket.playerState = ((CPlayer*)pOtherPlayer)->GetState();
+					otherPlayerPacket.playerDir = ((CPlayer*)pOtherPlayer)->GetDir();
+					otherPlayerPacket.playerHP = ((CPlayer*)pOtherPlayer)->GetHP();
+					otherPlayerPacket.playerLife = ((CPlayer*)pOtherPlayer)->GetLife();
+					otherPlayerPacket.playerBunnyCount = ((CPlayer*)pOtherPlayer)->GetBunnyCount();
+					otherPlayerPacket.playerCookieCount = ((CPlayer*)pOtherPlayer)->GetCookieCount();
+					otherPlayerPacket.playerKillCount = ((CPlayer*)pOtherPlayer)->GetKillCount();
+					otherPlayerPacket.character = ((CPlayer*)pOtherPlayer)->GetType();
 					size = sizeof(otherPlayerPacket);
 
 					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
@@ -448,6 +450,23 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		////////////
 		// send() //
 		////////////
+
+		// 모든 플레이어의 Life가 0이면 게임 오버
+		{
+			std::lock_guard<std::mutex> lock{ g_mutex };
+			const std::vector<CObject*>& vecPlayer = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::PLAYER);
+
+			int deadPlayerCount = 0;
+			for (CObject* pPlayer : vecPlayer) {
+				if (((CPlayer*)pPlayer)->GetLife() == 0)
+					++deadPlayerCount;
+			}
+
+			if (deadPlayerCount == MAX_PLAYER) {
+				isGameOver = true;
+				IsGameClear = false;
+			}
+		}
 
 		// 몬스터 정보 송신
 		{
@@ -554,6 +573,11 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					bossPacket.bossPos		= pBoss->GetPos();
 					bossPacket.bossState	= ((CBoss*)pBoss)->GetState();
 					bossPacket.bossIsDead	= pBoss->IsDead();
+					
+					// 보스가 죽었으면 게임 클리어
+					if (pBoss->IsDead()) {
+						IsGameClear = true;
+					}
 
 					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 					retval = send(client_sock, reinterpret_cast<char*>(&bossPacket), size, 0);
@@ -737,6 +761,50 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 						break;
 					}
 				}
+			}
+		}
+
+		// 게임 클리어 상태면 게임 클리어 패킷 전송
+		if (IsGameClear && !isGameOver) {
+			SC_GAME_CLEAR_PACKET clearPacket;
+			clearPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_CLEAR);
+			size = sizeof(SC_GAME_CLEAR_PACKET);
+
+			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+			retval = send(client_sock, reinterpret_cast<char*>(&clearPacket), size, 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
+			}
+
+			while (1) {
+
+			}
+		}
+		// 게임 오버 상태면 게임 오버 패킷 전송
+		else if (isGameOver && !IsGameClear) {
+			SC_GAME_OVER_PACKET overPacket;
+			overPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_OVER);
+			size = sizeof(SC_GAME_OVER_PACKET);
+
+			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+			retval = send(client_sock, reinterpret_cast<char*>(&overPacket), size, 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
+			}
+		}
+		// 게임 클리어 상태도 아니고, 게임 오버 상태도 아니면 게임 진행중 패킷 전송
+		else {
+			SC_GAME_PROGRESS_PACKET progressPacket;
+			progressPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_PROGRESS);
+			size = sizeof(SC_GAME_PROGRESS_PACKET);
+
+			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+			retval = send(client_sock, reinterpret_cast<char*>(&progressPacket), size, 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
 			}
 		}
 	}

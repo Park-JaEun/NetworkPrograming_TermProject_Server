@@ -59,8 +59,8 @@ private:
 
     void PlayAnimation();
 
-    void PredictPlayerState();  // 플레이어 사이드 스크롤링 예측
-    void InterpolateState();    // 플레이어 사이드 스크롤링 보간
+    void PredictPlayerPos();  // 플레이어 사이드 스크롤링 예측
+    void InterpolatePos();    // 플레이어 사이드 스크롤링 보간
 
 public:
     void OnCollision(CCollider* _pOther) override;

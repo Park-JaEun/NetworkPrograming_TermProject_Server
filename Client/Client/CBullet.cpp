@@ -23,6 +23,12 @@ CBullet::~CBullet()
 
 void CBullet::update()
 {
+	PredictBulletPos();	// 예측
+	InterpolatePos();	// 보간
+
+	GetAnimator()->update();
+
+	
 	// 이전 위치와 현재 위치가 변화가 없는 시간이 0.1초가 넘으면 존재하지 않는다고 판단
 	if ((int)m_vPrevPos.x == (int)GetPos().x) {
 		m_fDeadTime += DT;
@@ -34,8 +40,6 @@ void CBullet::update()
 		m_fDeadTime = 0.f;
 		m_vPrevPos = GetPos();
 	}
-
-	GetAnimator()->update();
 }
 
 void CBullet::render(HDC _dc)
@@ -320,6 +324,44 @@ void CBullet::SetDir(int _iDir)
 		m_fDir = 1.f;
 		m_bIsDown = true;
 	}
+}
+
+void CBullet::PredictBulletPos()
+{
+	// 마지막 방향을 사용하여 투사체의 위치 예측
+	Vec2 vPos = GetPos();
+
+	// 전 x좌표보다 현재 x좌표가 더 크다면
+	if (vPos.x > m_vPrevPos.x)
+	{
+		vPos.x += m_fSpeed * DT;
+	}
+	else if (vPos.x < m_vPrevPos.x)
+	{
+		vPos.x -= m_fSpeed * DT;
+	}
+
+	// 전 y좌표보다 현재 y좌표가 더 크다면
+	if (vPos.y > m_vPrevPos.y)
+	{
+		vPos.y += m_fSpeed * DT;
+	}
+	else if (vPos.y < m_vPrevPos.y)
+	{
+		vPos.y -= m_fSpeed * DT;
+	}
+
+	SetPos(vPos);
+}
+
+void CBullet::InterpolatePos()
+{
+	Vec2 vPos = GetPos();
+	Vec2 vPrevPos = m_vPrevPos;
+
+	Vec2 interpolatePos = Lerp(vPrevPos, vPos, DT * 10.f);
+
+	SetPos(interpolatePos);
 }
 
 void CBullet::OnCollision(CCollider* _pOther)

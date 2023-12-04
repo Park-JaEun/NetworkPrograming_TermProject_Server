@@ -23,6 +23,9 @@ public:
     void SetDegree(float _fDegree)  { m_fDegree = _fDegree; }
     void SetFirstPos(Vec2 _vPos) { m_vFirstPos = _vPos; }
 
+    void PredictBulletPos();
+    void InterpolatePos();
+
 public:
     void OnCollision(CCollider* _pOther) override;
     void EnterCollision(CCollider* _pOther) override;
