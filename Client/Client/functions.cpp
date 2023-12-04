@@ -158,3 +158,7 @@ void err_display(const char* msg)
 	printf("[%s] %s\n", msg, (char*)lpMsgBuf);
 	LocalFree(lpMsgBuf);
 }
+
+Vec2 Lerp(Vec2 start, Vec2 end, float alpha) {
+	return start + (end - start) * alpha;
+}

@@ -16,10 +16,12 @@ private:
     float           m_fDieTime;         // 플레이어 사망 시간
     float           m_fResurrectTime;   // 플레이어 부활 시간
     bool            m_bDir;             // 플레이어 방향
+    bool			m_bPrevDir;         // 플레이어 이전 방향
     bool			m_bIsGameOver;      // 플레이어 게임오버 여부
     PLAYER_STATE    m_eState;           // 플레이어 상태
     CHARACTER_TYPE  m_eType;            // 플레이어 타입
     CAnimator*      m_EffectAnimator;   // 이펙트 애니메이터
+    Vec2			m_vPrevPos;         // 플레이어 이전 위치
 
     CLONE(CPlayer)
 public:
@@ -29,6 +31,7 @@ public:
     const int GetCookieCount()        { return m_iCookieCount; }
     const int GetKillCount()          { return m_iKillCount; }
     const bool GetIsGameOver()        { return m_bIsGameOver; }
+    const Vec2 GetPrevPos()           { return m_vPrevPos; }
 
     void SetType(CHARACTER_TYPE _eType) { m_eType = _eType; }
     void SetState(PLAYER_STATE state)   { m_eState = state; }
@@ -55,7 +58,9 @@ private:
     void CreateHyein();
 
     void PlayAnimation();
-  
+
+    void PredictPlayerState();  // 플레이어 사이드 스크롤링 예측
+    void InterpolateState();    // 플레이어 사이드 스크롤링 보간
 
 public:
     void OnCollision(CCollider* _pOther) override;

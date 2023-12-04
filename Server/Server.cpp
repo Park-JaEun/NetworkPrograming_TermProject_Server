@@ -28,6 +28,9 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	bool isAllInit{ false };			// 모든 클라이언트가 초기화 상태인지 확인
 	bool isBoss{ false };				// 보스 생성 여부
 	CObject* pCharacter = new CPlayer;
+	auto lastInputTime = std::chrono::high_resolution_clock::now(); // 마지막 입력 시간
+	auto lastFireTime = std::chrono::high_resolution_clock::now(); // 마지막 발사 시간
+	const float fireRate = 0.5f; // 발사 간격
 
 	// 접속한 클라이언트 정보 저장
 	addrlen = sizeof(clientaddr);
@@ -256,6 +259,14 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 		{
 			std::lock_guard<std::mutex> lock{ g_mutex };
+
+			// 현재 시간 기록
+			auto now = std::chrono::high_resolution_clock::now();
+
+			// deltaTime 계산 (이전 입력부터 현재까지의 시간 차이)
+			float deltaTime = std::chrono::duration<float>(now - lastInputTime).count();
+			lastInputTime = now; // 마지막 입력 시간 업데이트
+
 			//받아온 패킷을 키보드 입력 패킷으로 캐스팅
 			CS_KEYBOARD_INPUT_PACKET* pKeyInputPacket = reinterpret_cast<CS_KEYBOARD_INPUT_PACKET*>(buf);
 
@@ -272,12 +283,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 						// 상
 						if (pKeyInputPacket->inputs[i].key == KEY::UP && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
-							vDummyPos = Vec2(vCurPos.x, vCurPos.y - speed * DT);
+							vDummyPos = Vec2(vCurPos.x, vCurPos.y - speed * deltaTime);
 
 							if (IsInWorld(vDummyPos) && !isBoss)
-								vCurPos.y -= speed * DT;
+								vCurPos.y -= speed * deltaTime;
 							else if (IsInBossRoom(vDummyPos) && isBoss)
-								vCurPos.y -= speed * DT;
+								vCurPos.y -= speed * deltaTime;
 
 							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
 						}
@@ -287,12 +298,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 						// 하
 						if (pKeyInputPacket->inputs[i].key == KEY::DOWN && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
-							vDummyPos = Vec2(vCurPos.x, vCurPos.y + speed * DT);
+							vDummyPos = Vec2(vCurPos.x, vCurPos.y + speed * deltaTime);
 
 							if (IsInWorld(vDummyPos) && !isBoss)
-								vCurPos.y += speed * DT;
+								vCurPos.y += speed * deltaTime;
 							else if (IsInBossRoom(vDummyPos) && isBoss)
-								vCurPos.y += speed * DT;
+								vCurPos.y += speed * deltaTime;
 
 							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
 						}
@@ -302,12 +313,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 						// 좌
 						if (pKeyInputPacket->inputs[i].key == KEY::LEFT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
-							vDummyPos = Vec2(vCurPos.x - speed * DT, vCurPos.y);
+							vDummyPos = Vec2(vCurPos.x - speed * deltaTime, vCurPos.y);
 
 							if (IsInWorld(vDummyPos) && !isBoss)
-								vCurPos.x -= speed * DT;
+								vCurPos.x -= speed * deltaTime;
 							else if (IsInBossRoom(vDummyPos) && isBoss)
-								vCurPos.x -= speed * DT;
+								vCurPos.x -= speed * deltaTime;
 
 							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
 
@@ -320,12 +331,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 						// 우
 						if (pKeyInputPacket->inputs[i].key == KEY::RIGHT && pKeyInputPacket->inputs[i].key_state == KEY_STATE::HOLD) {
-							vDummyPos = Vec2(vCurPos.x + speed * DT, vCurPos.y);
+							vDummyPos = Vec2(vCurPos.x + speed * deltaTime, vCurPos.y);
 
 							if (IsInWorld(vDummyPos) && !isBoss)
-								vCurPos.x += speed * DT;
+								vCurPos.x += speed * deltaTime;
 							else if (IsInBossRoom(vDummyPos) && isBoss)
-								vCurPos.x += speed * DT;
+								vCurPos.x += speed * deltaTime;
 
 							((CPlayer*)pCharacter)->SetState(PLAYER_STATE::RUN);
 
@@ -337,8 +348,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 						}
 
 						if (pKeyInputPacket->inputs[i].key == KEY::SPACE && pKeyInputPacket->inputs[i].key_state == KEY_STATE::TAP) {
-							// 총알 발사
-							((CPlayer*)pCharacter)->CreateBullet(player.id, bulletId++);
+							float timeSinceLastFire = std::chrono::duration<float>(now - lastFireTime).count();
+							if (timeSinceLastFire >= fireRate) {
+								// 총알 발사
+								((CPlayer*)pCharacter)->CreateBullet(player.id, bulletId++);
+								lastFireTime = now; // 마지막 발사 시간 업데이트
+							}
 						}
 
 						// 처리한 정보 업데이트
