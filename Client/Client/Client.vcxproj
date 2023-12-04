@@ -159,6 +159,7 @@
     <ClInclude Include="CResourceMgr.h" />
     <ClInclude Include="CScene.h" />
     <ClInclude Include="CSceneMgr.h" />
+    <ClInclude Include="CScene_Clear.h" />
     <ClInclude Include="CScene_Main.h" />
     <ClInclude Include="CScene_Select.h" />
     <ClInclude Include="CScene_Start.h" />
@@ -200,6 +201,7 @@
     <ClCompile Include="CResourceMgr.cpp" />
     <ClCompile Include="CScene.cpp" />
     <ClCompile Include="CSceneMgr.cpp" />
+    <ClCompile Include="CScene_Clear.cpp" />
     <ClCompile Include="CScene_Main.cpp" />
     <ClCompile Include="CScene_Select.cpp" />
     <ClCompile Include="CScene_Start.cpp" />

@@ -236,6 +236,9 @@
     <ClInclude Include="CSoundMgr.h">
       <Filter>Engine\03. Managers\SoundMgr</Filter>
     </ClInclude>
+    <ClInclude Include="CScene_Clear.h">
+      <Filter>Engine\05. Scene\Scene_Clear</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -339,6 +342,9 @@
     </ClCompile>
     <ClCompile Include="CSoundMgr.cpp">
       <Filter>Engine\03. Managers\SoundMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="CScene_Clear.cpp">
+      <Filter>Engine\05. Scene\Scene_Clear</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
