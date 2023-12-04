@@ -382,10 +382,8 @@ void CScene_Main::Enter()
 		return;
 	}
 
-
 	// 통신 스레드를 시작
 	CCore::GetInst()->StartCommunicationThread();
-
 
 }
 
