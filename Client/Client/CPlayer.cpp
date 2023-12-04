@@ -21,8 +21,7 @@
 CPlayer::CPlayer() : m_bDir(DIR_RIGHT), m_eState(PLAYER_STATE::IDLE), 
 					 m_EffectAnimator(nullptr), m_fSpeed(300.f), m_iHP(3), m_iLife(3),
 					 m_fDieTime(0.f), m_fResurrectTime(0.f), m_bIsGameOver(false), 
-					 m_iKillCount(0), m_iBunnyCount(0), m_iCookieCount(0), m_bPrevDir(DIR_RIGHT),
-					 m_vPrevPos(Vec2(0.f, 0.f))
+					 m_iKillCount(0), m_iBunnyCount(0), m_iCookieCount(0)
 {
 }
 
@@ -33,17 +32,6 @@ CPlayer::~CPlayer()
 
 void CPlayer::update()
 {
-	// 이전 방향 저장
-	if (m_bDir != m_bPrevDir)
-		m_bPrevDir = m_bDir;
-
-	// 이전 위치 저장
-	if (m_vPrevPos != GetPos())
-		m_vPrevPos = GetPos();
-
-	PredictPlayerState();	// 예측
-	InterpolateState();		// 보간
-
 	PlayAnimation();
 	if (m_EffectAnimator != nullptr)
 		m_EffectAnimator->update();	// 이펙트 애니메이터 업데이트
@@ -844,27 +832,6 @@ void CPlayer::PlayAnimation()
 	}
 
 	
-}
-
-void CPlayer::PredictPlayerState()
-{
-	// 마지막으로  방향을 사용하여 플레이어의 위치 예측
-	Vec2 vPos = GetPos();
-	Vec2 predictPos = Vec2(vPos.x + m_bPrevDir * m_fSpeed * DT, vPos.y + m_bPrevDir * m_fSpeed * DT);
-
-	SetPos(predictPos);
-}
-
-void CPlayer::InterpolateState()
-{
-	// 보간 로직
-	// 이전 포지션과 현재 포지션 상태 사이를 보간
-	Vec2 vPos = GetPos();
-	Vec2 vPrevPos = GetPrevPos();
-
-	Vec2 interpolatePos = Lerp(vPrevPos, vPos, DT * 10.f);
-
-	SetPos(interpolatePos);
 }
 
 void CPlayer::PlayShootingEffect()

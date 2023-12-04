@@ -70,16 +70,6 @@ public:
 		return Vec2(x + _vOther.x, y + _vOther.y);
 	}
 
-	bool operator== (const Vec2& _vOther) const
-	{
-		return (x == _vOther.x && y == _vOther.y);
-	}
-
-	bool operator!= (const Vec2& _vOther) const
-	{
-		return (x != _vOther.x || y != _vOther.y);
-	}
-
 public:
 	Vec2() : x(0.f), y(0.f)
 	{}
