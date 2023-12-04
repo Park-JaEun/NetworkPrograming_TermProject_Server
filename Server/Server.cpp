@@ -99,7 +99,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		std::lock_guard<std::mutex> lock{ g_mutex };
 		((CPlayer*)pCharacter)->SetType(pSelectPacket->character);
 		((CPlayer*)pCharacter)->SetName(L"Player" + std::to_wstring(player.id));
-		((CPlayer*)pCharacter)->SetPos(Vec2(5000.f, 0.f));
+		((CPlayer*)pCharacter)->SetPos(Vec2(0.f, 0.f));
 		((CPlayer*)pCharacter)->SetDir(DIR_RIGHT);
 		((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
 		((CPlayer*)pCharacter)->CreateCollider();
@@ -353,8 +353,8 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 							float timeSinceLastFire = std::chrono::duration<float>(now - lastFireTime).count();
 							if (timeSinceLastFire >= fireRate) {
 								// 총알 발사
-((CPlayer*)pCharacter)->CreateBullet(player.id, bulletId++);
-lastFireTime = now; // 마지막 발사 시간 업데이트
+								((CPlayer*)pCharacter)->CreateBullet(player.id, bulletId++);
+								lastFireTime = now; // 마지막 발사 시간 업데이트
 							}
 						}
 

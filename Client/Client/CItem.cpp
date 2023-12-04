@@ -26,7 +26,6 @@ CItem::~CItem()
 void CItem::update()
 {
 	PredictItemPos();	// 예측
-	InterpolatePos();	// 보간
 
 	// 이전 위치와 현재 위치가 변화가 없는 시간이 0.5초가 넘으면 존재하지 않는다고 판단
 	if ((int)m_vPrevPos.y == (int)GetPos().y) {
@@ -105,16 +104,6 @@ void CItem::PredictItemPos()
 	}
 
 	SetPos(vPos);
-}
-
-void CItem::InterpolatePos()
-{
-	Vec2 vPos = GetPos();
-	Vec2 vPrevPos = m_vPrevPos;
-
-	Vec2 interpolatePos = Lerp(vPrevPos, vPos, DT * 10.f);
-
-	SetPos(interpolatePos);
 }
 
 void CItem::OnCollision(CCollider* _pOther)

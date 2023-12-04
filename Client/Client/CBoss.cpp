@@ -30,7 +30,6 @@ CBoss::~CBoss()
 void CBoss::update()
 {
 	PredictBossPos();	// 예측
-	InterpolatePos();	// 보간
 
 	switch (m_eState)
 	{
@@ -157,16 +156,6 @@ void CBoss::PredictBossPos()
 	}
 
 	SetPos(vPos);
-}
-
-void CBoss::InterpolatePos()
-{
-	Vec2 vPos = GetPos();
-	Vec2 vPrevPos = m_vPrevPos;
-
-	Vec2 interpolatePos = Lerp(vPrevPos, vPos, DT * 10.f);
-
-	SetPos(interpolatePos);
 }
 
 void CBoss::CreateFanBullet()

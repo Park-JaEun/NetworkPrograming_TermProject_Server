@@ -878,7 +878,10 @@ void CPlayer::InterpolatePos()
 	Vec2 vPos = GetPos();
 	Vec2 vPrevPos = GetPrevPos();
 
-	Vec2 interpolatePos = Lerp(vPrevPos, vPos, DT * 10.f);
+	Vec2 interpolatePos{};
+
+	interpolatePos.x = LerpX(vPrevPos.x, vPos.x, DT * 10.f);
+	interpolatePos.y = LerpY(vPrevPos.y, vPos.y, DT * 10.f);
 
 	SetPos(interpolatePos);
 }

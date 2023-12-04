@@ -35,7 +35,6 @@ public:
     void SetState(BOSS_STATE _eState) { m_eState = _eState; }
 
     void PredictBossPos();
-    void InterpolatePos();
 
 private:
     void CreateFanBullet();

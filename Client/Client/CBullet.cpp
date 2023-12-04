@@ -17,6 +17,12 @@ CBullet::CBullet() : m_fDir(1.f), m_fSpeed(200.f), m_bIsDown(false),
 {
 }
 
+CBullet::CBullet(Vec2 vPos) : m_fDir(1.f), m_fSpeed(200.f), m_bIsDown(false),
+							  m_fDegree(0.f), m_vFirstPos(vPos), m_vPrevPos(vPos),
+							  m_fDeadTime(0.f)
+{
+}
+
 CBullet::~CBullet()
 {
 }
@@ -332,23 +338,25 @@ void CBullet::PredictBulletPos()
 	Vec2 vPos = GetPos();
 
 	// 전 x좌표보다 현재 x좌표가 더 크다면
-	if (vPos.x > m_vPrevPos.x)
+	if ((int)vPos.x > (int)m_vPrevPos.x)
 	{
 		vPos.x += m_fSpeed * DT;
 	}
-	else if (vPos.x < m_vPrevPos.x)
+	else if ((int)vPos.x < (int)m_vPrevPos.x)
 	{
 		vPos.x -= m_fSpeed * DT;
 	}
 
 	// 전 y좌표보다 현재 y좌표가 더 크다면
-	if (vPos.y > m_vPrevPos.y)
-	{
-		vPos.y += m_fSpeed * DT;
-	}
-	else if (vPos.y < m_vPrevPos.y)
-	{
-		vPos.y -= m_fSpeed * DT;
+	if ((int)vPos.y != (int)m_vPrevPos.y) {
+		if ((int)vPos.y > (int)m_vPrevPos.y)
+		{
+			vPos.y += m_fSpeed * DT;
+		}
+		else if ((int)vPos.y < (int)m_vPrevPos.y)
+		{
+			vPos.y -= m_fSpeed * DT;
+		}
 	}
 
 	SetPos(vPos);
@@ -359,7 +367,10 @@ void CBullet::InterpolatePos()
 	Vec2 vPos = GetPos();
 	Vec2 vPrevPos = m_vPrevPos;
 
-	Vec2 interpolatePos = Lerp(vPrevPos, vPos, DT * 10.f);
+	Vec2 interpolatePos{};
+
+	interpolatePos.x = LerpX(vPrevPos.x, vPos.x, DT * 10.f);
+	interpolatePos.y = LerpY(vPrevPos.y, vPos.y, DT * 10.f);
 
 	SetPos(interpolatePos);
 }

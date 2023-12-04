@@ -401,7 +401,7 @@ void CCore::TestSendKeyInput()
 
 				if (pBullet == nullptr) {
 					// 없으면 새로 생성
-					pBullet = new CBullet;
+					pBullet = new CBullet(pbulletPacket->bulletPos);
 					pBullet->SetName(L"Player" + std::to_wstring(pbulletPacket->playerID) + L"Bullet" + std::to_wstring(pbulletPacket->bulletID));
 					pBullet->SetPos(pbulletPacket->bulletPos);
 					((CBullet*)pBullet)->SetFirstPos(pbulletPacket->bulletPos);
@@ -463,7 +463,7 @@ void CCore::TestSendKeyInput()
 
 				if (pBullet == nullptr) {
 					// 없으면 새로 생성
-					pBullet = new CBullet;
+					pBullet = new CBullet(pMonsterBulletPacket->bulletPos);
 					pBullet->SetName(L"MonsterBullet" + std::to_wstring(pMonsterBulletPacket->bulletID));
 					pBullet->SetPos(pMonsterBulletPacket->bulletPos);
 					((CBullet*)pBullet)->SetFirstPos(pMonsterBulletPacket->bulletPos);
@@ -521,7 +521,7 @@ void CCore::TestSendKeyInput()
 
 				if (pBullet == nullptr) {
 					// 없으면 새로 생성
-					pBullet = new CBullet;
+					pBullet = new CBullet(pBossBulletPacket->bulletPos);
 					pBullet->SetName(L"BossBullet" + std::to_wstring(pBossBulletPacket->bulletID));
 					pBullet->SetPos(pBossBulletPacket->bulletPos);
 					((CBullet*)pBullet)->SetFirstPos(pBossBulletPacket->bulletPos);

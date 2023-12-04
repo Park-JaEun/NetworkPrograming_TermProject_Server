@@ -159,6 +159,10 @@ void err_display(const char* msg)
 	LocalFree(lpMsgBuf);
 }
 
-Vec2 Lerp(Vec2 start, Vec2 end, float alpha) {
+float LerpX(float start, float end, float alpha) {
+	return start + (end - start) * alpha;
+}
+
+float LerpY(float start, float end, float alpha) {
 	return start + (end - start) * alpha;
 }

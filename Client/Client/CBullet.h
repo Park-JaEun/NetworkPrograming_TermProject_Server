@@ -47,5 +47,6 @@ public:
 
 public:
     CBullet();
+    CBullet(Vec2 vPos);
     ~CBullet();
 };

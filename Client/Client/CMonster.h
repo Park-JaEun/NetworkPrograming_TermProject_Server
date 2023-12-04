@@ -29,13 +29,13 @@ public:
     void SetMaxDistance(float _f) { m_fMaxDistance = _f; }
     void SetDir(bool _dir) { m_bDir = _dir; }
     void SetState(MONSTER_STATE _eState) { m_eState = _eState; }
+  
 
 private:
     void CreateBullet();
     bool IsInSight(Vec2 _vPos, float _fDistance, const std::wstring& _strName);
 
     void PredictMonsterPos();
-    void InterpolatePos();
 
 public:
     void OnCollision(CCollider* _pOther) override;

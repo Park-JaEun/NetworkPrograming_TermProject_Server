@@ -28,7 +28,6 @@ CMonster::~CMonster()
 void CMonster::update()
 {
 	PredictMonsterPos();	// 예측
-	InterpolatePos();		// 보간
 
 	if (m_bDir == DIR_RIGHT) {
 		switch (m_eState)
@@ -268,29 +267,7 @@ void CMonster::PredictMonsterPos()
 		vPos.x -= m_fSpeed * DT;
 	}
 
-	// 전 y좌표보다 현재 y좌표가 더 크다면
-	if (vPos.y > m_vPrevPos.y)
-	{
-		vPos.y += m_fSpeed * DT;
-	}
-	else if (vPos.y < m_vPrevPos.y)
-	{
-		vPos.y -= m_fSpeed * DT;
-	}
-
 	SetPos(vPos);
-}
-
-void CMonster::InterpolatePos()
-{
-	// 보간 로직
-	// 이전 포지션과 현재 포지션 상태 사이를 보간
-	Vec2 vPos = GetPos();
-	Vec2 vPrevPos = m_vPrevPos;
-
-	Vec2 interpolatePos = Lerp(vPrevPos, vPos, DT * 10.f);
-
-	SetPos(interpolatePos);
 }
 
 void CMonster::OnCollision(CCollider* _pOther)

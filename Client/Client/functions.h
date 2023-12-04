@@ -31,4 +31,5 @@ void err_quit(const char* msg);
 void err_display(const char* msg);
 
 // 포지션 보간 함수
-Vec2 Lerp(Vec2 start, Vec2 end, float alpha);
+float LerpX(float start, float end, float alpha);
+float LerpY(float start, float end, float alpha);
