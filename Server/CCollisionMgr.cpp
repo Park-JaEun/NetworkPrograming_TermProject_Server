@@ -4,7 +4,7 @@
 #include "CObject.h"
 #include "CCollider.h"
 
-std::mutex g_mutex_collision;
+//std::mutex g_mutex_collision;
 
 CCollisionMgr::CCollisionMgr() : m_arrCheck{}
 {
@@ -18,7 +18,7 @@ CCollisionMgr::~CCollisionMgr()
 
 void CCollisionMgr::update()
 {
-	std::lock_guard<std::mutex> lock{ g_mutex_collision };
+	//std::lock_guard<std::mutex> lock{ g_mutex_collision };
 
 	// 체크된 그룹들은 충돌체크를 해야한다고 업데이트
 	for (UINT iRow = 0; iRow < (UINT)GROUP_TYPE::END; ++iRow) {

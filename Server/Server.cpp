@@ -899,7 +899,7 @@ DWORD WINAPI Progress(LPVOID arg)
 	while (1) {
 		//Sleep(100 / 60);	// 600fps
 		std::this_thread::sleep_for(std::chrono::milliseconds(100 / 60));
-		//std::lock_guard<std::mutex> lock{ g_mutex };
+		std::lock_guard<std::mutex> lock{ g_mutex_server };
 
 		// 매니징 여기에서 처리
 		// 타이머
