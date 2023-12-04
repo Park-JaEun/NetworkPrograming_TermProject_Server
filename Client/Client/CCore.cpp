@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "CCore.h"
 #include "CObject.h"
 
@@ -14,13 +14,14 @@
 #include "CCollider.h"
 #include "CPlayer.h"
 
+#include <thread>
 
 CCore::CCore() :
 	m_hWnd(nullptr), m_ptResolution{}, m_hDC(nullptr),
 	m_hBit(nullptr), m_memDC(nullptr), m_arrBrush{}, m_arrPen{}, 
 	m_sock{ INVALID_SOCKET }, m_bIsStart{ false }
 {
-	// Å° Á¤º¸ ÃÊ±âÈ­
+	// í‚¤ ì •ë³´ ì´ˆê¸°í™”
 	for (int i = 0; i < (int)KEY::LAST; ++i) {
 		m_inputkey[i].inputs->key = KEY(i);
 		m_inputkey[i].inputs->key_state = KEY_STATE::NONE;
@@ -34,7 +35,7 @@ CCore::~CCore()
 	DeleteDC(m_memDC);
 	DeleteObject(m_hBit);
 
-	// Ææ°ú ºê·¯½¬ Á¦°Å
+	// íœê³¼ ë¸ŒëŸ¬ì‰¬ ì œê±°
 	for (HPEN& _hPen : m_arrPen)
 		DeleteObject(_hPen);
 
@@ -48,26 +49,26 @@ int CCore::init(HWND _hWnd, POINT _ptResolution)
 	m_hWnd = _hWnd;
 	m_ptResolution = _ptResolution;
 
-	// ÇØ»óµµ¿¡ ¸Â°Ô À©µµ¿ì Å©±â Á¶Á¤
+	// í•´ìƒë„ì— ë§ê²Œ ìœˆë„ìš° í¬ê¸° ì¡°ì •
 	RECT rt = { 0, 0, _ptResolution.x, _ptResolution.y };
 	AdjustWindowRect(&rt, WS_OVERLAPPEDWINDOW, false);
 	SetWindowPos(m_hWnd, nullptr, 100, 100, rt.right - rt.left, rt.bottom - rt.top, 0);
 
-	// À©µµ¿ì¸¦ Å©±â¸¦ º¯°æÇÒ ¼ö ¾ø°í, ÃÖ´ëÈ­ ¹öÆ°À» ¾ø¾Öµµ·Ï ¸¸µç´Ù.
+	// ìœˆë„ìš°ë¥¼ í¬ê¸°ë¥¼ ë³€ê²½í•  ìˆ˜ ì—†ê³ , ìµœëŒ€í™” ë²„íŠ¼ì„ ì—†ì• ë„ë¡ ë§Œë“ ë‹¤.
 	SetWindowLong(m_hWnd, GWL_STYLE, GetWindowLong(m_hWnd, GWL_STYLE) & ~WS_SIZEBOX);
 	SetWindowLong(m_hWnd, GWL_STYLE, GetWindowLong(m_hWnd, GWL_STYLE) & ~WS_MAXIMIZEBOX);
 
-	// À©µµ¿ì¿¡ ±×¸²À» ±×·ÁÁÙ DC¸¦ ¸¸µé±â
+	// ìœˆë„ìš°ì— ê·¸ë¦¼ì„ ê·¸ë ¤ì¤„ DCë¥¼ ë§Œë“¤ê¸°
 	m_hDC = GetDC(m_hWnd);
 
-	// ´õºí ¹öÆÛ¸µ ¿ëµµÀÇ ºñÆ®¸Ê°ú DC¸¦ ¸¸µç´Ù.
+	// ë”ë¸” ë²„í¼ë§ ìš©ë„ì˜ ë¹„íŠ¸ë§µê³¼ DCë¥¼ ë§Œë“ ë‹¤.
 	m_hBit = CreateCompatibleBitmap(m_hDC, m_ptResolution.x, m_ptResolution.y);
 	m_memDC = CreateCompatibleDC(m_hDC);
 
 	HBITMAP hOldBit = (HBITMAP)SelectObject(m_memDC, m_hBit);
 	DeleteObject(hOldBit);
 
-	// ÀÚÁÖ »ç¿ëÇÒ Ææ ¹× ºê·¯½¬ »ı¼º
+	// ìì£¼ ì‚¬ìš©í•  íœ ë° ë¸ŒëŸ¬ì‰¬ ìƒì„±
 	CreateBrushPen();
 
 	// Init Managers
@@ -77,17 +78,18 @@ int CCore::init(HWND _hWnd, POINT _ptResolution)
 	CSceneMgr::GetInst()->init();
 	CSoundMgr::GetInst()->init();
 
-	// À©¼Ó ÃÊ±âÈ­
+	// ìœˆì† ì´ˆê¸°í™”
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 		return S_FALSE;
+
 
 	return S_OK;
 }
 
 void CCore::CreateBrushPen()
 {
-	// hollow brush (Åõ¸í ºê·¯½¬)
+	// hollow brush (íˆ¬ëª… ë¸ŒëŸ¬ì‰¬)
 	m_arrBrush[(UINT)BRUSH_TYPE::HOLLOW] = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
 
 	// red pen
@@ -147,7 +149,7 @@ void CCore::TestSendKeyInput()
 	// recv() //
 	////////////
 	
-	// ÇÃ·¹ÀÌ¾îµé Á¤º¸ ¹Ş±â
+	// í”Œë ˆì´ì–´ë“¤ ì •ë³´ ë°›ê¸°
 	CScene* pCurScene = CSceneMgr::GetInst()->GetCurScene();
 	SC_PLAYER_PACKET* pPlayerPacket = reinterpret_cast<SC_PLAYER_PACKET*>(buf);
 
@@ -208,10 +210,10 @@ void CCore::TestSendKeyInput()
 	((CPlayer*)pPlayer)->SetCookieCount(pPlayerPacket->playerCookieCount);
 	((CPlayer*)pPlayer)->SetKillCount(pPlayerPacket->playerKillCount);
 
-	// ¸ó½ºÅÍ Á¤º¸ ¹Ş±â
+	// ëª¬ìŠ¤í„° ì •ë³´ ë°›ê¸°
 	SC_MONSTER_PACKET* pMonsterPacket = reinterpret_cast<SC_MONSTER_PACKET*>(buf);
 
-	// ¸ó½ºÅÍ ¼ö ¹Ş±â
+	// ëª¬ìŠ¤í„° ìˆ˜ ë°›ê¸°
 	int monsterCount = 0;
 	retval = recv(sock, reinterpret_cast<char*>(&monsterCount), sizeof(monsterCount), MSG_WAITALL);
 	if (retval == SOCKET_ERROR) {
@@ -222,7 +224,7 @@ void CCore::TestSendKeyInput()
 	}
 
 	if (monsterCount != 0) {
-		// Á¤º¸ ¹Ş±â
+		// ì •ë³´ ë°›ê¸°
 		for (int i = 0; i < monsterCount; ++i) {
 			retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 			retval = recv(sock, buf, size, MSG_WAITALL);
@@ -233,15 +235,15 @@ void CCore::TestSendKeyInput()
 				return;
 			}
 
-			// vecMonster ¾È¿¡ ¶È°°Àº ÀÌ¸§ÀÇ ¿ÀºêÁ§Æ® ºÒ·¯¿À±â
+			// vecMonster ì•ˆì— ë˜‘ê°™ì€ ì´ë¦„ì˜ ì˜¤ë¸Œì íŠ¸ ë¶ˆëŸ¬ì˜¤ê¸°
 			CObject* pMonster = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Monster" + std::to_wstring(pMonsterPacket->monsterID));
 
 			if (pMonsterPacket->monsterIsDead) {
-				// »èÁ¦µÈ ¸ó½ºÅÍ´Â Å¬¶óÀÌ¾ğÆ® ³»¿¡¼­ »èÁ¦
+				// ì‚­ì œëœ ëª¬ìŠ¤í„°ëŠ” í´ë¼ì´ì–¸íŠ¸ ë‚´ì—ì„œ ì‚­ì œ
 				DeleteObject(pMonster);
 			}
 			else {
-				// »èÁ¦µÇÁö ¾ÊÀº ¸ó½ºÅÍµéÀº ¾÷µ¥ÀÌÆ®
+				// ì‚­ì œë˜ì§€ ì•Šì€ ëª¬ìŠ¤í„°ë“¤ì€ ì—…ë°ì´íŠ¸
 				pMonster->SetPos(pMonsterPacket->monsterPos);
 				((CMonster*)pMonster)->SetState(pMonsterPacket->monsterState);
 				((CMonster*)pMonster)->SetDir(pMonsterPacket->monsterDir);
@@ -249,10 +251,10 @@ void CCore::TestSendKeyInput()
 		}
 	}
 
-	// º¸½º Á¤º¸ ¹Ş±â
+	// ë³´ìŠ¤ ì •ë³´ ë°›ê¸°
 	SC_BOSS_PACKET* pBossPacket = reinterpret_cast<SC_BOSS_PACKET*>(buf);
 
-	// º¸½º ¼ö ¹Ş±â
+	// ë³´ìŠ¤ ìˆ˜ ë°›ê¸°
 	int bossCount = 0;
 	retval = recv(sock, reinterpret_cast<char*>(&bossCount), sizeof(bossCount), MSG_WAITALL);
 	if (retval == SOCKET_ERROR) {
@@ -262,7 +264,7 @@ void CCore::TestSendKeyInput()
 		return;
 	}
 
-	// º¸½º Á¤º¸ ¹Ş±â
+	// ë³´ìŠ¤ ì •ë³´ ë°›ê¸°
 	if (bossCount != 0) {
 		retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 		retval = recv(sock, buf, size, MSG_WAITALL);
@@ -273,15 +275,15 @@ void CCore::TestSendKeyInput()
 			return;
 		}
 
-		// vecBoss ¾È¿¡ ¶È°°Àº ÀÌ¸§ÀÇ ¿ÀºêÁ§Æ® ºÒ·¯¿À±â
+		// vecBoss ì•ˆì— ë˜‘ê°™ì€ ì´ë¦„ì˜ ì˜¤ë¸Œì íŠ¸ ë¶ˆëŸ¬ì˜¤ê¸°
 		CObject* pBoss = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Boss");
 		if (pBossPacket->bossState != BOSS_STATE::NOT_APPEAR) {
 			if (pBossPacket->bossIsDead) {
-				// »èÁ¦µÈ º¸½º´Â Å¬¶óÀÌ¾ğÆ® ³»¿¡¼­ »èÁ¦
+				// ì‚­ì œëœ ë³´ìŠ¤ëŠ” í´ë¼ì´ì–¸íŠ¸ ë‚´ì—ì„œ ì‚­ì œ
 				DeleteObject(pBoss);
 			}
 			else {
-				// »èÁ¦µÇÁö ¾ÊÀº º¸½ºµéÀº ¾÷µ¥ÀÌÆ®
+				// ì‚­ì œë˜ì§€ ì•Šì€ ë³´ìŠ¤ë“¤ì€ ì—…ë°ì´íŠ¸
 				pBoss->SetPos(pBossPacket->bossPos);
 				((CBoss*)pBoss)->SetState(pBossPacket->bossState);
 			}
@@ -301,7 +303,7 @@ void CCore::TestSendKeyInput()
 	//		return;
 	//	}
 
-	//	// º¸½º°¡ ³ªÅ¸³µÀ¸¸é, ¾÷µ¥ÀÌÆ®
+	//	// ë³´ìŠ¤ê°€ ë‚˜íƒ€ë‚¬ìœ¼ë©´, ì—…ë°ì´íŠ¸
 	//	
 	//		if (pBossPacket->bossIsDead) {
 	//			DeleteObject(pBoss);
@@ -312,10 +314,10 @@ void CCore::TestSendKeyInput()
 	//		}
 	//}
 
-	// Åä³¢ ¾ÆÀÌÅÛ Á¤º¸ ¹Ş±â
+	// í† ë¼ ì•„ì´í…œ ì •ë³´ ë°›ê¸°
 	SC_RABBIT_ITEM_PACKET* pRabbitItemPacket = reinterpret_cast<SC_RABBIT_ITEM_PACKET*>(buf);
 
-	// Åä³¢ ¾ÆÀÌÅÛ ¼ö ¹Ş±â
+	// í† ë¼ ì•„ì´í…œ ìˆ˜ ë°›ê¸°
 	int rabbitItemCount = 0;
 	retval = recv(sock, reinterpret_cast<char*>(&rabbitItemCount), sizeof(rabbitItemCount), MSG_WAITALL);
 	if (retval == SOCKET_ERROR) {
@@ -326,7 +328,7 @@ void CCore::TestSendKeyInput()
 	}
 
 	if (rabbitItemCount != 0) {
-		// Á¤º¸ ¹Ş±â
+		// ì •ë³´ ë°›ê¸°
 		for (int i = 0; i < rabbitItemCount; ++i) {
 			retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 			retval = recv(sock, buf, size, MSG_WAITALL);
@@ -337,24 +339,24 @@ void CCore::TestSendKeyInput()
 				return;
 			}
 
-			// vecRabbitItem ¾È¿¡ ¶È°°Àº ÀÌ¸§ÀÇ ¿ÀºêÁ§Æ® ºÒ·¯¿À±â
+			// vecRabbitItem ì•ˆì— ë˜‘ê°™ì€ ì´ë¦„ì˜ ì˜¤ë¸Œì íŠ¸ ë¶ˆëŸ¬ì˜¤ê¸°
 			CObject* pRabbitItem = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Bunny" + std::to_wstring(pRabbitItemPacket->itemID));
 
 			if (pRabbitItemPacket->itemIsDead) {
-				// »èÁ¦µÈ ¾ÆÀÌÅÛÀº Å¬¶óÀÌ¾ğÆ® ³»¿¡¼­ »èÁ¦
+				// ì‚­ì œëœ ì•„ì´í…œì€ í´ë¼ì´ì–¸íŠ¸ ë‚´ì—ì„œ ì‚­ì œ
 				DeleteObject(pRabbitItem);
 			}
 			else {
-				// »èÁ¦µÇÁö ¾ÊÀº ¾ÆÀÌÅÛµéÀº ¾÷µ¥ÀÌÆ®
+				// ì‚­ì œë˜ì§€ ì•Šì€ ì•„ì´í…œë“¤ì€ ì—…ë°ì´íŠ¸
 				pRabbitItem->SetPos(pRabbitItemPacket->itemPos);
 			}
 		}
 	}
 
-	// ÄíÅ° ¾ÆÀÌÅÛ Á¤º¸ ¹Ş±â
+	// ì¿ í‚¤ ì•„ì´í…œ ì •ë³´ ë°›ê¸°
 	SC_COOKIE_ITEM_PACKET* pCookieItemPacket = reinterpret_cast<SC_COOKIE_ITEM_PACKET*>(buf);
 
-	// ÄíÅ° ¾ÆÀÌÅÛ ¼ö ¹Ş±â
+	// ì¿ í‚¤ ì•„ì´í…œ ìˆ˜ ë°›ê¸°
 	int cookieItemCount = 0;
 
 	retval = recv(sock, reinterpret_cast<char*>(&cookieItemCount), sizeof(cookieItemCount), MSG_WAITALL);
@@ -366,7 +368,7 @@ void CCore::TestSendKeyInput()
 	}
 
 	if (cookieItemCount != 0) {
-		// Á¤º¸ ¹Ş±â
+		// ì •ë³´ ë°›ê¸°
 		for (int i = 0; i < cookieItemCount; ++i) {
 			retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 			retval = recv(sock, buf, size, MSG_WAITALL);
@@ -377,25 +379,25 @@ void CCore::TestSendKeyInput()
 				return;
 			}
 
-			// vecCookieItem ¾È¿¡ ¶È°°Àº ÀÌ¸§ÀÇ ¿ÀºêÁ§Æ® ºÒ·¯¿À±â
+			// vecCookieItem ì•ˆì— ë˜‘ê°™ì€ ì´ë¦„ì˜ ì˜¤ë¸Œì íŠ¸ ë¶ˆëŸ¬ì˜¤ê¸°
 			CObject* pCookieItem = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Cookie" + std::to_wstring(pCookieItemPacket->itemID));
 
 			if (pCookieItemPacket->itemIsDead) {
-				// »èÁ¦µÈ ¾ÆÀÌÅÛÀº Å¬¶óÀÌ¾ğÆ® ³»¿¡¼­ »èÁ¦
+				// ì‚­ì œëœ ì•„ì´í…œì€ í´ë¼ì´ì–¸íŠ¸ ë‚´ì—ì„œ ì‚­ì œ
 				DeleteObject(pCookieItem);
 			}
 			else {
-				// »èÁ¦µÇÁö ¾ÊÀº ¾ÆÀÌÅÛµéÀº ¾÷µ¥ÀÌÆ®
+				// ì‚­ì œë˜ì§€ ì•Šì€ ì•„ì´í…œë“¤ì€ ì—…ë°ì´íŠ¸
 				pCookieItem->SetPos(pCookieItemPacket->itemPos);
 			}
 		}
 	}
 
 
-	// ÇÃ·¹ÀÌ¾î Åõ»çÃ¼ Á¤º¸ ¹Ş±â
+	// í”Œë ˆì´ì–´ íˆ¬ì‚¬ì²´ ì •ë³´ ë°›ê¸°
 	SC_BULLET_PACKET* pbulletPacket = reinterpret_cast<SC_BULLET_PACKET*>(buf);
 
-	// ÇÃ·¹ÀÌ¾î Åõ»çÃ¼ ¼ö ¹Ş±â
+	// í”Œë ˆì´ì–´ íˆ¬ì‚¬ì²´ ìˆ˜ ë°›ê¸°
 	int bulletCount = 0;
 	retval = recv(sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), MSG_WAITALL);
 	if (retval == SOCKET_ERROR) {
@@ -406,7 +408,7 @@ void CCore::TestSendKeyInput()
 	}
 
 	if (bulletCount != 0) {
-		// Á¤º¸ ¹Ş±â
+		// ì •ë³´ ë°›ê¸°
 		for (int i = 0; i < bulletCount; ++i) {
 			retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 			retval = recv(sock, buf, size, MSG_WAITALL);
@@ -417,11 +419,11 @@ void CCore::TestSendKeyInput()
 				return;
 			}
 
-			// vecPlayerBullet ¾È¿¡ ¶È°°Àº ÀÌ¸§ÀÇ ¿ÀºêÁ§Æ®°¡ ÀÖ´ÂÁö È®ÀÎ
+			// vecPlayerBullet ì•ˆì— ë˜‘ê°™ì€ ì´ë¦„ì˜ ì˜¤ë¸Œì íŠ¸ê°€ ìˆëŠ”ì§€ í™•ì¸
 			CObject* pBullet = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Player" + std::to_wstring(pbulletPacket->playerID) + L"Bullet" + std::to_wstring(pbulletPacket->bulletID));
 
 			if (pBullet == nullptr) {
-				// ¾øÀ¸¸é »õ·Î »ı¼º
+				// ì—†ìœ¼ë©´ ìƒˆë¡œ ìƒì„±
 				pBullet = new CBullet;
 				pBullet->SetName(L"Player" + std::to_wstring(pbulletPacket->playerID) + L"Bullet" + std::to_wstring(pbulletPacket->bulletID));
 				pBullet->SetPos(pbulletPacket->bulletPos);
@@ -436,28 +438,28 @@ void CCore::TestSendKeyInput()
 
 				CreateObject(pBullet, GROUP_TYPE::BULLET_PLAYER);
 
-				// ÇÃ·¹ÀÌ¾î ½´ÆÃ ÀÌÆåÆ® Àç»ı
+				// í”Œë ˆì´ì–´ ìŠˆíŒ… ì´í™íŠ¸ ì¬ìƒ
 				CObject* pPlayer = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Player" + std::to_wstring(pbulletPacket->playerID));
 				((CPlayer*)pPlayer)->PlayShootingEffect();
 			}
-			// ÀÖÀ¸¸é ¾÷µ¥ÀÌÆ®
+			// ìˆìœ¼ë©´ ì—…ë°ì´íŠ¸
 			else {
 				if (pbulletPacket->bulletIsDead) {
-					// »èÁ¦µÈ ¾ÆÀÌÅÛÀº Å¬¶óÀÌ¾ğÆ® ³»¿¡¼­ »èÁ¦
+					// ì‚­ì œëœ ì•„ì´í…œì€ í´ë¼ì´ì–¸íŠ¸ ë‚´ì—ì„œ ì‚­ì œ
 					DeleteObject(pBullet);
 				}
 				else {
-					// »èÁ¦µÇÁö ¾ÊÀº ¾ÆÀÌÅÛµéÀº ¾÷µ¥ÀÌÆ®
+					// ì‚­ì œë˜ì§€ ì•Šì€ ì•„ì´í…œë“¤ì€ ì—…ë°ì´íŠ¸
 					pBullet->SetPos(pbulletPacket->bulletPos);
 				}
 			}
 		}
 	}
 
-	// ¸ó½ºÅÍ Åõ»çÃ¼ Á¤º¸ ¹Ş±â
+	// ëª¬ìŠ¤í„° íˆ¬ì‚¬ì²´ ì •ë³´ ë°›ê¸°
 	SC_BULLET_PACKET* pMonsterBulletPacket = reinterpret_cast<SC_BULLET_PACKET*>(buf);
 
-	// ¸ó½ºÅÍ Åõ»çÃ¼ ¼ö ¹Ş±â
+	// ëª¬ìŠ¤í„° íˆ¬ì‚¬ì²´ ìˆ˜ ë°›ê¸°
 	int monsterBulletCount = 0;
 	retval = recv(sock, reinterpret_cast<char*>(&monsterBulletCount), sizeof(monsterBulletCount), MSG_WAITALL);
 	if (retval == SOCKET_ERROR) {
@@ -468,7 +470,7 @@ void CCore::TestSendKeyInput()
 	}
 
 	if (monsterBulletCount != 0) {
-		// Á¤º¸ ¹Ş±â
+		// ì •ë³´ ë°›ê¸°
 		for (int i = 0; i < monsterBulletCount; ++i) {
 			retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 			retval = recv(sock, buf, size, MSG_WAITALL);
@@ -479,11 +481,11 @@ void CCore::TestSendKeyInput()
 				return;
 			}
 
-			// vecMonsterBullet ¾È¿¡ ¶È°°Àº ÀÌ¸§ÀÇ ¿ÀºêÁ§Æ®°¡ ÀÖ´ÂÁö È®ÀÎ
+			// vecMonsterBullet ì•ˆì— ë˜‘ê°™ì€ ì´ë¦„ì˜ ì˜¤ë¸Œì íŠ¸ê°€ ìˆëŠ”ì§€ í™•ì¸
 			CObject* pBullet = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"MonsterBullet" + std::to_wstring(pMonsterBulletPacket->bulletID));
 
 			if (pBullet == nullptr) {
-				// ¾øÀ¸¸é »õ·Î »ı¼º
+				// ì—†ìœ¼ë©´ ìƒˆë¡œ ìƒì„±
 				pBullet = new CBullet;
 				pBullet->SetName(L"MonsterBullet" + std::to_wstring(pMonsterBulletPacket->bulletID));
 				pBullet->SetPos(pMonsterBulletPacket->bulletPos);
@@ -498,24 +500,24 @@ void CCore::TestSendKeyInput()
 
 				CreateObject(pBullet, GROUP_TYPE::BULLET_MONSTER);
 			}
-			// ÀÖÀ¸¸é ¾÷µ¥ÀÌÆ®
+			// ìˆìœ¼ë©´ ì—…ë°ì´íŠ¸
 			else {
 				if (pMonsterBulletPacket->bulletIsDead) {
-					// »èÁ¦µÈ ¾ÆÀÌÅÛÀº Å¬¶óÀÌ¾ğÆ® ³»¿¡¼­ »èÁ¦
+					// ì‚­ì œëœ ì•„ì´í…œì€ í´ë¼ì´ì–¸íŠ¸ ë‚´ì—ì„œ ì‚­ì œ
 					DeleteObject(pBullet);
 				}
 				else {
-					// »èÁ¦µÇÁö ¾ÊÀº ¾ÆÀÌÅÛµéÀº ¾÷µ¥ÀÌÆ®
+					// ì‚­ì œë˜ì§€ ì•Šì€ ì•„ì´í…œë“¤ì€ ì—…ë°ì´íŠ¸
 					pBullet->SetPos(pMonsterBulletPacket->bulletPos);
 				}
 			}
 		}
 	}
 
-	// º¸½º Åõ»çÃ¼ Á¤º¸ ¹Ş±â
+	// ë³´ìŠ¤ íˆ¬ì‚¬ì²´ ì •ë³´ ë°›ê¸°
 	SC_BULLET_PACKET* pBossBulletPacket = reinterpret_cast<SC_BULLET_PACKET*>(buf);
 
-	// º¸½º Åõ»çÃ¼ ¼ö ¹Ş±â
+	// ë³´ìŠ¤ íˆ¬ì‚¬ì²´ ìˆ˜ ë°›ê¸°
 	int bossBulletCount = 0;
 	retval = recv(sock, reinterpret_cast<char*>(&bossBulletCount), sizeof(bossBulletCount), MSG_WAITALL);
 	if (retval == SOCKET_ERROR) {
@@ -526,7 +528,7 @@ void CCore::TestSendKeyInput()
 	}
 
 	if (bossBulletCount != 0) {
-		// Á¤º¸ ¹Ş±â
+		// ì •ë³´ ë°›ê¸°
 		for (int i = 0; i < bossBulletCount; ++i) {
 			retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
 			retval = recv(sock, buf, size, MSG_WAITALL);
@@ -537,11 +539,11 @@ void CCore::TestSendKeyInput()
 				return;
 			}
 
-			// vecBossBullet ¾È¿¡ ¶È°°Àº ÀÌ¸§ÀÇ ¿ÀºêÁ§Æ®°¡ ÀÖ´ÂÁö È®ÀÎ
+			// vecBossBullet ì•ˆì— ë˜‘ê°™ì€ ì´ë¦„ì˜ ì˜¤ë¸Œì íŠ¸ê°€ ìˆëŠ”ì§€ í™•ì¸
 			CObject* pBullet = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"BossBullet" + std::to_wstring(pBossBulletPacket->bulletID));
 
 			if (pBullet == nullptr) {
-				// ¾øÀ¸¸é »õ·Î »ı¼º
+				// ì—†ìœ¼ë©´ ìƒˆë¡œ ìƒì„±
 				pBullet = new CBullet;
 				pBullet->SetName(L"BossBullet" + std::to_wstring(pBossBulletPacket->bulletID));
 				pBullet->SetPos(pBossBulletPacket->bulletPos);
@@ -557,14 +559,14 @@ void CCore::TestSendKeyInput()
 
 				CreateObject(pBullet, GROUP_TYPE::BULLET_BOSS);
 			}
-			// ÀÖÀ¸¸é ¾÷µ¥ÀÌÆ®
+			// ìˆìœ¼ë©´ ì—…ë°ì´íŠ¸
 			else {
 				if (pBossBulletPacket->bulletIsDead) {
-					// »èÁ¦µÈ ¾ÆÀÌÅÛÀº Å¬¶óÀÌ¾ğÆ® ³»¿¡¼­ »èÁ¦
+					// ì‚­ì œëœ ì•„ì´í…œì€ í´ë¼ì´ì–¸íŠ¸ ë‚´ì—ì„œ ì‚­ì œ
 					DeleteObject(pBullet);
 				}
 				else {
-					// »èÁ¦µÇÁö ¾ÊÀº ¾ÆÀÌÅÛµéÀº ¾÷µ¥ÀÌÆ®
+					// ì‚­ì œë˜ì§€ ì•Šì€ ì•„ì´í…œë“¤ì€ ì—…ë°ì´íŠ¸
 					pBullet->SetPos(pBossBulletPacket->bulletPos);
 				}
 			}
@@ -572,27 +574,32 @@ void CCore::TestSendKeyInput()
 	}
 }
 
-DWORD WINAPI TestSendKeyInputThread(LPVOID lpParam) {
-	CCore* pCore = reinterpret_cast<CCore*>(lpParam);
-	if (pCore != nullptr) {
-		pCore->TestSendKeyInput(); // 1¹ø ÄÚµå ½ÇÇà
-	}
-	return 0;
+void CCore::StartCommunicationThread() {
+    m_bIsStart = true; // ì‹œì‘ ì—¬ë¶€ í”Œë˜ê·¸ ì„¤ì •
+
+    // ìŠ¤ë ˆë“œ ìƒì„± ë° ì‹¤í–‰
+    std::thread communicationThread(&CCore::CommunicationThreadFunc, this);
+    communicationThread.detach(); // ìŠ¤ë ˆë“œë¥¼ detachí•˜ì—¬ ë³„ë„ë¡œ ì‹¤í–‰ë˜ê²Œ í•¨
 }
+
+// ë³„ë„ ìŠ¤ë ˆë“œì—ì„œ ì‹¤í–‰ë  í•¨ìˆ˜
+void CCore::CommunicationThreadFunc() {
+    while (m_bIsStart) {
+        // TestSendKeyInput í•¨ìˆ˜ ì‹¤í–‰
+        TestSendKeyInput();
+
+        // ì¼ì • ì‹œê°„ ê°„ê²©ìœ¼ë¡œ í•¨ìˆ˜ ì‹¤í–‰ì„ ë°˜ë³µí•˜ë„ë¡ sleep
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100)); // 100ms ê°„ê²©ìœ¼ë¡œ ì‹¤í–‰í•˜ë„ë¡ ì„¤ì • (ì›í•˜ëŠ” ì‹œê°„ìœ¼ë¡œ ë³€ê²½ ê°€ëŠ¥)
+    }
+}
+
 
 void CCore::progress()
 {
-	// ¼ÒÄÏÀÌ ¿¬°áµÇ¾î ÀÖÀ¸¸é Åë½Å
-	if (m_sock != INVALID_SOCKET && m_bIsStart) {
-		//if (this != nullptr) {
-			HANDLE hThread = CreateThread(NULL, 0, TestSendKeyInputThread, NULL, 0, NULL);
-			// ½º·¹µå »ı¼º¿¡ ½ÇÆĞÇßÀ» °æ¿ì Ã³¸®
-			if (hThread == NULL) {
-				// ½ÇÆĞ Ã³¸® ·ÎÁ÷ Ãß°¡
-				return ;
-			}
-		//}
-	}
+	// 1 ì†Œì¼“ì´ ì—°ê²°ë˜ì–´ ìˆìœ¼ë©´ ë³„ë„ì˜ ìŠ¤ë ˆë“œë¥¼ ë§Œë“¤ì–´ í†µì‹ 
+	//if (m_sock != INVALID_SOCKET/* && m_bIsStart*/) {
+	//	TestSendKeyInput();
+	//}
 
 
 	// Managers Update
@@ -606,18 +613,18 @@ void CCore::progress()
 	// Rendering //
 	///////////////
 	
-	// È­¸é Clear
+	// í™”ë©´ Clear
 	Rectangle(m_memDC, -1, -1, m_ptResolution.x + 1, m_ptResolution.y + 1);
 
-	// ±×¸®±â
+	// ê·¸ë¦¬ê¸°
 	CSceneMgr::GetInst()->render(m_memDC);
 
-	// ÈÄ¸é¹öÆÛÀÇ ³»¿ëÀ» À©µµ¿ì·Î ¿Å±ä´Ù.
-	BitBlt(m_hDC, 0, 0, m_ptResolution.x, m_ptResolution.y, m_memDC, 0, 0, SRCCOPY/* ±×´ë·Î º¹»ç */);
+	// í›„ë©´ë²„í¼ì˜ ë‚´ìš©ì„ ìœˆë„ìš°ë¡œ ì˜®ê¸´ë‹¤.
+	BitBlt(m_hDC, 0, 0, m_ptResolution.x, m_ptResolution.y, m_memDC, 0, 0, SRCCOPY/* ê·¸ëŒ€ë¡œ ë³µì‚¬ */);
 
-	// Å¸ÀÌÆ² ¹Ù¿¡ ÇÁ·¹ÀÓ render
+	// íƒ€ì´í‹€ ë°”ì— í”„ë ˆì„ render
 	CTimer::GetInst()->render();
 
-	// ÀÌº¥Æ®´Â ¸Ç ¸¶Áö¸·¿¡ ¾÷µ¥ÀÌÆ® (Áö¿¬Ã³¸®)
+	// ì´ë²¤íŠ¸ëŠ” ë§¨ ë§ˆì§€ë§‰ì— ì—…ë°ì´íŠ¸ (ì§€ì—°ì²˜ë¦¬)
 	CEventMgr::GetInst()->update();
 }
