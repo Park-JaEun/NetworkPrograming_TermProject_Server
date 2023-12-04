@@ -26,9 +26,10 @@ private:
 public:
 	int init(HWND _hWnd, POINT _ptResolution);
 	void CreateBrushPen();
-	void CommunicationToServer();
+	//void CommunicationToServer();
 	void TestSendKeyInput();
 	void progress();
+
 
 public:
 	HWND GetMainHwnd()					{ return m_hWnd; }
@@ -51,4 +52,7 @@ public:
 	void SetKey(int i, KEY_STATE key_state) { 
 		m_inputkey[i].inputs->key_state = key_state;	// 키 상태 설정
 	}
+
+	void StartCommunicationThread();
+	void CommunicationThreadFunc();
 };
