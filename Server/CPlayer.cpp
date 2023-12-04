@@ -8,7 +8,7 @@
 #include "CBoss.h"
 
 CPlayer::CPlayer() : m_bDir(DIR_RIGHT), m_eState(PLAYER_STATE::IDLE),
-					 m_fSpeed(100.f), m_iHP(3), m_iLife(3),
+					 m_fSpeed(300.f), m_iHP(3), m_iLife(3),
 					 m_fDieTime(0.f), m_fResurrectTime(0.f), m_bIsGameOver(false),
 					 m_iKillCount(0), m_iBunnyCount(0), m_iCookieCount(0)
 {

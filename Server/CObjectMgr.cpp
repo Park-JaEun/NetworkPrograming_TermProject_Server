@@ -2,6 +2,9 @@
 #include "CObjectMgr.h"
 #include "CObject.h"
 
+std::mutex g_mutex1;
+
+
 CObjectMgr::CObjectMgr()
 {
 }
@@ -31,6 +34,7 @@ void CObjectMgr::DeleteDeadObject()
 
 		while (pObjIter != _vecObj.end()) {
 			if ((*pObjIter)->IsDead()) {
+				std::lock_guard<std::mutex> lock{ g_mutex1 };
 				// 삭제 예정인 오브젝트는 벡터 내에서 삭제
 				pObjIter = _vecObj.erase(pObjIter);
 			}
