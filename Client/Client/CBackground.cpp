@@ -137,15 +137,11 @@ void CBackground::render(HDC _dc)
 								pTexture->GetDC(),
 								0,
 								0,
-								1600,
-								900,
+								1180,
+								810,
 								RGB(255, 0, 255));
-
-
-			//CTexture* pPlayerTexture0;
 		}
 	}
-	
 }
 
 void CBackground::CreateAnimator()

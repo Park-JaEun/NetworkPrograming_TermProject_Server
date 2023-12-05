@@ -8,6 +8,7 @@
 #include "CSceneMgr.h"
 #include "CScene.h"
 #include "CScene_Select.h"
+#include "CScene_Clear.h"
 
 CUI::CUI() : m_bOnMouse{false}, m_bMousePush{ false }
 {
@@ -345,6 +346,202 @@ void CUI::render(HDC _dc)
 						9,
 						RGB(255, 0, 255));
 	}
+	else if (GetName() == L"Minji Score") {
+		Vec2 vPos = GetPos();
+		Vec2 vScale = GetScale();
+		CScene* pScene = CSceneMgr::GetInst()->GetCurScene();
+		bool bClearAniEnd = ((CScene_Clear*)pScene)->GetClearAniEnd();
+
+		if (bClearAniEnd) {
+			CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Minji Score", L"texture\\characters\\minji\\minji_clear.bmp");
+			TransparentBlt(_dc,
+				(int)vPos.x,
+				(int)vPos.y,
+				(int)GetScale().x,
+				(int)GetScale().y,
+				pTexture->GetDC(),
+				0,
+				0,
+				220,
+				220,
+				RGB(255, 0, 255));
+		}
+	}
+	else if (GetName() == L"Hannie Score") {
+		Vec2 vPos = GetPos();
+		Vec2 vScale = GetScale();
+
+		CScene* pScene = CSceneMgr::GetInst()->GetCurScene();
+		bool bClearAniEnd = ((CScene_Clear*)pScene)->GetClearAniEnd();
+
+		if (bClearAniEnd) {
+			CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Hannie Score", L"texture\\characters\\hannie\\hannie_clear.bmp");
+			TransparentBlt(_dc,
+				(int)vPos.x,
+				(int)vPos.y,
+				(int)GetScale().x,
+				(int)GetScale().y,
+				pTexture->GetDC(),
+				0,
+				0,
+				220,
+				220,
+				RGB(255, 0, 255));
+		}
+	}
+	else if (GetName() == L"Danielle Score") {
+		Vec2 vPos = GetPos();
+		Vec2 vScale = GetScale();
+
+		CScene* pScene = CSceneMgr::GetInst()->GetCurScene();
+		bool bClearAniEnd = ((CScene_Clear*)pScene)->GetClearAniEnd();
+
+		if (bClearAniEnd) {
+			CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Danielle Score", L"texture\\characters\\danielle\\danielle_clear.bmp");
+			TransparentBlt(_dc,
+				(int)vPos.x,
+				(int)vPos.y,
+				(int)GetScale().x,
+				(int)GetScale().y,
+				pTexture->GetDC(),
+				0,
+				0,
+				220,
+				220,
+				RGB(255, 0, 255));
+		}
+	}
+	else if (GetName() == L"Haerin Score") {
+		Vec2 vPos = GetPos();
+		Vec2 vScale = GetScale();
+
+		CScene* pScene = CSceneMgr::GetInst()->GetCurScene();
+		bool bClearAniEnd = ((CScene_Clear*)pScene)->GetClearAniEnd();
+
+		if (bClearAniEnd) {
+			CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Haerin Score", L"texture\\characters\\haerin\\haerin_clear.bmp");
+			TransparentBlt(_dc,
+				(int)vPos.x,
+				(int)vPos.y,
+				(int)GetScale().x,
+				(int)GetScale().y,
+				pTexture->GetDC(),
+				0,
+				0,
+				220,
+				220,
+				RGB(255, 0, 255));
+		}
+	}
+	else if (GetName() == L"Hyein Score") {
+		Vec2 vPos = GetPos();
+		Vec2 vScale = GetScale();
+
+		CScene* pScene = CSceneMgr::GetInst()->GetCurScene();
+		bool bClearAniEnd = ((CScene_Clear*)pScene)->GetClearAniEnd();
+
+		if (bClearAniEnd) {
+			CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Hyein Score", L"texture\\characters\\hyein\\hyein_clear.bmp");
+			TransparentBlt(_dc,
+				(int)vPos.x,
+				(int)vPos.y ,
+				(int)GetScale().x,
+				(int)GetScale().y,
+				pTexture->GetDC(),
+				0,
+				0,
+				220,
+				220,
+				RGB(255, 0, 255));
+		}
+	}
+	else if (GetName() == L"Crown") {
+		Vec2 vPos = GetPos();
+
+		CScene* pScene = CSceneMgr::GetInst()->GetCurScene();
+		bool bClearAniEnd = ((CScene_Clear*)pScene)->GetClearAniEnd();
+
+		if (bClearAniEnd) {
+			CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Crown", L"texture\\ui\\crown.bmp");
+			TransparentBlt(_dc,
+				(int)vPos.x,
+				(int)vPos.y,
+				72,
+				61,
+				pTexture->GetDC(),
+				0,
+				0,
+				72,
+				61,
+				RGB(255, 0, 255));
+		}
+	}
+	else if (GetName() == L"Hyein Score") {
+		Vec2 vPos = GetPos();
+		Vec2 vScale = GetScale();
+
+		CScene* pScene = CSceneMgr::GetInst()->GetCurScene();
+		bool bClearAniEnd = ((CScene_Clear*)pScene)->GetClearAniEnd();
+
+		if (bClearAniEnd) {
+			CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Hyein Score", L"texture\\characters\\hyein\\hyein_clear.bmp");
+			TransparentBlt(_dc,
+				(int)vPos.x,
+				(int)vPos.y ,
+				(int)GetScale().x,
+				(int)GetScale().y,
+				pTexture->GetDC(),
+				0,
+				0,
+				220,
+				220,
+				RGB(255, 0, 255));
+		}
+	}
+	else if (GetName() == L"RobbyButton") {
+		Vec2 vPos = GetPos();
+		Vec2 vScale = GetScale();
+
+		CScene* pScene = CSceneMgr::GetInst()->GetCurScene();
+		bool bClearAniEnd = ((CScene_Clear*)pScene)->GetClearAniEnd();
+
+		if (bClearAniEnd) {
+			CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"RobbyButton", L"texture\\ui\\ROBBY.bmp");
+			TransparentBlt(_dc,
+				(int)vPos.x,
+				(int)vPos.y,
+				(int)GetScale().x,
+				(int)GetScale().y,
+				pTexture->GetDC(),
+				0,
+				0,
+				200,
+				200,
+				RGB(255, 0, 255));
+		}
+	}
+	else if (GetName() == L"QuitButton") {
+		Vec2 vPos = GetPos();
+		Vec2 vScale = GetScale();
+
+		CScene* pScene = CSceneMgr::GetInst()->GetCurScene();
+		bool bClearAniEnd = ((CScene_Clear*)pScene)->GetClearAniEnd();
+
+		if (bClearAniEnd) {
+			CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"QuitButton", L"texture\\ui\\QUIT.bmp");
+			TransparentBlt(_dc,
+				(int)vPos.x,
+				(int)vPos.y,
+				(int)GetScale().x,
+				(int)GetScale().y,
+				pTexture->GetDC(),
+				0,
+				0,
+				200,
+				200,
+				RGB(255, 0, 255));
+		}
+	}
 }
 
 void CUI::CreateAnimator()
@@ -512,5 +709,20 @@ void CUI::CreateAnimator()
 	}
 	else if (GetName() == L"Score Text") {
 		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Score", L"texture\\ui\\itemUI.bmp");
+	}
+	else if (GetName() == L"Minji Score") {
+		CTexture* pTextureMinji = CResourceMgr::GetInst()->LoadTexture(L"Minji Score", L"texture\\characters\\minji\\minji_clear.bmp");
+	}
+	else if (GetName() == L"Hannie Score") {
+		CTexture* pTextureMinji = CResourceMgr::GetInst()->LoadTexture(L"Hannie Score", L"texture\\characters\\hannie\\hannie_clear.bmp");
+	}
+	else if (GetName() == L"Danielle Score") {
+		CTexture* pTextureMinji = CResourceMgr::GetInst()->LoadTexture(L"Danielle Score", L"texture\\characters\\danielle\\danielle_clear.bmp");
+	}
+	else if (GetName() == L"Haerin Score") {
+		CTexture* pTextureMinji = CResourceMgr::GetInst()->LoadTexture(L"Haerin Score", L"texture\\characters\\haerin\\haerin_clear.bmp");
+	}
+	else if (GetName() == L"Hyein Score") {
+		CTexture* pTextureMinji = CResourceMgr::GetInst()->LoadTexture(L"Hyein Score", L"texture\\characters\\hyein\\hyein_clear.bmp");
 	}
 }

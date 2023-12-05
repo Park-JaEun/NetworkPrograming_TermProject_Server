@@ -4,6 +4,7 @@
 class CScene_Clear : public CScene
 {
 	bool m_bClearAniEnd;
+	int m_iScore[MAX_PLAYER];
 
 public:
 	const bool GetClearAniEnd() { return m_bClearAniEnd; }
