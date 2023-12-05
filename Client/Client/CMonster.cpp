@@ -96,6 +96,9 @@ void CMonster::update()
 			m_vPrevPos = GetPos();
 		}
 	}
+	else {
+		m_vPrevPos = GetPos();
+	}
 }
 
 void CMonster::render(HDC _dc)
@@ -278,7 +281,7 @@ void CMonster::InterpolatePos()
 	// 이전 포지션과 현재 포지션 상태 사이를 보간
 	Vec2 vPos = GetPos();
 	Vec2 vPrevPos = m_vPrevPos;
-	Vec2 interpolatePos{};
+	Vec2 interpolatePos = vPos;
 
 	// 보간 정도
 	// 0 ~ 1 사이의 값

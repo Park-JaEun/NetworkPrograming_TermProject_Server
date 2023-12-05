@@ -278,16 +278,14 @@ void CCore::TestSendKeyInput()
 
 			// vecBoss 안에 똑같은 이름의 오브젝트 불러오기
 			CObject* pBoss = CSceneMgr::GetInst()->GetCurScene()->FindObject(L"Boss");
-			if (pBossPacket->bossState != BOSS_STATE::NOT_APPEAR) {
-				if (pBossPacket->bossIsDead) {
-					// 삭제된 보스는 클라이언트 내에서 삭제
-					DeleteObject(pBoss);
-				}
-				else {
-					// 삭제되지 않은 보스들은 업데이트
-					pBoss->SetPos(pBossPacket->bossPos);
-					((CBoss*)pBoss)->SetState(pBossPacket->bossState);
-				}
+			if (pBossPacket->bossIsDead) {
+				// 삭제된 보스는 클라이언트 내에서 삭제
+				DeleteObject(pBoss);
+			}
+			else {
+				// 삭제되지 않은 보스들은 업데이트
+				pBoss->SetPos(pBossPacket->bossPos);
+				((CBoss*)pBoss)->SetState(pBossPacket->bossState);
 			}
 		}
 

@@ -475,7 +475,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				}
 			}
 
-			// 몬스터 정보 송신0
+			// 몬스터 정보 송신
 			{
 				std::vector<CObject*> vecMonster;
 				{
@@ -556,7 +556,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 						bossPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BOSS);
 						size = sizeof(SC_BOSS_PACKET);
 
-						bossPacket.bossPos = Vec2(0.f, 0.f);
+						bossPacket.bossPos = Vec2(5250.f, 360.f);
 						bossPacket.bossState = BOSS_STATE::NOT_APPEAR;
 						bossPacket.bossIsDead = false;
 
@@ -596,8 +596,6 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 								IsGameClear = true;
 							}
 						}
-
-							
 
 						retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 						retval = send(client_sock, reinterpret_cast<char*>(&bossPacket), size, 0);
