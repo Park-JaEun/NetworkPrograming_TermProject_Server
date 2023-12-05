@@ -373,7 +373,7 @@ void CBullet::InterpolatePos()
 
 	// 보간 정도
 	// 0 ~ 1 사이의 값
-	float fInterpolate = 0.8f;
+	float fInterpolate = 0.9f;
 
 	interpolatePos.x = LerpX(vPrevPos.x, vPos.x, fInterpolate);
 	interpolatePos.y = LerpY(vPrevPos.y, vPos.y, fInterpolate);
