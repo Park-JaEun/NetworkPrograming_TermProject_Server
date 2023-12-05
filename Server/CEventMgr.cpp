@@ -5,6 +5,8 @@
 #include "CObject.h"
 #include "CObjectMgr.h"
 
+//std::mutex g_mutex_event;
+
 CEventMgr::CEventMgr()
 {
 
@@ -17,6 +19,8 @@ CEventMgr::~CEventMgr()
 
 void CEventMgr::update()
 {
+	//std::lock_guard<std::mutex> lock{ g_mutex_event };
+
 	// 삭제 예정 오브젝트들 삭제
 	for (CObject* pDeadObj : m_vecDead) {
 		pDeadObj = nullptr;

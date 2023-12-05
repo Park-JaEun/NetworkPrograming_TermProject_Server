@@ -477,8 +477,12 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 			// 몬스터 정보 송신0
 			{
-				std::lock_guard<std::mutex> lock{ g_mutex };
-				const std::vector<CObject*>& vecMonster = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::MONSTER);
+				std::vector<CObject*> vecMonster;
+				{
+					std::lock_guard<std::mutex> lock{ g_mutex };
+					vecMonster = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::MONSTER);
+
+				}
 
 				SC_MONSTER_PACKET monsterPacket;
 				monsterPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_MONSTER);
@@ -511,9 +515,13 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 			// 보스 정보 송신, 보스 정보는 모든 플레이어의 x좌표 위치가 5060.f 이상이면 보스 생성
 			{
+				std::vector<CObject*> vecBoss;
 				// 모든 플레이어의 x좌표 위치가 5060.f 이상이면 isBoss를 true로 변경
-				std::lock_guard<std::mutex> lock{ g_mutex };
-				const std::vector<CObject*>& vecBoss = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BOSS);
+				{
+					std::lock_guard<std::mutex> lock{ g_mutex };
+					vecBoss = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BOSS);
+				}
+
 				CObject* pBoss = CObjectMgr::GetInst()->FindObject(L"Boss");
 
 				if (!isBoss) {
@@ -583,8 +591,13 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 						// 보스가 죽었으면 게임 클리어
 						if (pBoss->IsDead()) {
-							IsGameClear = true;
+							{
+								std::lock_guard<std::mutex> lock{ g_mutex };
+								IsGameClear = true;
+							}
 						}
+
+							
 
 						retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 						retval = send(client_sock, reinterpret_cast<char*>(&bossPacket), size, 0);
@@ -598,15 +611,15 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 			// 토끼 아이템 정보 송신
 			{
-				std::lock_guard<std::mutex> lock{ g_mutex };
-				const std::vector<CObject*>& vecRabbitItem = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::ITEM_RABBIT);
-
-				SC_RABBIT_ITEM_PACKET rabbitItemPacket;
-				rabbitItemPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_RABBIT_ITEM);
-				size = sizeof(SC_RABBIT_ITEM_PACKET);
+				// 공유 자원 접근 동기화
+				std::vector<CObject*> copiedVecRabbitItem;
+				{
+					std::lock_guard<std::mutex> lock{ g_mutex };
+					copiedVecRabbitItem = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::ITEM_RABBIT);
+				} 
 
 				// 토끼 아이템 수 전송
-				int rabbitItemCount = vecRabbitItem.size();
+				int rabbitItemCount = copiedVecRabbitItem.size();
 				retval = send(client_sock, reinterpret_cast<char*>(&rabbitItemCount), sizeof(rabbitItemCount), 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
@@ -614,7 +627,11 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				}
 
 				// 토끼 아이템 정보 보내기
-				for (CObject* pRabbitItem : vecRabbitItem) {
+				for (CObject* pRabbitItem : copiedVecRabbitItem) {
+					SC_RABBIT_ITEM_PACKET rabbitItemPacket;
+					rabbitItemPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_RABBIT_ITEM);
+					size = sizeof(SC_RABBIT_ITEM_PACKET);
+
 					rabbitItemPacket.itemID = ((CItem*)pRabbitItem)->GetID();
 					rabbitItemPacket.itemPos = ((CItem*)pRabbitItem)->GetPos();
 					rabbitItemPacket.itemIsDead = pRabbitItem->IsDead();
@@ -630,15 +647,15 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 			// 쿠키 아이템 정보 송신
 			{
-				std::lock_guard<std::mutex> lock{ g_mutex };
-				const std::vector<CObject*>& vecCookieItem = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::ITEM_COOKIE);
+				std::vector<CObject*> copiedVecCookieItem;
 
-				SC_COOKIE_ITEM_PACKET cookieItemPacket;
-				cookieItemPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_COOKIE_ITEM);
-				size = sizeof(SC_COOKIE_ITEM_PACKET);
+				{
+					std::lock_guard<std::mutex> lock{ g_mutex };
+					copiedVecCookieItem = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::ITEM_COOKIE); // 공유 자원 복사
+				} 
 
 				// 쿠키 아이템 수 전송
-				int cookieItemCount = vecCookieItem.size();
+				int cookieItemCount = copiedVecCookieItem.size();
 				retval = send(client_sock, reinterpret_cast<char*>(&cookieItemCount), sizeof(cookieItemCount), 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
@@ -646,7 +663,11 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				}
 
 				// 쿠키 아이템 정보 보내기
-				for (CObject* pCookieItem : vecCookieItem) {
+				for (CObject* pCookieItem : copiedVecCookieItem) {
+					SC_COOKIE_ITEM_PACKET cookieItemPacket;
+					cookieItemPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_COOKIE_ITEM);
+					size = sizeof(SC_COOKIE_ITEM_PACKET);
+
 					cookieItemPacket.itemID = ((CItem*)pCookieItem)->GetID();
 					cookieItemPacket.itemPos = ((CItem*)pCookieItem)->GetPos();
 					cookieItemPacket.itemIsDead = pCookieItem->IsDead();
@@ -662,15 +683,16 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 			// 플레이어 투사체 정보 송신
 			{
-				std::lock_guard<std::mutex> lock{ g_mutex };
-				const std::vector<CObject*>& vecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_PLAYER);
+				std::vector<CObject*> copiedVecBullet;
 
-				SC_BULLET_PACKET bulletPacket;
-				bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
-				size = sizeof(SC_BULLET_PACKET);
+				// 락 사용으로 공유 자원 복사
+				{
+					std::lock_guard<std::mutex> lock{ g_mutex };
+					copiedVecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_PLAYER);
+				}
 
 				// 클라이언트에게 플레이어 투사체 수 전송
-				int bulletCount = vecBullet.size();
+				int bulletCount = copiedVecBullet.size();
 				retval = send(client_sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
@@ -679,13 +701,17 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 				if (bulletCount != 0) {
 					// 클라이언트에 플레이어 투사체 정보 보내기
-					for (CObject* pBullet : vecBullet) {
-						bulletPacket.playerID = ((CBullet*)pBullet)->GetPlayerID();	// 발사한 플레이어 id
+					for (CObject* pBullet : copiedVecBullet) {
+						SC_BULLET_PACKET bulletPacket;
+						bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
+						size = sizeof(SC_BULLET_PACKET);
+
+						bulletPacket.playerID = ((CBullet*)pBullet)->GetPlayerID();
 						bulletPacket.bulletID = ((CBullet*)pBullet)->GetID();
 						bulletPacket.bulletPos = ((CBullet*)pBullet)->GetPos();
 						bulletPacket.bulletIsDead = ((CBullet*)pBullet)->IsDead();
 						bulletPacket.bulletDir = ((CBullet*)pBullet)->GetDir();
-						bulletPacket.bulletDegree = 0.f;
+						bulletPacket.bulletDegree = 0.f; 
 
 						retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
 						retval = send(client_sock, reinterpret_cast<char*>(&bulletPacket), size, 0);
@@ -699,25 +725,30 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 			// 몬스터 투사체 정보 송신
 			{
-				std::lock_guard<std::mutex> lock{ g_mutex };
-				const std::vector<CObject*>& vecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_MONSTER);
+				std::vector<CObject*> copiedVecBullet;
 
-				SC_BULLET_PACKET bulletPacket;
-				bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
-				size = sizeof(SC_BULLET_PACKET);
+				// 락을 사용으로 공유 자원 복사
+				{
+					std::lock_guard<std::mutex> lock{ g_mutex };
+					copiedVecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_MONSTER); // 공유 자원 복사
+				} 
 
 				// 클라이언트에게 몬스터 투사체 수 전송
-				int bulletCount = vecBullet.size();
+				int bulletCount = copiedVecBullet.size();
 				retval = send(client_sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					break; 
 				}
 
 				if (bulletCount != 0) {
 					// 클라이언트에 몬스터 투사체 정보 보내기
-					for (CObject* pBullet : vecBullet) {
-						bulletPacket.playerID = ((CBullet*)pBullet)->GetPlayerID();	// 발사한 플레이어 id
+					for (CObject* pBullet : copiedVecBullet) {
+						SC_BULLET_PACKET bulletPacket;
+						bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
+						size = sizeof(SC_BULLET_PACKET);
+
+						bulletPacket.playerID = ((CBullet*)pBullet)->GetPlayerID();
 						bulletPacket.bulletID = ((CBullet*)pBullet)->GetID();
 						bulletPacket.bulletPos = ((CBullet*)pBullet)->GetPos();
 						bulletPacket.bulletIsDead = ((CBullet*)pBullet)->IsDead();
@@ -733,43 +764,6 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					}
 				}
 			}
-
-			// 보스 투사체 정보 송신
-			//{
-			//	std::lock_guard<std::mutex> lock{ g_mutex };
-			//	const std::vector<CObject*>& vecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_BOSS);
-
-			//	SC_BULLET_PACKET bulletPacket;
-			//	bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
-			//	size = sizeof(SC_BULLET_PACKET);
-
-			//	// 클라이언트에게 보스 투사체 수 전송
-			//	int bulletCount = vecBullet.size();
-			//	retval = send(client_sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), 0);
-			//	if (retval == SOCKET_ERROR) {
-			//		err_display("send()");
-			//		break;
-			//	}
-
-			//	if (bulletCount != 0) {
-			//		// 클라이언트에게 보스 투사체 정보 보내기
-			//		for (CObject* pBullet : vecBullet) {
-			//			bulletPacket.playerID = ((CBullet*)pBullet)->GetPlayerID();
-			//			bulletPacket.bulletID = ((CBullet*)pBullet)->GetID();
-			//			bulletPacket.bulletPos = ((CBullet*)pBullet)->GetPos();
-			//			bulletPacket.bulletIsDead = ((CBullet*)pBullet)->IsDead();
-			//			bulletPacket.bulletDir = ((CBullet*)pBullet)->GetDir();
-			//			bulletPacket.bulletDegree = ((CBullet*)pBullet)->GetDegree();
-
-			//			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-			//			retval = send(client_sock, reinterpret_cast<char*>(&bulletPacket), size, 0);
-			//			if (retval == SOCKET_ERROR) {
-			//				err_display("send()");
-			//				break;
-			//			}
-			//		}
-			//	}
-			//}
 
 			// 보스 투사체 정보 송신
 			{
