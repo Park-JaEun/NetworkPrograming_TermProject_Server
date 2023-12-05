@@ -86,7 +86,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			std::lock_guard<std::mutex> lock{ g_mutex };
 			((CPlayer*)pCharacter)->SetType(pSelectPacket->character);
 			((CPlayer*)pCharacter)->SetName(L"Player" + std::to_wstring(player.id));
-			((CPlayer*)pCharacter)->SetPos(Vec2(5060.f, 0.f));
+			((CPlayer*)pCharacter)->SetPos(Vec2(0.f, 0.f));
 			((CPlayer*)pCharacter)->SetDir(DIR_RIGHT);
 			((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
 			((CPlayer*)pCharacter)->CreateCollider();
@@ -209,7 +209,6 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		}
 
 		recvInitFinishSignal(retval, size, client_sock);
-
 
 		std::cout << "모든 플레이어 초기화 완료" << std::endl;
 		std::cout << "플레이어들에게 게임 시작 신호 패킷 전송" << std::endl;
