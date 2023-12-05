@@ -342,23 +342,8 @@ void CScene_Main::Enter()
 
 
 	// 서버에게 초기화 완료 패킷 송신
-	CS_INIT_FINISH_PACKET initFinishPacket;
-	size = sizeof(CS_INIT_FINISH_PACKET);
+	sendInitFinishSignal(sock);
 
-	initFinishPacket.type = static_cast<char>(CS_PACKET_TYPE::CS_INIT_FINISH);
-	initFinishPacket.id = CCore::GetInst()->GetID();
-
-	retval = send(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
-	retval = send(sock, reinterpret_cast<char*>(&initFinishPacket), size, 0);
-	if (retval == SOCKET_ERROR) {
-		err_display("send()");
-		closesocket(sock);
-		WSACleanup();
-		return;
-	}
-	std::cout << "초기화 완료 패킷 송신" << std::endl;
-
-	std::cout << "게임 시작 패킷 수신 대기중" << std::endl;
 	// 게임 시작 신호 수신
 	memset(buf, 0, BUFSIZE);
 	retval = recv(sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
