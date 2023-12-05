@@ -498,7 +498,7 @@ void CUI::render(HDC _dc)
 				RGB(255, 0, 255));
 		}
 	}
-	else if (GetName() == L"RobbyButton") {
+	else if (GetName() == L"LobbyButton") {
 		Vec2 vPos = GetPos();
 		Vec2 vScale = GetScale();
 
@@ -506,7 +506,7 @@ void CUI::render(HDC _dc)
 		bool bClearAniEnd = ((CScene_Clear*)pScene)->GetClearAniEnd();
 
 		if (bClearAniEnd) {
-			CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"RobbyButton", L"texture\\ui\\ROBBY.bmp");
+			CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"LobbyButton", L"texture\\ui\\LOBBY.bmp");
 			TransparentBlt(_dc,
 				(int)vPos.x,
 				(int)vPos.y,

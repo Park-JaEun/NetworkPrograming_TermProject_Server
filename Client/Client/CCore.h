@@ -18,6 +18,8 @@ private:
 	std::wstring m_strNickName;	// 닉네임
 	int 		m_iID;			// ID값 (1p, 2p, 3p)
 	bool        m_bIsStart;     // 게임 시작 여부
+	bool		m_bIsGameClear;
+	bool		m_bIsGameOver;
 
 	std::array<HBRUSH, (UINT)BRUSH_TYPE::END>	m_arrBrush;		// 자주 사용할 브러쉬의 배열
 	std::array<HPEN, (UINT)PEN_TYPE::END>		m_arrPen;		// 자주 사용할 펜의 배열
@@ -39,11 +41,15 @@ public:
 	SOCKET GetSocket()					{ return m_sock; }
 	std::wstring GetNickName()			{ return m_strNickName; }
 	int GetID()							{ return m_iID; }
+	bool GetStart()						{ return m_bIsStart; }
+	bool GetGameClear()					{ return m_bIsGameClear; }
 
 	void SetSocket(SOCKET _sock)		{ m_sock = _sock; }
 	void SetNickName(std::wstring _str)	{ m_strNickName = _str; }
 	void SetID(int _iID)				{ m_iID = _iID; }
 	void SetStart()						{ m_bIsStart = true; }
+	void SetGameClear(bool _bIsClear)	{ m_bIsGameClear = _bIsClear; }
+	void SetGameOver(bool _bIsOver)		{ m_bIsGameOver = _bIsOver; }
 
 	CS_KEYBOARD_INPUT_PACKET GetKey(int i) {	// 키 상태 가져오기
 			return m_inputkey[i];

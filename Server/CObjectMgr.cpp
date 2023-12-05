@@ -60,8 +60,10 @@ CObject* CObjectMgr::FindObject(std::wstring _strName)
 
 void CObjectMgr::DeleteGroup(GROUP_TYPE _eType)
 {
-	for (CObject* _pObj : m_arrVecObj[(UINT)_eType])
+	for (CObject* _pObj : m_arrVecObj[(UINT)_eType]) {
+		_pObj = nullptr;
 		delete _pObj;
+	}
 
 	m_arrVecObj[(UINT)_eType].clear();
 }
@@ -69,8 +71,10 @@ void CObjectMgr::DeleteGroup(GROUP_TYPE _eType)
 void CObjectMgr::DeleteAll()
 {
 	for (std::vector<CObject*>& _vecObj : m_arrVecObj) {
-		for (CObject* _pObj : _vecObj)
+		for (CObject* _pObj : _vecObj) {
+			_pObj = nullptr;
 			delete _pObj;
+		}
 
 		_vecObj.clear();
 	}

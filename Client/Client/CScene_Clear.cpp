@@ -141,15 +141,15 @@ void CScene_Clear::Enter()
 	pCrownUI->SetPos(Vec2(160.f + (128.f * iMaxScoreID), 105.f));
 	CreateObject(pCrownUI, GROUP_TYPE::UI);
 
-	// Robby 버튼 UI
-	CUI* pRobbyButtonUI = new CUI;
-	pRobbyButtonUI->SetName(L"RobbyButton");
-	pRobbyButtonUI->SetPos(Vec2(40.f, 270.f));
-	pRobbyButtonUI->SetScale(Vec2(100.f, 100.f));
-	pRobbyButtonUI->CreateAnimator();
-	pRobbyButtonUI->CreateCollider();
-	pRobbyButtonUI->GetCollider()->SetScale(Vec2(100.f, 100.f));
-	AddObject(pRobbyButtonUI, GROUP_TYPE::UI);
+	// Lobby 버튼 UI
+	CUI* pLobbyButtonUI = new CUI;
+	pLobbyButtonUI->SetName(L"LobbyButton");
+	pLobbyButtonUI->SetPos(Vec2(40.f, 270.f));
+	pLobbyButtonUI->SetScale(Vec2(100.f, 100.f));
+	pLobbyButtonUI->CreateAnimator();
+	pLobbyButtonUI->CreateCollider();
+	pLobbyButtonUI->GetCollider()->SetScale(Vec2(100.f, 100.f));
+	AddObject(pLobbyButtonUI, GROUP_TYPE::UI);
 
 	// Quit 버튼 UI
 	CUI* pQuitButtonUI = new CUI;
@@ -192,10 +192,10 @@ void CScene_Clear::render(HDC _dc)
 		Vec2 vMousePos = CKeyMgr::GetInst()->GetMousePos();
 
 		// 마우스가 StartButton 위에 있는지 확인한다.
-		CUI* pRobbyButton = (CUI*)FindObject(L"RobbyButton");
+		CUI* pLobbyButton = (CUI*)FindObject(L"LobbyButton");
 		CUI* pQuitButton = (CUI*)FindObject(L"QuitButton");
 
-		if (pRobbyButton->GetCollider()->PtInCollider(vMousePos)) {
+		if (pLobbyButton->GetCollider()->PtInCollider(vMousePos)) {
 			// 캐릭터 선택 화면으로 이동
 			ChangeScene(SCENE_TYPE::SELECT);
 

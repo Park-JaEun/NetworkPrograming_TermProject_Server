@@ -14,13 +14,10 @@
 #include "CCollider.h"
 #include "CPlayer.h"
 
-bool IsGameClear = false;
-bool IsGameOver = false;
-
 CCore::CCore() :
 	m_hWnd(nullptr), m_ptResolution{}, m_hDC(nullptr),
 	m_hBit(nullptr), m_memDC(nullptr), m_arrBrush{}, m_arrPen{}, 
-	m_sock{ INVALID_SOCKET }, m_bIsStart{ false }
+	m_sock{ INVALID_SOCKET }, m_bIsStart{ false }, m_bIsGameClear{ false }, m_bIsGameOver{ false }
 {
 	// 키 정보 초기화
 	for (int i = 0; i < (int)KEY::LAST; ++i) {
@@ -110,7 +107,7 @@ void CCore::TestSendKeyInput()
 	bool bAllKeyNone = true;
 	SOCKET sock = m_sock;
 
-	if (!IsGameClear && !IsGameOver) {
+	if (!m_bIsGameClear && !m_bIsGameOver) {
 		CS_KEYBOARD_INPUT_PACKET cs_p;
 		cs_p.type = static_cast<char>(CS_PACKET_TYPE::CS_KEYBOARD_INPUT);
 		cs_p.keyCount = 0;
@@ -562,14 +559,14 @@ void CCore::TestSendKeyInput()
 		if (buf[0] == static_cast<char>(SC_PACKET_TYPE::SC_GAME_CLEAR)) {
 			// 게임 클리어
 			ChangeScene(SCENE_TYPE::CLEAR);
-			IsGameClear = true;
-			IsGameOver = false;
+			m_bIsGameClear = true;
+			m_bIsGameOver = false;
 		}
 		else if (buf[0] == static_cast<char>(SC_PACKET_TYPE::SC_GAME_OVER)) {
 			// 게임 오버
 			ChangeScene(SCENE_TYPE::GAMEOVER);
-			IsGameOver = true;
-			IsGameClear = false;
+			m_bIsGameOver = true;
+			m_bIsGameClear = false;
 		}
 	}
 }

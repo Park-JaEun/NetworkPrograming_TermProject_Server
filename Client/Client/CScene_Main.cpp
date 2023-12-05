@@ -52,7 +52,7 @@ void CScene_Main::Enter()
 	CObject* pBossObj = new CBoss;
 
 	pBossObj->SetName(L"Boss");
-	pBossObj->SetPos(Vec2(5250.f, 360.f));
+	pBossObj->SetPos(Vec2(5250.f, 380.f));
 
 	// 충돌체, 애니메이터 생성
 	pBossObj->CreateCollider();
@@ -373,10 +373,11 @@ void CScene_Main::Enter()
 
 	if (initPacket->type == static_cast<char>(SC_PACKET_TYPE::SC_GAME_START)) {
 		CCore::GetInst()->SetStart();
+		CCore::GetInst()->SetGameClear(false);
+		CCore::GetInst()->SetGameOver(false);
 		std::cout << "게임 시작 패킷 수신" << std::endl;
 	}
 	else {
-		std::cout << "게임 시작 패킷 수신 오류: Packet Type이" << initPacket->type << "입니다." << std::endl;
 		closesocket(sock);
 		WSACleanup();
 		return;

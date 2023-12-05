@@ -103,7 +103,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			std::lock_guard<std::mutex> lock{ g_mutex };
 			((CPlayer*)pCharacter)->SetType(pSelectPacket->character);
 			((CPlayer*)pCharacter)->SetName(L"Player" + std::to_wstring(player.id));
-			((CPlayer*)pCharacter)->SetPos(Vec2(0.f, 0.f));
+			((CPlayer*)pCharacter)->SetPos(Vec2(5060.f, 0.f));
 			((CPlayer*)pCharacter)->SetDir(DIR_RIGHT);
 			((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
 			((CPlayer*)pCharacter)->CreateCollider();
@@ -242,13 +242,14 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 		std::cout << "플레이어들에게 게임 시작 신호 패킷 전송" << std::endl;
 
 		while (1) {
-			//Sleep(100 / 60);	// 600fps
-
 			// - std::this_thread::sleep_for
 			// : 현재 스레드를 지정된 시간 동안 잠재움
 			// : Sleep과 다른 점은	Sleep은 현재 스레드를 잠재움, 
 			// : std::this_thread::sleep_for은 현재 스레드를 잠재우고 다른 스레드를 실행시킴
+
+			// 지연시간에 따라서 sleep 시간을 조절하여 프레임을 조절
 			std::this_thread::sleep_for(std::chrono::milliseconds(100 / 60));
+
 			// 버퍼 비우기
 			memset(buf, 0, BUFSIZE);
 
@@ -556,7 +557,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 						bossPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BOSS);
 						size = sizeof(SC_BOSS_PACKET);
 
-						bossPacket.bossPos = Vec2(5250.f, 360.f);
+						bossPacket.bossPos = Vec2(5250.f, 380.f);
 						bossPacket.bossState = BOSS_STATE::NOT_APPEAR;
 						bossPacket.bossIsDead = false;
 
@@ -808,7 +809,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			// 게임 클리어 상태면 게임 클리어 패킷 전송
 			if (IsGameClear && !isGameOver) {
 				
-				bool isRobby = false;
+				bool isLobby = false;
 
 				SC_GAME_CLEAR_PACKET clearPacket;
 				clearPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_CLEAR);
@@ -863,29 +864,33 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 						return 0;
 
 					if (buf[0] == static_cast<char>(CS_PACKET_TYPE::CS_SELECT_LOBBY)) {
-						isRobby = true;
+						isLobby = true;
 						IsExit = false;
 						break;
 					}
 
 					if (buf[0] == static_cast<char>(CS_PACKET_TYPE::CS_SELECT_EXIT)) {
 						IsExit = true;
-						isRobby = false;
+						isLobby = false;
 						break;
 					}
 				}
 
 				// 로비로 돌아가면 클라이언트 레디 상태 false로 변경
-				if (isRobby) {
+				if (isLobby) {
 					std::lock_guard<std::mutex> lock{ g_mutex };
 					ClientInfo[player.id].isReady = false;
+
 					// bool 변수들 초기화
-					isGameOver = false;
+					isGameOver	= false;
 					IsGameClear = false;
-					isBoss = false;
-					isAllReady = false;
+					isBoss		= false;
+					isAllReady	= false;
 
 					// 게임 초기화
+					CObjectMgr::GetInst()->DeleteAll();
+					CObjectMgr::GetInst()->DeleteDeadObject();
+					CCollisionMgr::GetInst()->Reset();
 					init();
 					break;
 				}
