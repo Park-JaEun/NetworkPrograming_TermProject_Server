@@ -15,6 +15,7 @@ private:
     float           m_fSpeed;           // 스피드 
     float           m_fDieTime;         // 죽은 시간
     float           m_fResurrectTime;   // 부활 시간
+    float 	        m_fImmortalTime;    // 무적 시간
     bool            m_bDir;             // 방향
     bool			m_bIsGameOver;      // 게임오버 유무
     PLAYER_STATE    m_eState;           // 상태
@@ -43,6 +44,9 @@ public:
     void SetIsGameOver(bool isGameOver)         { m_bIsGameOver = isGameOver; }
     void SetDieTime(float dieTime)              { m_fDieTime = dieTime; }
     void SetResurrectTime(float resurrectTime)  { m_fResurrectTime = resurrectTime; }
+    void SetBunnyCount(int bunnyCount)          { m_iBunnyCount = bunnyCount; }
+    void SetCookieCount(int cookieCount)        { m_iCookieCount = cookieCount; }
+    void SetKillCount(int killCount)            { m_iKillCount = killCount; }
 
     void PlusBunnyCount()   { ++m_iBunnyCount; }
     void PlusCookieCount()  { ++m_iCookieCount; }

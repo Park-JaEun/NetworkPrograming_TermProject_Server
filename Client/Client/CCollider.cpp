@@ -41,23 +41,23 @@ void CCollider::finalUpdate()
 
 void CCollider::render(HDC _dc)
 {
-	PEN_TYPE ePen = PEN_TYPE::GREEN;
-	BRUSH_TYPE eBrush = BRUSH_TYPE::HOLLOW;
+	//PEN_TYPE ePen = PEN_TYPE::GREEN;
+	//BRUSH_TYPE eBrush = BRUSH_TYPE::HOLLOW;
 
-	if(m_iCol)
-		ePen = PEN_TYPE::RED;
+	//if(m_iCol)
+	//	ePen = PEN_TYPE::RED;
 
-	SelectGDI _selectPen(_dc, ePen);
-	SelectGDI _selectbrush(_dc, eBrush);
+	//SelectGDI _selectPen(_dc, ePen);
+	//SelectGDI _selectbrush(_dc, eBrush);
 
-	// ·»´õ¸µ ÁÂÇ¥·Î º¯È¯
-	Vec2 vRenderPos = CCamera::GetInst()->GetRenderPos(m_vFinalPos);
+	//// ·»´õ¸µ ÁÂÇ¥·Î º¯È¯
+	//Vec2 vRenderPos = CCamera::GetInst()->GetRenderPos(m_vFinalPos);
 
-	Rectangle(_dc,
-		(int)(vRenderPos.x - m_vScale.x / 2.f),
-		(int)(vRenderPos.y - m_vScale.y / 2.f),
-		(int)(vRenderPos.x + m_vScale.x / 2.f),
-		(int)(vRenderPos.y + m_vScale.y / 2.f));
+	//Rectangle(_dc,
+	//	(int)(vRenderPos.x - m_vScale.x / 2.f),
+	//	(int)(vRenderPos.y - m_vScale.y / 2.f),
+	//	(int)(vRenderPos.x + m_vScale.x / 2.f),
+	//	(int)(vRenderPos.y + m_vScale.y / 2.f));
 }
 
 bool CCollider::PtInCollider(Vec2 vPos)

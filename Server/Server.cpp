@@ -103,11 +103,19 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			std::lock_guard<std::mutex> lock{ g_mutex };
 			((CPlayer*)pCharacter)->SetType(pSelectPacket->character);
 			((CPlayer*)pCharacter)->SetName(L"Player" + std::to_wstring(player.id));
-			((CPlayer*)pCharacter)->SetPos(Vec2(5060.f, 0.f));
+			((CPlayer*)pCharacter)->SetPos(Vec2(0.f, 0.f));
 			((CPlayer*)pCharacter)->SetDir(DIR_RIGHT);
 			((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
 			((CPlayer*)pCharacter)->CreateCollider();
 			((CPlayer*)pCharacter)->GetCollider()->SetScale(Vec2(31.f, 30.f));
+			((CPlayer*)pCharacter)->SetHP(5);
+			((CPlayer*)pCharacter)->SetLife(5);
+			((CPlayer*)pCharacter)->SetBunnyCount(0);
+			((CPlayer*)pCharacter)->SetCookieCount(0);
+			((CPlayer*)pCharacter)->SetKillCount(0);
+			((CPlayer*)pCharacter)->SetIsGameOver(false);
+			((CPlayer*)pCharacter)->SetDieTime(0.f);
+			((CPlayer*)pCharacter)->SetResurrectTime(0.f);
 
 			ClientInfo[player.id].isReady = true;	// 클라이언트 준비 상태 true로 변경
 			CObjectMgr::GetInst()->AddObject(pCharacter, GROUP_TYPE::PLAYER);	// 플레이어 객체 등록
@@ -376,10 +384,10 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 						((CPlayer*)pCharacter)->SetState(PLAYER_STATE::DIE);
 
 					// 1.5초뒤 아래로 추락
-					if (((CPlayer*)pCharacter)->GetDieTime() >= 1.5f && ((CPlayer*)pCharacter)->GetDieTime() <= 4.5)
-						((CPlayer*)pCharacter)->SetPos(Vec2(((CPlayer*)pCharacter)->GetPos().x, ((CPlayer*)pCharacter)->GetPos().y + DT * 50.f * 3));
+					if (((CPlayer*)pCharacter)->GetDieTime() >= 1.5f && ((CPlayer*)pCharacter)->GetDieTime() <= 4.5f)
+						((CPlayer*)pCharacter)->SetPos(Vec2(((CPlayer*)pCharacter)->GetPos().x, ((CPlayer*)pCharacter)->GetPos().y + deltaTime * 50.f * 3));
 					else
-						((CPlayer*)pCharacter)->SetDieTime(((CPlayer*)pCharacter)->GetDieTime() + DT);
+						((CPlayer*)pCharacter)->SetDieTime(((CPlayer*)pCharacter)->GetDieTime() + deltaTime);
 
 					// 아래로 추락했으면 3초후 부활
 					if (!((CPlayer*)pCharacter)->GetIsGameOver() && ((CPlayer*)pCharacter)->GetLife() >= 1 && ((CPlayer*)pCharacter)->GetResurrectTime() >= 3.0f && ((CPlayer*)pCharacter)->GetDieTime() >= 1.5f) {
@@ -400,7 +408,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 						}
 					}
 					else if (((CPlayer*)pCharacter)->GetDieTime() >= 1.5f) {
-						((CPlayer*)pCharacter)->SetResurrectTime(((CPlayer*)pCharacter)->GetResurrectTime() + DT);
+						((CPlayer*)pCharacter)->SetResurrectTime(((CPlayer*)pCharacter)->GetResurrectTime() + deltaTime);
 					}
 				}
 
@@ -880,6 +888,8 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				if (isLobby) {
 					std::lock_guard<std::mutex> lock{ g_mutex };
 					ClientInfo[player.id].isReady = false;
+					/*for (int i = 0; i < MAX_PLAYER; ++i)
+						ClientInfo[i].isReady = false;*/
 
 					// bool 변수들 초기화
 					isGameOver	= false;
@@ -901,6 +911,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			}
 			// 게임 오버 상태면 게임 오버 패킷 전송
 			else if (isGameOver && !IsGameClear) {
+				bool isLobby = false;
 				SC_GAME_OVER_PACKET overPacket;
 				overPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_GAME_OVER);
 				size = sizeof(SC_GAME_OVER_PACKET);
@@ -909,6 +920,57 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				retval = send(client_sock, reinterpret_cast<char*>(&overPacket), size, 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
+					break;
+				}
+
+				while (1) {
+					memset(buf, 0, BUFSIZE);
+
+					// 데이터 받기
+					retval = recv(client_sock, reinterpret_cast<char*>(&size), sizeof(size), MSG_WAITALL);
+					retval = recv(client_sock, buf, size, MSG_WAITALL);
+					if (retval == SOCKET_ERROR) {
+						err_display("recv()");
+						return 0;
+					}
+					else if (retval == 0)
+						return 0;
+
+					if (buf[0] == static_cast<char>(CS_PACKET_TYPE::CS_SELECT_LOBBY)) {
+						isLobby = true;
+						IsExit = false;
+						break;
+					}
+
+					if (buf[0] == static_cast<char>(CS_PACKET_TYPE::CS_SELECT_EXIT)) {
+						IsExit = true;
+						isLobby = false;
+						break;
+					}
+				}
+
+				// 로비로 돌아가면 클라이언트 레디 상태 false로 변경
+				if (isLobby) {
+					std::lock_guard<std::mutex> lock{ g_mutex };
+					ClientInfo[player.id].isReady = false;
+					/*for(int i = 0; i < MAX_PLAYER; ++i)
+						ClientInfo[i].isReady = false;*/
+
+					// bool 변수들 초기화
+					isGameOver = false;
+					IsGameClear = false;
+					isBoss = false;
+					isAllReady = false;
+
+					// 게임 초기화
+					CObjectMgr::GetInst()->DeleteAll();
+					CObjectMgr::GetInst()->DeleteDeadObject();
+					CCollisionMgr::GetInst()->Reset();
+					init();
+					break;
+				}
+				else if (IsExit) {
+					// 클라이언트 벡터에서 해당 클라이언트 정보 삭제
 					break;
 				}
 			}

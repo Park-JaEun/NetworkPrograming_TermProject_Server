@@ -10,7 +10,7 @@
 CPlayer::CPlayer() : m_bDir(DIR_RIGHT), m_eState(PLAYER_STATE::IDLE),
 					 m_fSpeed(300.f), m_iHP(3), m_iLife(3),
 					 m_fDieTime(0.f), m_fResurrectTime(0.f), m_bIsGameOver(false),
-					 m_iKillCount(0), m_iBunnyCount(0), m_iCookieCount(0)
+					 m_iKillCount(0), m_iBunnyCount(0), m_iCookieCount(0), m_fImmortalTime(2.f)
 {
 }
 
@@ -20,6 +20,7 @@ CPlayer::~CPlayer()
 
 void CPlayer::update()
 {
+	m_fImmortalTime -= DT;
 }
 
 void CPlayer::CreateBullet(int id, int bulletId)
@@ -58,13 +59,23 @@ void CPlayer::EnterCollision(CCollider* _pOther)
 	CObject* pOtherObj = _pOther->GetObj();
 
 	if (pOtherObj->GetName() == L"Monster Bullet") {
-		/*if (m_iHP > 0)
-			--m_iHP;*/
+		if (m_fImmortalTime < 0.f) {
+			if (m_iHP > 0) {
+				--m_iHP;
+				// 무적 시간 설정
+				m_fImmortalTime = 2.f;
+			}
+		}
 	}
 
 	if (pOtherObj->GetName() == L"Boss Bullet") {
-		/*if (m_iHP > 0)
-			--m_iHP;*/
+		if (m_fImmortalTime < 0.f) {
+			if (m_iHP > 0) {
+				--m_iHP;
+				// 무적 시간 설정
+				m_fImmortalTime = 2.f;
+			}
+		}
 	}
 }
 

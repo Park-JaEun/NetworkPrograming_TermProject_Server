@@ -8,7 +8,7 @@
 int monsterBulletId = 0;
 
 CMonster::CMonster() : m_fSpeed(50.f), m_vFirstPos{}, m_fMaxDistance(50.f), m_bDir(DIR_RIGHT), 
-					   m_iHP(3), m_eState(MONSTER_STATE::MOVE), m_fAttackCoolTime(0.f), m_fDieTime(0.f)
+					   m_iHP(1), m_eState(MONSTER_STATE::MOVE), m_fAttackCoolTime(0.f), m_fDieTime(0.f)
 {
 }
 
