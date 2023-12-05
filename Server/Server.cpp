@@ -15,6 +15,8 @@ int bulletId = 0;		// 투사체 id 초기값 0
 
 std::vector<PlayerInfo> ClientInfo;					// 클라이언트 정보 벡터
 void init();										// 초기화 함수
+bool isGameOver{ false };			// 게임 오버 여부
+bool IsGameClear{ false };			// 게임 클리어 여부
 
 // 함수를 사용하여 클라이언트 처리
 DWORD WINAPI ProcessClient(LPVOID arg)
@@ -29,8 +31,6 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 	bool isAllReady{ false };			// 모든 클라이언트가 준비 상태인지 확인		(캐릭터 선택 완료)
 	bool isAllInit{ false };			// 모든 클라이언트가 초기화 상태인지 확인	(스테이지 초기화 완료)
 	bool isBoss{ false };				// 보스 생성 여부
-	bool isGameOver{ false };			// 게임 오버 여부
-	bool IsGameClear{ false };			// 게임 클리어 여부
 	bool IsExit{ false };				// 클라이언트 종료 여부
 	CObject* pCharacter = new CPlayer;
 	auto lastInputTime = std::chrono::high_resolution_clock::now(); // 마지막 입력 시간
@@ -103,7 +103,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			std::lock_guard<std::mutex> lock{ g_mutex };
 			((CPlayer*)pCharacter)->SetType(pSelectPacket->character);
 			((CPlayer*)pCharacter)->SetName(L"Player" + std::to_wstring(player.id));
-			((CPlayer*)pCharacter)->SetPos(Vec2(5000.f, 0.f));
+			((CPlayer*)pCharacter)->SetPos(Vec2(5060.f, 0.f));
 			((CPlayer*)pCharacter)->SetDir(DIR_RIGHT);
 			((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
 			((CPlayer*)pCharacter)->CreateCollider();
@@ -735,25 +735,67 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			}
 
 			// 보스 투사체 정보 송신
-			{
-				std::lock_guard<std::mutex> lock{ g_mutex };
-				const std::vector<CObject*>& vecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_BOSS);
+			//{
+			//	std::lock_guard<std::mutex> lock{ g_mutex };
+			//	const std::vector<CObject*>& vecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_BOSS);
 
-				SC_BULLET_PACKET bulletPacket;
-				bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
-				size = sizeof(SC_BULLET_PACKET);
+			//	SC_BULLET_PACKET bulletPacket;
+			//	bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
+			//	size = sizeof(SC_BULLET_PACKET);
+
+			//	// 클라이언트에게 보스 투사체 수 전송
+			//	int bulletCount = vecBullet.size();
+			//	retval = send(client_sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), 0);
+			//	if (retval == SOCKET_ERROR) {
+			//		err_display("send()");
+			//		break;
+			//	}
+
+			//	if (bulletCount != 0) {
+			//		// 클라이언트에게 보스 투사체 정보 보내기
+			//		for (CObject* pBullet : vecBullet) {
+			//			bulletPacket.playerID = ((CBullet*)pBullet)->GetPlayerID();
+			//			bulletPacket.bulletID = ((CBullet*)pBullet)->GetID();
+			//			bulletPacket.bulletPos = ((CBullet*)pBullet)->GetPos();
+			//			bulletPacket.bulletIsDead = ((CBullet*)pBullet)->IsDead();
+			//			bulletPacket.bulletDir = ((CBullet*)pBullet)->GetDir();
+			//			bulletPacket.bulletDegree = ((CBullet*)pBullet)->GetDegree();
+
+			//			retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
+			//			retval = send(client_sock, reinterpret_cast<char*>(&bulletPacket), size, 0);
+			//			if (retval == SOCKET_ERROR) {
+			//				err_display("send()");
+			//				break;
+			//			}
+			//		}
+			//	}
+			//}
+
+			// 보스 투사체 정보 송신
+			{
+				std::vector<CObject*> copiedVecBullet;
+
+				// 락을 사용하여 공유 자원에 대한 접근을 동기화
+				{
+					std::lock_guard<std::mutex> lock{ g_mutex };
+					copiedVecBullet = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::BULLET_BOSS); // 공유 자원 복사
+				}
 
 				// 클라이언트에게 보스 투사체 수 전송
-				int bulletCount = vecBullet.size();
+				int bulletCount = copiedVecBullet.size();
 				retval = send(client_sock, reinterpret_cast<char*>(&bulletCount), sizeof(bulletCount), 0);
 				if (retval == SOCKET_ERROR) {
 					err_display("send()");
-					break;
+					break; // 적절한 에러 처리
 				}
 
 				if (bulletCount != 0) {
 					// 클라이언트에게 보스 투사체 정보 보내기
-					for (CObject* pBullet : vecBullet) {
+					for (CObject* pBullet : copiedVecBullet) {
+						SC_BULLET_PACKET bulletPacket;
+						bulletPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_BULLET);
+						size = sizeof(SC_BULLET_PACKET);
+
 						bulletPacket.playerID = ((CBullet*)pBullet)->GetPlayerID();
 						bulletPacket.bulletID = ((CBullet*)pBullet)->GetID();
 						bulletPacket.bulletPos = ((CBullet*)pBullet)->GetPos();
@@ -773,6 +815,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 			// 게임 클리어 상태면 게임 클리어 패킷 전송
 			if (IsGameClear && !isGameOver) {
+				
 				bool isRobby = false;
 
 				SC_GAME_CLEAR_PACKET clearPacket;
@@ -785,6 +828,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 					err_display("send()");
 					break;
 				}
+				std::cout << player.id << "번 플레이어 게임 클리어 패킷 전송" << std::endl;
 
 				SC_RANK_PACKET rankPacket;
 				rankPacket.type = static_cast<char>(SC_PACKET_TYPE::SC_RANK);
