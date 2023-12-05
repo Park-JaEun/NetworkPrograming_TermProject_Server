@@ -98,7 +98,6 @@ void CScene_Clear::Enter()
 void CScene_Clear::Exit()
 {
 	DeleteAll();
-	m_bClearAniEnd = false;
 }
 
 void CScene_Clear::render(HDC _dc)
