@@ -28,7 +28,7 @@ void CScene_Start::Enter()
 	CSoundMgr::GetInst()->init();
 	CResourceMgr::GetInst()->LoadSound(L"BGM_01", L"sound\\NewJeans.wav");
 	CSound* pSound = CResourceMgr::GetInst()->FindSound(L"BGM_01");
-	pSound->PlayToBGM();
+	//pSound->PlayToBGM();
 
 	///////////////////////
 	// Background Object //
