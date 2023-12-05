@@ -128,9 +128,10 @@ struct SC_COOKIE_ITEM_PACKET {
 
 // 게임 클리어 후, 플레이어들의 순위 정보 수신 관련 패킷
 struct SC_RANK_PACKET {
-	char type;						// 패킷 타입
-	int id[MAX_PLAYER];				// 플레이어 id
-	int score[MAX_PLAYER];			// 플레이어 score0
+	char type;								// 패킷 타입
+	int id[MAX_PLAYER];						// 플레이어 id
+	int score[MAX_PLAYER];					// 플레이어 score0
+	CHARACTER_TYPE character[MAX_PLAYER];	// 플레이어 캐릭터 (2023. 12. 04 수정)
 };
 #pragma pack(pop) // 정렬 설정을 이전 상태(기본값)로 되돌림
 

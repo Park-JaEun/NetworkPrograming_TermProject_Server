@@ -28,7 +28,6 @@ CPlayer::CPlayer() : m_bDir(DIR_RIGHT), m_eState(PLAYER_STATE::IDLE),
 
 CPlayer::~CPlayer()
 {
-
 }
 
 void CPlayer::update()

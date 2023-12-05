@@ -4,6 +4,8 @@
 #include "CMonster.h"
 #include "CCollider.h"
 #include "CEventMgr.h"
+#include "CObjectMgr.h"
+
 
 void CreateObject(CObject* _pObj, GROUP_TYPE _eGroup)
 {
