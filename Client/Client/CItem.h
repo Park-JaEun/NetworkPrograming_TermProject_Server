@@ -25,6 +25,7 @@ public:
     void SetType(ITEM_TYPE _eType) { m_eType = _eType; }
 
     void PredictItemPos();
+    void InterpolatePos();
 
 public:
     void OnCollision(CCollider* _pOther) override;

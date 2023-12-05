@@ -36,6 +36,7 @@ private:
     bool IsInSight(Vec2 _vPos, float _fDistance, const std::wstring& _strName);
 
     void PredictMonsterPos();
+    void InterpolatePos();
 
 public:
     void OnCollision(CCollider* _pOther) override;

@@ -5,6 +5,7 @@
 #include "CScene_Select.h"
 #include "CScene_Start.h"
 #include "CScene_Clear.h"
+#include "CScene_Gameover.h"
 
 CSceneMgr::CSceneMgr() : m_arrScene{}, m_pCurScene(nullptr)
 {
@@ -63,8 +64,8 @@ void CSceneMgr::init()
 	m_arrScene[(UINT)SCENE_TYPE::CLEAR]->SetName(L"Clear Scene");
 
 	// GameOver Scene
-	/*m_arrScene[(UINT)SCENE_TYPE::GAMEOVER] = new CScene_GameOver;
-	m_arrScene[(UINT)SCENE_TYPE::GAMEOVER]->SetName(L"GameOver Scene");*/
+	m_arrScene[(UINT)SCENE_TYPE::GAMEOVER] = new CScene_Gameover;
+	m_arrScene[(UINT)SCENE_TYPE::GAMEOVER]->SetName(L"GameOver Scene");
 
 	// 처음 씬 지정
 	m_pCurScene = m_arrScene[(UINT)SCENE_TYPE::START];

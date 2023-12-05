@@ -239,6 +239,9 @@
     <ClInclude Include="CScene_Clear.h">
       <Filter>Engine\05. Scene\Scene_Clear</Filter>
     </ClInclude>
+    <ClInclude Include="CScene_Gameover.h">
+      <Filter>Engine\05. Scene\Scene_Gameover</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -345,6 +348,9 @@
     </ClCompile>
     <ClCompile Include="CScene_Clear.cpp">
       <Filter>Engine\05. Scene\Scene_Clear</Filter>
+    </ClCompile>
+    <ClCompile Include="CScene_Gameover.cpp">
+      <Filter>Engine\05. Scene\Scene_Gameover</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

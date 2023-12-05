@@ -30,6 +30,7 @@ CBoss::~CBoss()
 void CBoss::update()
 {
 	PredictBossPos();	// 예측
+	InterpolatePos();	// 보간
 
 	switch (m_eState)
 	{
@@ -134,28 +135,37 @@ void CBoss::PredictBossPos()
 {
 	// 마지막 방향을 사용하여 보스의 위치 예측
 	Vec2 vPos = GetPos();
-
-	// 전 x좌표보다 현재 x좌표가 더 크다면
-	if (vPos.x > m_vPrevPos.x)
-	{
-		vPos.x += m_fSpeed * DT;
-	}
-	else if (vPos.x < m_vPrevPos.x)
-	{
-		vPos.x -= m_fSpeed * DT;
-	}
+	float fInterforate = 0.5f;
 
 	// 전 y좌표보다 현재 y좌표가 더 크다면
 	if (vPos.y > m_vPrevPos.y)
 	{
-		vPos.y += m_fSpeed * DT;
+		vPos.y += (m_fSpeed / fInterforate) * DT;
 	}
 	else if (vPos.y < m_vPrevPos.y)
 	{
-		vPos.y -= m_fSpeed * DT;
+		vPos.y -= (m_fSpeed / fInterforate) * DT;
 	}
 
 	SetPos(vPos);
+}
+
+void CBoss::InterpolatePos()
+{
+	// 보간 로직
+	// 이전 포지션과 현재 포지션 상태 사이를 보간
+	Vec2 vPos = GetPos();
+	Vec2 vPrevPos = m_vPrevPos;
+	Vec2 interpolatePos{};
+
+	// 보간 정도
+	// 0 ~ 1 사이의 값
+	float fInterpolate = 0.5f;
+
+	interpolatePos.x = LerpX(vPrevPos.x, vPos.x, fInterpolate);
+	interpolatePos.y = LerpY(vPrevPos.y, vPos.y, fInterpolate);
+
+	SetPos(interpolatePos);
 }
 
 void CBoss::CreateFanBullet()

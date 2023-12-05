@@ -336,26 +336,27 @@ void CBullet::PredictBulletPos()
 {
 	// 마지막 방향을 사용하여 투사체의 위치 예측
 	Vec2 vPos = GetPos();
+	float fInterforate = 10.f;
 
 	// 전 x좌표보다 현재 x좌표가 더 크다면
 	if ((int)vPos.x > (int)m_vPrevPos.x)
 	{
-		vPos.x += m_fSpeed * DT;
+		vPos.x += (m_fSpeed / fInterforate) * DT;
 	}
 	else if ((int)vPos.x < (int)m_vPrevPos.x)
 	{
-		vPos.x -= m_fSpeed * DT;
+		vPos.x -= (m_fSpeed / fInterforate) * DT;
 	}
 
 	// 전 y좌표보다 현재 y좌표가 더 크다면
 	if ((int)vPos.y != (int)m_vPrevPos.y) {
 		if ((int)vPos.y > (int)m_vPrevPos.y)
 		{
-			vPos.y += m_fSpeed * DT;
+			vPos.y += (m_fSpeed / fInterforate) * DT;
 		}
 		else if ((int)vPos.y < (int)m_vPrevPos.y)
 		{
-			vPos.y -= m_fSpeed * DT;
+			vPos.y -= (m_fSpeed / fInterforate) * DT;
 		}
 	}
 
@@ -364,13 +365,18 @@ void CBullet::PredictBulletPos()
 
 void CBullet::InterpolatePos()
 {
+	// 보간 로직
+	// 이전 포지션과 현재 포지션 상태 사이를 보간
 	Vec2 vPos = GetPos();
 	Vec2 vPrevPos = m_vPrevPos;
-
 	Vec2 interpolatePos{};
 
-	interpolatePos.x = LerpX(vPrevPos.x, vPos.x, DT * 10.f);
-	interpolatePos.y = LerpY(vPrevPos.y, vPos.y, DT * 10.f);
+	// 보간 정도
+	// 0 ~ 1 사이의 값
+	float fInterpolate = 0.5f;
+
+	interpolatePos.x = LerpX(vPrevPos.x, vPos.x, fInterpolate);
+	interpolatePos.y = LerpY(vPrevPos.y, vPos.y, fInterpolate);
 
 	SetPos(interpolatePos);
 }

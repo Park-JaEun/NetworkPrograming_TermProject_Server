@@ -851,20 +851,23 @@ void CPlayer::PredictPlayerPos()
 {
 	// 마지막 방향을 사용하여 플레이어의 위치 예측
 	Vec2 vPos = GetPos();
+	
+	// 보간을 조절하기 위한 변수
+	float fInterpolate = 10.f;
 
 	if(m_bPrevDir == DIR_LEFT)
-		vPos.x -= m_fSpeed * DT;
+		vPos.x -= (m_fSpeed / fInterpolate) * DT;
 	else if(m_bPrevDir == DIR_RIGHT)
-		vPos.x += m_fSpeed * DT;
+		vPos.x += (m_fSpeed / fInterpolate) * DT;
 
 	// 전 y좌표보다 현재 y좌표가 더 크다면
 	if (vPos.y > m_vPrevPos.y)
 	{
-		vPos.y += m_fSpeed * DT;
+		vPos.y += (m_fSpeed / fInterpolate) * DT;
 	}
 	else if (vPos.y < m_vPrevPos.y)
 	{
-		vPos.y -= m_fSpeed * DT;
+		vPos.y -= (m_fSpeed / fInterpolate) * DT;
 	}
 
 	SetPos(vPos);
@@ -876,11 +879,14 @@ void CPlayer::InterpolatePos()
 	// 이전 포지션과 현재 포지션 상태 사이를 보간
 	Vec2 vPos = GetPos();
 	Vec2 vPrevPos = GetPrevPos();
-
 	Vec2 interpolatePos{};
 
-	interpolatePos.x = LerpX(vPrevPos.x, vPos.x, DT * 10.f);
-	interpolatePos.y = LerpY(vPrevPos.y, vPos.y, DT * 10.f);
+	// 보간 정도
+	// 0 ~ 1 사이의 값
+	float fInterpolate = 0.5f;
+
+	interpolatePos.x = LerpX(vPrevPos.x, vPos.x, fInterpolate);
+	interpolatePos.y = LerpY(vPrevPos.y, vPos.y, fInterpolate);
 
 	SetPos(interpolatePos);
 }

@@ -142,6 +142,21 @@ void CBackground::render(HDC _dc)
 								RGB(255, 0, 255));
 		}
 	}
+	else if (GetName() == L"Gameover") {
+		CTexture* pTexture = CResourceMgr::GetInst()->LoadTexture(L"Gameover Texture", L"texture\\background\\gameover.bmp");
+
+		TransparentBlt(_dc,
+			0,
+			0,
+			(int)GetScale().x,
+			(int)GetScale().y,
+			pTexture->GetDC(),
+			0,
+			0,
+			1024,
+			760,
+			RGB(255, 0, 255));
+	}
 }
 
 void CBackground::CreateAnimator()

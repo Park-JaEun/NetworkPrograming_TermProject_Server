@@ -103,7 +103,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 			std::lock_guard<std::mutex> lock{ g_mutex };
 			((CPlayer*)pCharacter)->SetType(pSelectPacket->character);
 			((CPlayer*)pCharacter)->SetName(L"Player" + std::to_wstring(player.id));
-			((CPlayer*)pCharacter)->SetPos(Vec2(5060.f, 0.f));
+			((CPlayer*)pCharacter)->SetPos(Vec2(0.f, 0.f));
 			((CPlayer*)pCharacter)->SetDir(DIR_RIGHT);
 			((CPlayer*)pCharacter)->SetState(PLAYER_STATE::IDLE);
 			((CPlayer*)pCharacter)->CreateCollider();
@@ -475,7 +475,7 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 				}
 			}
 
-			// 몬스터 정보 송신
+			// 몬스터 정보 송신0
 			{
 				std::lock_guard<std::mutex> lock{ g_mutex };
 				const std::vector<CObject*>& vecMonster = CObjectMgr::GetInst()->GetGroupObject(GROUP_TYPE::MONSTER);
@@ -494,10 +494,10 @@ DWORD WINAPI ProcessClient(LPVOID arg)
 
 				// 몬스터 정보 보내기
 				for (CObject* pMonster : vecMonster) {
-					monsterPacket.monsterID = ((CMonster*)pMonster)->GetID();
-					monsterPacket.monsterPos = pMonster->GetPos();
-					monsterPacket.monsterState = ((CMonster*)pMonster)->GetState();
-					monsterPacket.monsterDir = ((CMonster*)pMonster)->GetDir();
+					monsterPacket.monsterID		= ((CMonster*)pMonster)->GetID();
+					monsterPacket.monsterPos	= pMonster->GetPos();
+					monsterPacket.monsterState	= ((CMonster*)pMonster)->GetState();
+					monsterPacket.monsterDir	= ((CMonster*)pMonster)->GetDir();
 					monsterPacket.monsterIsDead = pMonster->IsDead();
 
 					retval = send(client_sock, reinterpret_cast<char*>(&size), sizeof(size), 0);
