@@ -33,3 +33,27 @@ void err_display(const char* msg);
 // 포지션 보간 함수
 float LerpX(float start, float end, float alpha);
 float LerpY(float start, float end, float alpha);
+
+
+// send / recv
+void setId(HWND hEditNickname, HWND hEditIP);	// 플레이어 ID를 설정하는 함수 
+
+// send
+void sendKeyBoardInput(SOCKET sock);		// 키 입력 정보 전송
+void sendLobbySignal(SOCKET sock);			// 서버에게 로비 신호를 송신하는 함수
+void sendExitSignal(SOCKET sock);			// 서버에게 종료 신호를 송신하는 함수
+void sendInitFinishSignal(SOCKET sock);		// 서버에게 초기화 완료 신호를 송신하는 함수
+void sendSelectCharacter(SOCKET sock);		//서버에게 캐릭터 선택 정보를 송신하는 함수 
+
+// recv
+bool recvInitSignal(SOCKET sock);			// 서버로부터 초기화 신호를 수신하는 함수
+void recvPlayerInfo(SOCKET sock);			// 플레이어 정보 받기
+void recvMonsterInfo(SOCKET sock);			// 몬스터 정보 받기
+void recvBossInfo(SOCKET sock);				// 보스 정보 받기
+void recvRabbitItemInfo(SOCKET sock);		// 토끼 아이템 정보 받기
+void recvCookieInfo(SOCKET sock);			// 쿠키 정보 받기
+void recvPlayerBulletInfo(SOCKET sock);		// 플레이어 투사체 정보 받기
+void recvMonsterBulletInfo(SOCKET sock);	// 몬스터 투사체 정보 받기
+void recvBossBulletInfo(SOCKET sock);		// 보스 투사체 정보 받기
+void recvGameStateSignal(SOCKET sock);		// 게임 상태 패킷 받기
+void recvRankInfo(SOCKET sock);				// 랭킹 정보 받기

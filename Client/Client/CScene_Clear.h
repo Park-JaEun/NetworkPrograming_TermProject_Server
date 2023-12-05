@@ -10,6 +10,7 @@ public:
 	const bool GetClearAniEnd() { return m_bClearAniEnd; }
 
 	void SetClearAniEnd() { m_bClearAniEnd = true; }
+	void SetScore(int index, int score) { m_iScore[index] = score; }
 
 	void update() override;
 	void Enter() override;

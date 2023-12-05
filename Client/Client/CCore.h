@@ -28,8 +28,7 @@ private:
 public:
 	int init(HWND _hWnd, POINT _ptResolution);
 	void CreateBrushPen();
-	void CommunicationToServer();
-	void TestSendKeyInput();
+	void Comunication();
 	void progress();
 
 public:
@@ -51,10 +50,6 @@ public:
 	void SetGameClear(bool _bIsClear)	{ m_bIsGameClear = _bIsClear; }
 	void SetGameOver(bool _bIsOver)		{ m_bIsGameOver = _bIsOver; }
 
-	CS_KEYBOARD_INPUT_PACKET GetKey(int i) {	// 키 상태 가져오기
-			return m_inputkey[i];
-	}
-	void SetKey(int i, KEY_STATE key_state) { 
-		m_inputkey[i].inputs->key_state = key_state;	// 키 상태 설정
-	}
+	CS_KEYBOARD_INPUT_PACKET GetKey(int i)	{ return m_inputkey[i]; }	// 키 상태 가져오기
+	void SetKey(int i, KEY_STATE key_state) { m_inputkey[i].inputs->key_state = key_state; }	// 키 상태 설정
 };
