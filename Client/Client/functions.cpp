@@ -14,6 +14,8 @@
 #include "CScene.h"
 #include "CSceneMgr.h"
 #include "CScene_Select.h"
+#include "CScene_Clear.h"
+#include "CUI.h"
 
 void CreateObject(CObject* _pObj, GROUP_TYPE _eGroup)
 {
@@ -793,6 +795,85 @@ void recvGameStateSignal(SOCKET sock)
 	}
 }
 
+void recvRankInfo(SOCKET sock)
+{
+	int retval{};
+	int size{};
+	char buf[BUFSIZE]{};
+	
+	CScene* pCurScene = CSceneMgr::GetInst()->GetCurScene();
+
+	SC_RANK_PACKET* rankPacket = reinterpret_cast<SC_RANK_PACKET*>(buf);
+
+	// 스코어 정보 받기 
+	retval = recv(sock, (char*)&size, sizeof(int), MSG_WAITALL);
+	retval = recv(sock, buf, size, MSG_WAITALL);
+	if (retval == SOCKET_ERROR) {
+		err_display("recv()");
+		closesocket(CCore::GetInst()->GetSocket());
+		WSACleanup();
+		return;
+	}
+
+	for (int i = 0; i < MAX_PLAYER; ++i) {
+		CUI* pCharacterUI = new CUI;
+
+		switch (static_cast<CHARACTER_TYPE>(rankPacket->character[i]))
+		{
+		case CHARACTER_TYPE::MINJI:
+		{
+			pCharacterUI->SetName(L"Minji Score");
+			pCharacterUI->SetPos(Vec2(128.f + (128.f * i), 155.f));
+			pCharacterUI->SetScale(Vec2(110.f, 110.f));
+
+			pCharacterUI->CreateAnimator();
+		}
+		break;
+		case CHARACTER_TYPE::HANNIE:
+		{
+			pCharacterUI->SetName(L"Hannie Score");
+			pCharacterUI->SetPos(Vec2(128.f + (128.f * i), 155.f));
+			pCharacterUI->SetScale(Vec2(110.f, 110.f));
+
+			pCharacterUI->CreateAnimator();
+		}
+		break;
+		case CHARACTER_TYPE::DANIELLE:
+		{
+			pCharacterUI->SetName(L"Danielle Score");
+			pCharacterUI->SetPos(Vec2(128.f + (128.f * i), 155.f));
+			pCharacterUI->SetScale(Vec2(110.f, 110.f));
+
+			pCharacterUI->CreateAnimator();
+		}
+		break;
+		case CHARACTER_TYPE::HAERIN:
+		{
+			pCharacterUI->SetName(L"Haerin Score");
+			pCharacterUI->SetPos(Vec2(128.f + (128.f * i), 155.f));
+			pCharacterUI->SetScale(Vec2(110.f, 110.f));
+
+			pCharacterUI->CreateAnimator();
+		}
+		break;
+		case CHARACTER_TYPE::HYEIN:
+		{
+			pCharacterUI->SetName(L"Hyein Score");
+			pCharacterUI->SetPos(Vec2(128.f + (128.f * i), 155.f));
+			pCharacterUI->SetScale(Vec2(110.f, 110.f));
+
+			pCharacterUI->CreateAnimator();
+		}
+		break;
+		default:
+			break;
+		}
+
+		CreateObject(pCharacterUI, GROUP_TYPE::UI);
+		((CScene_Clear*)pCurScene)->SetScore(i, rankPacket->score[i]);
+	}
+}
+
 void sendInitFinishSignal(SOCKET sock)
 {
 	int retval;
@@ -860,10 +941,45 @@ void sendKeyBoardInput(SOCKET sock)
 
 void sendLobbySignal(SOCKET sock)
 {
+	int retval{};
+	int size{};
+	char buf[BUFSIZE]{};
 
+	// 로비 버튼 선택 패킷 전송
+	CS_SELECT_LOBBY_PACKET selectLobbyPacket;
+	selectLobbyPacket.type = static_cast<char>(CS_PACKET_TYPE::CS_SELECT_LOBBY);
+	selectLobbyPacket.id = CCore::GetInst()->GetID();
+	size = sizeof(CS_SELECT_LOBBY_PACKET);
+
+	retval = send(CCore::GetInst()->GetSocket(), reinterpret_cast<char*>(&size), sizeof(size), 0);
+	retval = send(CCore::GetInst()->GetSocket(), reinterpret_cast<char*>(&selectLobbyPacket), size, 0);
+	if (retval == SOCKET_ERROR) {
+		err_display("send()");
+		closesocket(CCore::GetInst()->GetSocket());
+		WSACleanup();
+		return;
+	}
 }
 
 void sendExitSignal(SOCKET sock)
 {
+	int retval{};
+	int size{};
+	char buf[BUFSIZE]{};
+
+	// 종료 버튼 선택 패킷 전송
+	CS_SELECT_EXIT_PACKET selectQuitPacket;
+	selectQuitPacket.type = static_cast<char>(CS_PACKET_TYPE::CS_SELECT_EXIT);
+	selectQuitPacket.id = CCore::GetInst()->GetID();
+	size = sizeof(CS_SELECT_EXIT_PACKET);
+
+	retval = send(CCore::GetInst()->GetSocket(), reinterpret_cast<char*>(&size), sizeof(size), 0);
+	retval = send(CCore::GetInst()->GetSocket(), reinterpret_cast<char*>(&selectQuitPacket), size, 0);
+	if (retval == SOCKET_ERROR) {
+		err_display("send()");
+		closesocket(CCore::GetInst()->GetSocket());
+		WSACleanup();
+		return;
+	}
 }
 

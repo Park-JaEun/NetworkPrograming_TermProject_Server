@@ -52,75 +52,8 @@ void CScene_Clear::Enter()
 	CreateObject(pRankingBoard, GROUP_TYPE::BACKGROUND);
 	///////////////////////
 
-	SC_RANK_PACKET* rankPacket = reinterpret_cast<SC_RANK_PACKET*>(buf);
-
-	// 스코어 정보 받기 
-	retval = recv(CCore::GetInst()->GetSocket(), (char*)&size, sizeof(int), MSG_WAITALL);
-	retval = recv(CCore::GetInst()->GetSocket(), buf, size, MSG_WAITALL);
-	if (retval == SOCKET_ERROR) {
-		err_display("recv()");
-		closesocket(CCore::GetInst()->GetSocket());
-		WSACleanup();
-		return;
-	}
-
-	for (int i = 0; i < MAX_PLAYER; ++i) {
-		CUI* pCharacterUI = new CUI;
-
-		switch (static_cast<CHARACTER_TYPE>(rankPacket->character[i]))
-		{
-		case CHARACTER_TYPE::MINJI: 
-		{
-			pCharacterUI->SetName(L"Minji Score");
-			pCharacterUI->SetPos(Vec2(128.f + (128.f * i), 155.f));
-			pCharacterUI->SetScale(Vec2(110.f, 110.f));
-
-			pCharacterUI->CreateAnimator();
-		}
-			break;
-		case CHARACTER_TYPE::HANNIE: 
-		{
-			pCharacterUI->SetName(L"Hannie Score");
-			pCharacterUI->SetPos(Vec2(128.f + (128.f * i), 155.f));
-			pCharacterUI->SetScale(Vec2(110.f, 110.f));
-
-			pCharacterUI->CreateAnimator();
-		}
-			break;
-		case CHARACTER_TYPE::DANIELLE:
-		{
-			pCharacterUI->SetName(L"Danielle Score");
-			pCharacterUI->SetPos(Vec2(128.f + (128.f * i), 155.f));
-			pCharacterUI->SetScale(Vec2(110.f, 110.f));
-
-			pCharacterUI->CreateAnimator();
-		}
-			break;
-		case CHARACTER_TYPE::HAERIN:
-		{
-			pCharacterUI->SetName(L"Haerin Score");
-			pCharacterUI->SetPos(Vec2(128.f + (128.f * i), 155.f));
-			pCharacterUI->SetScale(Vec2(110.f, 110.f));
-
-			pCharacterUI->CreateAnimator();
-		}
-			break;
-		case CHARACTER_TYPE::HYEIN:
-		{
-			pCharacterUI->SetName(L"Hyein Score");
-			pCharacterUI->SetPos(Vec2(128.f + (128.f * i), 155.f));
-			pCharacterUI->SetScale(Vec2(110.f, 110.f));
-
-			pCharacterUI->CreateAnimator();
-		}
-			break;
-		default:
-			break;
-		}
-
-		m_iScore[i] = rankPacket->score[i];
-		CreateObject(pCharacterUI, GROUP_TYPE::UI);
-	}
+	// Score 정보 받기
+	recvRankInfo(CCore::GetInst()->GetSocket());
 
 	// 왕관 UI
 	CUI* pCrownUI = new CUI;
@@ -198,42 +131,16 @@ void CScene_Clear::render(HDC _dc)
 		if (pLobbyButton->GetCollider()->PtInCollider(vMousePos)) {
 			// 캐릭터 선택 화면으로 이동
 			ChangeScene(SCENE_TYPE::SELECT);
-
-			// 로비 버튼 선택 패킷 전송
-			CS_SELECT_LOBBY_PACKET selectLobbyPacket;
-			selectLobbyPacket.type = static_cast<char>(CS_PACKET_TYPE::CS_SELECT_LOBBY);
-			selectLobbyPacket.id = CCore::GetInst()->GetID();
-			size = sizeof(CS_SELECT_LOBBY_PACKET);
-
-			retval = send(CCore::GetInst()->GetSocket(), reinterpret_cast<char*>(&size), sizeof(size), 0);
-			retval = send(CCore::GetInst()->GetSocket(), reinterpret_cast<char*>(&selectLobbyPacket), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				closesocket(CCore::GetInst()->GetSocket());
-				WSACleanup();
-				return;
-			}
+			// 로비 버튼 선택 패킷을 서버로 보낸다.
+			sendLobbySignal(CCore::GetInst()->GetSocket());
 
 			std::cout << "로비 버튼 선택 패킷 송신" << std::endl;
 		}
 
 		// 마우스가 ExitButton 위에 있는지 확인한다.
 		if (pQuitButton->GetCollider()->PtInCollider(vMousePos)) {
-			// 종료 버튼 선택 패킷 전송
-			CS_SELECT_EXIT_PACKET selectQuitPacket;
-			selectQuitPacket.type = static_cast<char>(CS_PACKET_TYPE::CS_SELECT_EXIT);
-			selectQuitPacket.id = CCore::GetInst()->GetID();
-			size = sizeof(CS_SELECT_EXIT_PACKET);
-
-			retval = send(CCore::GetInst()->GetSocket(), reinterpret_cast<char*>(&size), sizeof(size), 0);
-			retval = send(CCore::GetInst()->GetSocket(), reinterpret_cast<char*>(&selectQuitPacket), size, 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				closesocket(CCore::GetInst()->GetSocket());
-				WSACleanup();
-				return;
-			}
-
+			// 종료 패킷을 서버로 보낸다.
+			sendExitSignal(CCore::GetInst()->GetSocket());
 			std::cout << "종료 버튼 선택 패킷 송신" << std::endl;
 
 			// 프로그램 종료

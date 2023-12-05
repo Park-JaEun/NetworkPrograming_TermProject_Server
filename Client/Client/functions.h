@@ -56,3 +56,4 @@ void recvPlayerBulletInfo(SOCKET sock);		// 플레이어 투사체 정보 받기
 void recvMonsterBulletInfo(SOCKET sock);	// 몬스터 투사체 정보 받기
 void recvBossBulletInfo(SOCKET sock);		// 보스 투사체 정보 받기
 void recvGameStateSignal(SOCKET sock);		// 게임 상태 패킷 받기
+void recvRankInfo(SOCKET sock);				// 랭킹 정보 받기

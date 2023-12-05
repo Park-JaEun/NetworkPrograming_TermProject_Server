@@ -58,14 +58,12 @@ void CScene_Select::update()
 
 	if (KEY_TAP(KEY::SPACE)) {
 		
+		SOCKET sock = CCore::GetInst()->GetSocket();
 		char buf[BUFSIZE]{};
 		int retval{};
 		int size;
 		
-		SOCKET sock = CCore::GetInst()->GetSocket();
-
 		sendSelectCharacter(sock);
-
 		// 선택이 완료되면, 다른 클라이언트들이 선택을 완료할 때 까지 대기
 		// 이후, 모든 클라이언트가 선택을 완료하면, 서버로부터 초기화 신호를 받음
 		if (recvInitSignal(sock)) {
@@ -95,7 +93,6 @@ void CScene_Select::update()
 			break;
 		}
 	}
-
 	if (KEY_TAP(KEY::RIGHT) || KEY_TAP(KEY::UP)) {
 		switch (m_eSelectedCharacter)
 		{
